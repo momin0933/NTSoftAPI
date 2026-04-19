@@ -1,0 +1,6 @@
+@NTSoftMerchantAPI_HostAddress = http://localhost:5117
+
+GET {{NTSoftMerchantAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

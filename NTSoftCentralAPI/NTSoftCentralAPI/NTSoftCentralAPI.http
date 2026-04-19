@@ -1,0 +1,6 @@
+@NTSoftCentralAPI_HostAddress = http://localhost:5119
+
+GET {{NTSoftCentralAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
