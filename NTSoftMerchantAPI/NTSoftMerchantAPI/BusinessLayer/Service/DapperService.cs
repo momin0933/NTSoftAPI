@@ -1,0 +1,260 @@
+﻿using Dapper;
+using System;
+using System.Collections.Generic;
+using System.Configuration;
+using System.Data;
+using System.Data.SqlClient;
+using System.Linq;
+using System.Web;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Data.SqlClient;
+using Newtonsoft.Json;
+using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Http;
+using NTSoftMerchantAPI.BusinessLayer.TenantService;
+
+
+
+namespace NTSoftMerchantAPI.BusinessLayer.Service
+{
+    public class DapperService : IDapperService
+    {
+        private readonly string connectionString;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+       // SQLConnectionString _connectionStringService = new SQLConnectionString();
+        public DapperService(IHttpContextAccessor httpContextAccessor)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
+
+            if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
+            {
+                connectionString = tenant.ConnectionString;
+            }
+            //connectionString = _connectionStringService.GetConnectionString("default");
+
+        }
+
+        public virtual IEnumerable<T> GetAllByQuery<T>(string query) where T : class
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                var q = SqlConnection1.Query<T>(query).ToList();
+                dynamic collectionWrapper = new
+                {
+                    OEBuyerFactName = q
+                };
+                //serializer.MaxJsonLength = Int32.MaxValue;
+                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
+                //serializer.Serialize(collectionWrapper);
+                return q;
+            }
+        }
+        public virtual string GetStringByQuery(string query)
+        {
+
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                var q = SqlConnection1.QueryFirstOrDefault<string>(query);
+                //dynamic collectionWrapper = new
+                //{
+                //    OEBuyerFactName = q
+                //};
+                ////serializer.MaxJsonLength = Int32.MaxValue;
+                //string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
+                ////serializer.Serialize(collectionWrapper);
+
+                return q;
+            }
+        }
+
+        public IEnumerable<T> GetAllBySP<T>(string procedure, DynamicParameters p) where T : class
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+
+                SqlConnection1.Open();
+                //JsonSerializer jss = new JsonSerializer();
+                //jss.MaxJsonLength = Int32.MaxValue;
+                var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).ToList();
+                dynamic collectionWrapper = new
+                {
+                    OEBuyerFactName = q
+                };
+                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
+                return q;
+            }
+        }
+        public T GetByDynamicSPSingle<T>(string procedure, DynamicParameters p) where T : class
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+
+                SqlConnection1.Open();
+                var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).FirstOrDefault();
+                dynamic collectionWrapper = new
+                {
+                    OEBuyerFactName = q
+                };
+                //string output = JsonSerializer.Serialize(collectionWrapper);
+                string output = JsonConvert.SerializeObject(collectionWrapper);
+                return q;
+            }
+        }
+        public int Post(string query)
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                //JavaScriptSerializer serializer = new JavaScriptSerializer();
+                var q = SqlConnection1.Execute(query);
+                dynamic collectionWrapper = new
+                {
+                    OEBuyerFactName = q
+                };
+                //serializer.MaxJsonLength = Int32.MaxValue;               
+                string output = JsonConvert.SerializeObject(collectionWrapper);
+                return q;
+            }
+        }
+        public int PostBySP(string procedure, DynamicParameters p)
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                //JavaScriptSerializer serializer = new JavaScriptSerializer();
+                var q = SqlConnection1.Execute(procedure, p, commandType: CommandType.StoredProcedure);
+                //dynamic collectionWrapper = new
+                //{
+                //    OEBuyerFactName = q
+                //};
+                //serializer.MaxJsonLength = Int32.MaxValue;               
+                //string output = JsonConvert.SerializeObject(collectionWrapper);
+                return q;
+            }
+        }
+        public bool PostBulkInsert<T>(IEnumerable<T> items, string tableName)
+        {
+            //var connectionString = ConfigurationManager.ConnectionStrings["YourConnectionString"].ConnectionString;
+            bool IsDbSave = false;
+            try
+            {
+                using (var connection = new SqlConnection(connectionString))
+                {
+                    connection.Open();
+
+                    using (var bulkCopy = new SqlBulkCopy(connection))
+                    {
+                        bulkCopy.DestinationTableName = tableName;
+                        var table = new DataTable();
+
+                        var properties = typeof(T).GetProperties().Where(p => p.CanRead).ToArray();
+
+                        foreach (var prop in properties)
+                        {
+                            bulkCopy.ColumnMappings.Add(prop.Name, prop.Name);
+                            table.Columns.Add(prop.Name, Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType);
+                        }
+
+                        foreach (var item in items)
+                        {
+                            var row = table.NewRow();
+                            foreach (var prop in properties)
+                            {
+                                row[prop.Name] = prop.GetValue(item) ?? DBNull.Value;
+                            }
+                            table.Rows.Add(row);
+                        }
+
+                        bulkCopy.WriteToServer(table);
+                        IsDbSave = true;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                IsDbSave = false;
+            }
+            return IsDbSave;
+        }
+        public void GetByMultipleQueryResult(string query, out string ReqQty, out string ActQty)
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+
+                var q = SqlConnection1.QueryMultiple(query);
+                ReqQty = q.Read<string>().Single();
+                ActQty = q.Read<string>().Single();
+                //dynamic collectionWrapper = new
+                //{
+                //    OEBuyerFactName = q
+                //};
+                //serializer.MaxJsonLength = Int32.MaxValue;
+                //string output = serializer.Serialize(collectionWrapper);
+
+                // return q;
+            }
+        }
+        public int UpdateByQuery(string query)
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                var q = SqlConnection1.Query(query);
+                return 1;
+            }
+        }
+
+        public int UpdateByquery(string query1)
+        {
+            using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
+            {
+                SqlConnection1.Open();
+                var q = SqlConnection1.Query(query1);
+                return 2;
+            }
+        }
+
+        public async Task ExecuteAsync(string sql, object parameters = null)
+        {
+            using (var connection = new SqlConnection(connectionString)) // Use your actual connection string
+            {
+                await connection.OpenAsync();
+                await connection.ExecuteAsync(sql, parameters);
+            }
+        }
+
+        // use dapper advance service
+
+        public async Task<IEnumerable<dynamic>> CallProcedureAsync(string procedureName, DynamicParameters parameters)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var result = await connection.QueryAsync(
+                sql: procedureName,
+                param: parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return result;
+        }
+
+        public async Task<int> ExecuteProcedureNonQueryAsync(string procedureName, DynamicParameters parameters)
+        {
+            using var connection = new SqlConnection(connectionString);
+            await connection.OpenAsync();
+
+            var affectedRows = await connection.ExecuteAsync(
+                sql: procedureName,
+                param: parameters,
+                commandType: CommandType.StoredProcedure
+            );
+
+            return affectedRows;
+        }
+    }
+}
