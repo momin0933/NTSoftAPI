@@ -48,14 +48,22 @@ builder.Services.AddSwaggerGen();
 
 // dependency injection
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddScoped<NTSoftDbContextFactory>();
-builder.Services.AddTransient<DapperService>();
-builder.Services.AddMemoryCache(); // Singleton হিসেবে ব্যবহার করুন
+builder.Services.AddMemoryCache();
 
-//builder.Services.AddTransient<SQLConnectionString>();
-//builder.Services.AddScoped<SQLConnectionString>();
+// Factory
+builder.Services.AddScoped<NTSoftDbContextFactory>();
+
+// Dapper (IMPORTANT FIX)
+builder.Services.AddScoped<IDapperService, DapperService>();
+
+// Common service
+builder.Services.AddScoped<ICommonService, CommonService>();
+
+// Business services
 builder.Services.AddScoped<IUser, UserManager>();
 builder.Services.AddScoped<ITenantStore, TenantStore>();
+
+// Custom service
 builder.Services.AddScoped<CustomService>();
 
 

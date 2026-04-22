@@ -15,7 +15,7 @@ using System.Security.Claims;
 using System.Text;
 
 
-namespace FTSoftAPI.Controllers
+namespace NTSoftCentralAPI.Controllers
 {
    
     [ApiController]
@@ -284,7 +284,7 @@ namespace FTSoftAPI.Controllers
             // SqlDataClass sqlData = new SqlDataClass();
             //var UserProjectList = _IDapperService.GetAllByQuery<VwUserDetails>(sqlData.GetUserInfo(UserLogin, UserPassword));
             string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
-            return   _IDapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();
+            return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();
             //return await _context.UserAccounts.Where(x => x.email == useremail && x.password == UserPassword).AsQueryable();
             
             //UserAccount user = new UserAccount();
@@ -297,14 +297,14 @@ namespace FTSoftAPI.Controllers
         private UserAccount GetUserByUserId(string userid)
         {          
             string Query = "select * from tbluserAccount WHERE UserId = '" + userid + "' ";
-            return _IDapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();           
+            return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();           
         }
         private EcomUser EcomGetUser(string userid, string UserPassword)
         {
 
 
             string Query = "select * from EcomtblCustomer WHERE Email = '" + userid + "' AND Password = '" + UserPassword + "' ";
-            return _IDapperService.GetAllByQuery<EcomUser>(Query).FirstOrDefault();
+            return _dapperService.GetAllByQuery<EcomUser>(Query).FirstOrDefault();
  ;
         }
     }

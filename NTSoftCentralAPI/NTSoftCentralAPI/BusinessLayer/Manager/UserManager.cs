@@ -11,7 +11,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Manager
         readonly NTSoftDbContextFactory _dbContext;
         private readonly IDapperService _IDapperService;
         ICommonService _ICommonService;
-        public UserManager(NTSoftDbContextFactory dbContext, DapperService dapperService)
+        public UserManager(NTSoftDbContextFactory dbContext, IDapperService dapperService)
         {
             _dbContext = dbContext;
             _IDapperService = dapperService;

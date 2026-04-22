@@ -20,7 +20,9 @@ namespace NTSoftCentralAPI.BusinessLayer.TenantService
         private readonly IDapperService _dapperService;
         private readonly ICommonService _commonService;
 
-        public TenantStore(IMemoryCache cache,NTSoftDbContextFactory factory,IDapperService dapperService,ICommonService commonService)
+        public  TenantStore(IMemoryCache cache, NTSoftDbContextFactory factory,
+    IDapperService dapperService,
+    ICommonService commonService)
         {
             _cache = cache;
             _factory = factory;
