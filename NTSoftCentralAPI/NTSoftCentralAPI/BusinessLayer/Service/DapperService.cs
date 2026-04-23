@@ -279,5 +279,11 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
             return affectedRows;
         }
+        public T GetSingle<T>(string query, object param)
+        {
+            var connectionString = _tenantProvider.GetConnectionString();
+            using var conn = new SqlConnection(connectionString);
+            return conn.QueryFirstOrDefault<T>(query, param);
+        }
     }
 }

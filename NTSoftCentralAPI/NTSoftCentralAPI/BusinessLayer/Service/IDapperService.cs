@@ -25,6 +25,8 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         Task<IEnumerable<dynamic>> CallProcedureAsync(string procedureName, DynamicParameters parameters);
         Task<int> ExecuteProcedureNonQueryAsync(string procedureName, DynamicParameters parameters);
+        T GetSingle<T>(string query, object param);
+        
 
     }
 }

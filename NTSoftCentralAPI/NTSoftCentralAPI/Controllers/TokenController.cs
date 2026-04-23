@@ -1,4 +1,5 @@
 ﻿using Azure.Core;
+using Dapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -45,24 +46,16 @@ namespace NTSoftCentralAPI.Controllers
 
             if (_userData != null && _userData.UserId != null && _userData.password != null)
             {
-                var sw = Stopwatch.StartNew();
+               
                 // 1. Validate user
                 var user = GetUser(_userData.UserId, _userData.password);
-                Console.WriteLine("User fetch: " + sw.ElapsedMilliseconds);
-                if (user == null)
-                {
-                    return Unauthorized(new
-                    {
-                        message = "Invalid UserId or Password"
-                    });
-                }
-
+               
                 // 2. Generate tokens
-                var accessToken =  _customService.GenerateToken(user);
-                Console.WriteLine("Token gen: " + sw.ElapsedMilliseconds);
+                var accessToken = _customService.GenerateToken(user);
+                
                 var refreshToken = _customService.GenerateRefreshToken();
-                Console.WriteLine("Token Refrsesh: " + sw.ElapsedMilliseconds);
-                // 3. Store refresh token in DB
+                //Console.WriteLine("Token Refrsesh: " + sw.ElapsedMilliseconds);
+                //// 3. Store refresh token in DB
                 var refreshTokenEntity = new RefreshToken
                 {
                     UserId = user.UserId,
@@ -71,13 +64,13 @@ namespace NTSoftCentralAPI.Controllers
                     IsRevoked = false
                 };
                 _commonService.Add(refreshTokenEntity);
-                Console.WriteLine("Insert: " + sw.ElapsedMilliseconds);
+                
                 return Ok(new
                 {
                     accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                     expiration = accessToken.ValidTo.ToLocalTime(),
                     refreshToken,
-                    userData = user
+                    //userData = user
                 });
 
                 //if (user != null)
@@ -168,7 +161,8 @@ namespace NTSoftCentralAPI.Controllers
                 IsRevoked = false
             };
 
-            _commonService.Add(refreshTokenEntity);
+           // _commonService.Add(refreshTokenEntity);
+            RefreshTokenAdd(refreshTokenEntity);
 
             // 🔥 Generate new access token
             var user = GetUserByUserId(storedToken.UserId);
@@ -291,22 +285,41 @@ namespace NTSoftCentralAPI.Controllers
             return user;
         }
         private UserAccount GetUser(string userid, string UserPassword)
+        {            
+            //string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
+            string query = "SELECT * FROM tblUserAccount WHERE UserId = @UserId";
+
+            var user = _dapperService.GetSingle<UserAccount>(query, new
+            {
+                UserId = userid
+            });
+            if (user == null || user.Password != UserPassword)
+            {
+                return null;
+            }
+            return user;
+            // return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();            
+        }
+        private int RefreshTokenAdd(RefreshToken entity)
         {
+            //string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
+            //string procedur = "SP_RefreshToken";
+            //DynamicParameters p = new DynamicParameters();
+            //p.Add("@UserId", entity.UserId);
+            //p.Add("@Token", entity.Token);
+            //p.Add("@ExpiryDate", entity.ExpiryDate);
+            //p.Add("@ExpiryDate", entity.ExpiryDate);
 
-            // UserPassword = EncryptDecrypt.Encrypt(UserPassword);
+            //_dapperService.PostBySP(procedur, p);
+            string query = @"INSERT INTO tblRefreshToken (UserId, Token, ExpiryDate, IsRevoked)
+                 VALUES ("+entity.UserId+", '"+entity.Token+"', '"+entity.ExpiryDate+"', '"+entity.IsRevoked+"')";
 
-            // SqlDataClass sqlData = new SqlDataClass();
-            //var UserProjectList = _IDapperService.GetAllByQuery<VwUserDetails>(sqlData.GetUserInfo(UserLogin, UserPassword));
-            string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
-            return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();
-            //return await _context.UserAccounts.Where(x => x.email == useremail && x.password == UserPassword).AsQueryable();
-            
-            //UserAccount user = new UserAccount();
-            //user.UserId = "momin";
-            //user.Password = "1234";
-            //user.UserName = "momin";
-            //user.UserRole = "sysadmin";
-            //return user;
+            _dapperService.Post(query);
+
+
+
+            return entity.Id;
+            // return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();            
         }
         private UserAccount GetUserByUserId(string userid)
         {          
