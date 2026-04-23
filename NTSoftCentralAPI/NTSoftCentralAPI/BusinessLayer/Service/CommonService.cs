@@ -23,12 +23,22 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }        
         public virtual int Add<T>(T entity, bool save = true) where T : Base
         {
+            //using var ctx = _factory.CreateDbContext();
+            //ctx.Set<T>().Add(entity);
+            //if (save)
+            //{
+            //    Save();
+            //}
+            //return entity.Id;
             using var ctx = _factory.CreateDbContext();
+
             ctx.Set<T>().Add(entity);
+
             if (save)
             {
-                Save();
+                return ctx.SaveChanges();  // ✅ same context
             }
+
             return entity.Id;
         }
         public virtual int AddRange<T>(List<T> entity, bool save = true) where T : Base
@@ -44,7 +54,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         public virtual IEnumerable<T> GetAll<T>() where T : Base
         {
             using var ctx = _factory.CreateDbContext();
-            return ctx.Set<T>().AsEnumerable();
+            return ctx.Set<T>().ToList();  // ✅ FIX
         }
         public virtual IEnumerable<T> GetAllAccounts<T>() where T : class
         {
@@ -74,7 +84,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             ctx.Entry(entity).State = EntityState.Modified;
             if (save)
             {
-                Save();
+                return ctx.SaveChanges();   // ✅ SAME CONTEXT
             }
             return entity.Id;           
         }
@@ -90,23 +100,27 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             }
             return entity.Id;
         }
-        public virtual bool Remove<T>(T entity, bool save = true) where T : Base
+        public virtual int Remove<T>(T entity, bool save = true) where T : Base
         {
             using var ctx = _factory.CreateDbContext();
-            ctx.Set<T>().Attach(entity);
-            ctx.Entry(entity).State = EntityState.Deleted;
-            //ctx.Set<T>().Remove(entity);
+
+            ctx.Set<T>().Remove(entity);
+
             if (save)
-                return Save() > 0;
-            return false;          
+            {
+                return ctx.SaveChanges();
+            }
+
+            return 0;
         }
 
-        public virtual bool RemoveById<T>(int id, bool save = true) where T : Base
-        {
-            using var ctx = _factory.CreateDbContext();
-            var entity = Get<T>(id);
-            return Remove(entity, save);
-        }     
+        //public virtual bool RemoveById<T>(int id, bool save = true) where T : Base
+        //{
+        //    using var ctx = _factory.CreateDbContext();
+        //    var entity = Get<T>(id);
+        //    Remove<entity>(T entity, bool save = true)
+        //    return Remove<entity>(entity, save);
+        //}
         public virtual long Save()
         {
             using var ctx = _factory.CreateDbContext();

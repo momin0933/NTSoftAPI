@@ -1,10 +1,13 @@
 ﻿using Dapper;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using NTSoftCentralAPI.BusinessLayer.Service;
 using NTSoftCentralAPI.Models;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -15,20 +18,102 @@ namespace NTSoftCentralAPI.BusinessLayer.TenantService
 {
     public class TenantStore : ITenantStore
     {
-        private readonly IMemoryCache _cache;
-        private readonly NTSoftDbContextFactory _factory;
-        private readonly IDapperService _dapperService;
-        private readonly ICommonService _commonService;
+        //    private readonly IMemoryCache _cache;
+        //    //private readonly NTSoftDbContextFactory _factory;
+        //    private readonly IDapperService _dapperService;
+        //    private readonly ICommonService _commonService;
 
-        public  TenantStore(IMemoryCache cache, NTSoftDbContextFactory factory,
-    IDapperService dapperService,
-    ICommonService commonService)
+        //    public  TenantStore(IMemoryCache cache, 
+        //IDapperService dapperService,
+        //ICommonService commonService)
+        //    {
+        //        _cache = cache;
+        //        //_factory = factory;
+        //        _dapperService = dapperService;
+        //        _commonService = commonService;
+        //    }
+
+        //public Tenant GetTenant(string tenantId)
+        //{
+        //    if (_cache.TryGetValue(tenantId, out Tenant tenant))
+        //    {
+        //        Console.WriteLine("CACHE HIT");
+        //        return tenant;
+        //    }
+
+        //    Console.WriteLine("CACHE MISS - DB CALL");
+
+
+
+        //    //tenant = _dbContext.Tenants.FirstOrDefault(t => t.TenantKey == tenantId);
+
+        //    //tenant = _ICommonService.GetAll<Tenant>().FirstOrDefault(x => x.TenantKey == tenantId);
+
+        //    string procedur = "SP_TenantList";
+        //    DynamicParameters p = new DynamicParameters();
+        //    p.Add("@QueryChecker", 1);
+        //    p.Add("@TenantKey", tenantId);
+        //    tenant = _dapperService.GetAllBySP<Tenant>(procedur, p).FirstOrDefault();
+
+
+        //    _cache.Set(tenantId, tenant, new MemoryCacheEntryOptions
+        //    {
+        //        AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+        //        SlidingExpiration = TimeSpan.FromMinutes(10)
+        //    });
+
+        //    return tenant;
+        //}
+
+        private readonly IConfiguration _configuration;
+        private readonly IMemoryCache _cache;
+
+        public TenantStore(IMemoryCache cache, IConfiguration configuration)
         {
             _cache = cache;
-            _factory = factory;
-            _dapperService = dapperService;
-            _commonService = commonService;
+            _configuration = configuration;
         }
+        public Tenant GetTenant(string tenantId)
+        {
+            if (_cache.TryGetValue(tenantId, out Tenant tenant))
+            {
+                Console.WriteLine("CACHE HIT");
+                return tenant;
+            }
+
+            Console.WriteLine("CACHE MISS - DB CALL");
+
+            var connectionString = _configuration.GetConnectionString("DefaultConnection");
+
+            using (var conn = new SqlConnection(connectionString))
+            {
+                conn.Open();
+
+                var parameters = new DynamicParameters();
+                parameters.Add("@QueryChecker", 1);
+                parameters.Add("@TenantKey", tenantId);
+
+                tenant = conn.QueryFirstOrDefault<Tenant>(
+                    "SP_TenantList",
+                    parameters,
+                    commandType: CommandType.StoredProcedure
+                );
+            }
+
+            _cache.Set(tenantId, tenant, new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                SlidingExpiration = TimeSpan.FromMinutes(10)
+            });
+
+            return tenant;
+        }
+
+        //public Tenant GetTenant(string tenantId)
+        //{
+        //    return _tenants.FirstOrDefault(t => t.Id == tenantId);
+        //}
+
         //private readonly List<Tenant> _tenants = new()
         //{   
         //    //Live CS
@@ -82,42 +167,5 @@ namespace NTSoftCentralAPI.BusinessLayer.TenantService
 
 
         //};
-        public Tenant GetTenant(string tenantId)
-        {
-            if (_cache.TryGetValue(tenantId, out Tenant tenant))
-            {
-                Console.WriteLine("CACHE HIT");
-                return tenant;
-            }
-
-            Console.WriteLine("CACHE MISS - DB CALL");
-
-
-
-            //tenant = _dbContext.Tenants.FirstOrDefault(t => t.TenantKey == tenantId);
-
-            //tenant = _ICommonService.GetAll<Tenant>().FirstOrDefault(x => x.TenantKey == tenantId);
-
-            string procedur = "SP_TenantList";
-            DynamicParameters p = new DynamicParameters();
-            p.Add("@QueryChecker", 1);
-            p.Add("@TenantKey", tenantId);
-            tenant = _dapperService.GetAllBySP<Tenant>(procedur, p).FirstOrDefault();
-
-
-            _cache.Set(tenantId, tenant, new MemoryCacheEntryOptions
-            {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-                SlidingExpiration = TimeSpan.FromMinutes(10)
-            });
-
-            return tenant;
-        }
-       
-
-        //public Tenant GetTenant(string tenantId)
-        //{
-        //    return _tenants.FirstOrDefault(t => t.Id == tenantId);
-        //}
     }
 }

@@ -16,9 +16,10 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         int AddRange<T>(List<T> entity, bool save = true) where T : Base;
         int Update<T>(T entity, bool save = true) where T : Base;
         int UpdateByProperty<T>(T entity, string PropertyName = "", bool save = true) where T : Base;
-        bool Remove<T>(T entity, bool save = true) where T : Base;
-        bool RemoveById<T>(int id, bool save = true) where T : Base;
-        T Get<T>(int id) where T : Base;
+        //bool Remove<T>(T entity, bool save = true) where T : Base;
+        int Remove<T>(T entity, bool save = true) where T : Base;
+        //bool RemoveById<T>(int id, bool save = true) where T : Base;
+       T Get<T>(int id) where T : Base;
         T GetWithNoTracking<T>(int id) where T : Base;
 
         IEnumerable<T> GetAll<T>() where T : Base;

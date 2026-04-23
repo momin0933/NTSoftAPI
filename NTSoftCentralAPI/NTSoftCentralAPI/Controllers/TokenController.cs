@@ -9,6 +9,7 @@ using Newtonsoft.Json.Linq;
 using NTSoftCentralAPI.BusinessLayer.Service;
 using NTSoftCentralAPI.BusinessLayer.TenantService;
 using NTSoftCentralAPI.Models;
+using System.Diagnostics;
 using System.IdentityModel.Tokens.Jwt;
 using System.Net.Http.Headers;
 using System.Security.Claims;
@@ -40,15 +41,44 @@ namespace NTSoftCentralAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RptUserAccount _userData)
         {
+            Console.WriteLine(">>> CONTROLLER START");
+
             if (_userData != null && _userData.UserId != null && _userData.password != null)
             {
+                var sw = Stopwatch.StartNew();
                 // 1. Validate user
                 var user = GetUser(_userData.UserId, _userData.password);
-
+                Console.WriteLine("User fetch: " + sw.ElapsedMilliseconds);
                 if (user == null)
-                    throw new Exception("Invalid credentials");
+                {
+                    return Unauthorized(new
+                    {
+                        message = "Invalid UserId or Password"
+                    });
+                }
 
-
+                // 2. Generate tokens
+                var accessToken =  _customService.GenerateToken(user);
+                Console.WriteLine("Token gen: " + sw.ElapsedMilliseconds);
+                var refreshToken = _customService.GenerateRefreshToken();
+                Console.WriteLine("Token Refrsesh: " + sw.ElapsedMilliseconds);
+                // 3. Store refresh token in DB
+                var refreshTokenEntity = new RefreshToken
+                {
+                    UserId = user.UserId,
+                    Token = refreshToken,
+                    ExpiryDate = DateTime.UtcNow.AddDays(7),
+                    IsRevoked = false
+                };
+                _commonService.Add(refreshTokenEntity);
+                Console.WriteLine("Insert: " + sw.ElapsedMilliseconds);
+                return Ok(new
+                {
+                    accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
+                    expiration = accessToken.ValidTo.ToLocalTime(),
+                    refreshToken,
+                    userData = user
+                });
 
                 //if (user != null)
                 //{
@@ -93,28 +123,6 @@ namespace NTSoftCentralAPI.Controllers
                 //    return BadRequest("Invalid credentials");
                 //}
 
-
-                // 2. Generate tokens
-                var accessToken =  _customService.GenerateToken(user);
-                var refreshToken = _customService.GenerateRefreshToken();
-
-                // 3. Store refresh token in DB
-                var refreshTokenEntity = new RefreshToken
-                {
-                    UserId = user.UserId,
-                    Token = refreshToken,
-                    ExpiryDate = DateTime.UtcNow.AddDays(7),
-                    IsRevoked = false
-                };
-                _commonService.Add(refreshTokenEntity);
-
-                return Ok(new
-                {
-                    accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
-                    expiration = accessToken.ValidTo.ToLocalTime(),
-                    refreshToken,
-                    userData = user
-                });
             }
             else
             {
@@ -127,24 +135,29 @@ namespace NTSoftCentralAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> RefreshToken(string refreshToken)
         {
-            //var storedTokenCheck = _ICommonService.GetAll<RefreshToken>().ToList();
-            var storedToken = _commonService.GetAll<RefreshToken>().Where(x => x.Token.Trim() == refreshToken).FirstOrDefault();
+            var storedToken = _commonService.GetAll<RefreshToken>().FirstOrDefault(x => x.Token == refreshToken);
 
             if (storedToken == null)
-                throw new Exception("Invalid refresh token");
+            {
+                return Unauthorized(new { message = "Invalid refresh token" });
+            }
 
             if (storedToken.IsRevoked)
-                throw new Exception("Token revoked");
+            {
+                return Unauthorized(new { message = "Token revoked" });
+            }
 
             if (storedToken.ExpiryDate < DateTime.UtcNow)
-                throw new Exception("Token expired");
+            {
+                return Unauthorized(new { message = "Token expired" });
+            }
 
-            // 🔥 Rotate token (BEST PRACTICE)
+            // 🔥 Revoke old token
             storedToken.IsRevoked = true;
+            storedToken.IsActive = false;
             _commonService.Update<RefreshToken>(storedToken);
 
-            // 2. Generate tokens
-          
+            // 🔥 Generate new refresh token
             var newrefreshToken = _customService.GenerateRefreshToken();
 
             var refreshTokenEntity = new RefreshToken
@@ -154,9 +167,10 @@ namespace NTSoftCentralAPI.Controllers
                 ExpiryDate = DateTime.UtcNow.AddDays(7),
                 IsRevoked = false
             };
+
             _commonService.Add(refreshTokenEntity);
-           
-            // Generate new access token
+
+            // 🔥 Generate new access token
             var user = GetUserByUserId(storedToken.UserId);
             var newAccessToken = _customService.GenerateToken(user);
 
@@ -164,7 +178,7 @@ namespace NTSoftCentralAPI.Controllers
             {
                 accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
                 expiration = newAccessToken.ValidTo.ToLocalTime(),
-                refreshToken,
+                refreshToken = newrefreshToken,   // ✅ FIXED
                 userData = user
             });
         }

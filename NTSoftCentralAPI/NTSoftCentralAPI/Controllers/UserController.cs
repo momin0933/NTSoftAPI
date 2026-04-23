@@ -37,9 +37,9 @@ namespace NTSoftCentralAPI.Controllers
         {
             try
             {
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var tenantId = User.FindFirst("TenantId")?.Value;
-                var role = User.FindFirst(ClaimTypes.Role)?.Value;
+                //var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                //var tenantId = User.FindFirst("TenantId")?.Value;
+                //var role = User.FindFirst(ClaimTypes.Role)?.Value;
                 RptUserInfo userinfo = _IUser.GetUserInfoByUserId(UserId);
                 return userinfo;
             }

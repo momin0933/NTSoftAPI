@@ -19,29 +19,36 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 {
     public class DapperService : IDapperService
     {
-        private readonly string connectionString;
+        //private readonly string connectionString;
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly IConfiguration _configuration;
+        private readonly ITenantProvider _tenantProvider;
         // SQLConnectionString _connectionStringService = new SQLConnectionString();
-        public DapperService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
-        {
-            _httpContextAccessor = httpContextAccessor;
-            _configuration = configuration;
-            var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
 
-            if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
-            {
-                connectionString = tenant.ConnectionString;
-            }
-            else
-            {
-                connectionString = _configuration.GetConnectionString("DefaultConnection");
-            }
-        }       
+        public DapperService(ITenantProvider tenantProvider)
+        {
+            _tenantProvider = tenantProvider;
+        }
+        //public DapperService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        //{
+        //    //_httpContextAccessor = httpContextAccessor;
+        //    //_configuration = configuration;
+        //    //var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
+
+        //    //if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
+        //    //{
+        //    //    connectionString = tenant.ConnectionString;
+        //    //}
+        //    //else
+        //    //{
+        //    //    connectionString = _configuration.GetConnectionString("DefaultConnection");
+        //    //}
+        //}       
             
 
         public virtual IEnumerable<T> GetAllByQuery<T>(string query) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -58,7 +65,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public virtual string GetStringByQuery(string query)
         {
-
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -77,6 +84,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         public IEnumerable<T> GetAllBySP<T>(string procedure, DynamicParameters p) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
 
@@ -94,6 +102,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public T GetByDynamicSPSingle<T>(string procedure, DynamicParameters p) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
 
@@ -110,6 +119,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public int Post(string query)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -126,6 +136,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public int PostBySP(string procedure, DynamicParameters p)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -143,6 +154,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         public bool PostBulkInsert<T>(IEnumerable<T> items, string tableName)
         {
             //var connectionString = ConfigurationManager.ConnectionStrings["YourConnectionString"].ConnectionString;
+            var connectionString = _tenantProvider.GetConnectionString();
             bool IsDbSave = false;
             try
             {
@@ -186,6 +198,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public void GetByMultipleQueryResult(string query, out string ReqQty, out string ActQty)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -205,6 +218,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
         }
         public int UpdateByQuery(string query)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -215,6 +229,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         public int UpdateByquery(string query1)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -225,6 +240,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         public async Task ExecuteAsync(string sql, object parameters = null)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (var connection = new SqlConnection(connectionString)) // Use your actual connection string
             {
                 await connection.OpenAsync();
@@ -236,6 +252,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         public async Task<IEnumerable<dynamic>> CallProcedureAsync(string procedureName, DynamicParameters parameters)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -250,6 +267,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
 
         public async Task<int> ExecuteProcedureNonQueryAsync(string procedureName, DynamicParameters parameters)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 

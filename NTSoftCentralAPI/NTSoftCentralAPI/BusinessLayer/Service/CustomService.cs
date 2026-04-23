@@ -19,6 +19,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             _httpContextAccessor = httpContextAccessor;
             _configuration = config;
         }
+       
         public string GenerateRefreshToken()
         {
             var randomBytes = new byte[64];
@@ -62,5 +63,6 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             return accessToken;
         }
 
+       
     }
 }

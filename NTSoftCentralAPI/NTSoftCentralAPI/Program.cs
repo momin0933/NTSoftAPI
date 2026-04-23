@@ -8,6 +8,7 @@ using NTSoftCentralAPI.BusinessLayer.Interface;
 using NTSoftCentralAPI.BusinessLayer.Manager;
 using NTSoftCentralAPI.BusinessLayer.Service;
 using NTSoftCentralAPI.BusinessLayer.TenantService;
+using System.Diagnostics;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,7 @@ builder.Services.AddControllers()
         // Keep property names as they are (PascalCase like 'Name')
         options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
     });
+
 
 
 // Add services to the container.
@@ -65,6 +67,8 @@ builder.Services.AddScoped<ITenantStore, TenantStore>();
 
 // Custom service
 builder.Services.AddScoped<CustomService>();
+// Tenant Provider
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 
 
@@ -138,6 +142,17 @@ builder.Services.AddCors(options =>
 
 
 var app = builder.Build();
+
+//app.Use(async (context, next) =>
+//{
+//    var sw = Stopwatch.StartNew();
+
+//    await next();
+
+//    sw.Stop();
+//    Console.WriteLine($"TOTAL PIPELINE: {sw.ElapsedMilliseconds} ms");
+//});
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
