@@ -46,16 +46,18 @@ namespace NTSoftCentralAPI.Controllers
 
             if (_userData != null && _userData.UserId != null && _userData.password != null)
             {
-               
+
                 // 1. Validate user
                 var user = GetUser(_userData.UserId, _userData.password);
-               
+                //UserAccount user = new UserAccount();
+                //user.UserId = "apon";
+                //user.UserRole = "Administrator";
                 // 2. Generate tokens
-                var accessToken = _customService.GenerateToken(user);
-                
+                 var accessToken = _customService.GenerateToken(user);
+
                 var refreshToken = _customService.GenerateRefreshToken();
                 //Console.WriteLine("Token Refrsesh: " + sw.ElapsedMilliseconds);
-                //// 3. Store refresh token in DB
+                // 3. Store refresh token in DB
                 var refreshTokenEntity = new RefreshToken
                 {
                     UserId = user.UserId,
@@ -64,13 +66,13 @@ namespace NTSoftCentralAPI.Controllers
                     IsRevoked = false
                 };
                 _commonService.Add(refreshTokenEntity);
-                
+
                 return Ok(new
                 {
-                    accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
+                     accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                     expiration = accessToken.ValidTo.ToLocalTime(),
                     refreshToken,
-                    //userData = user
+                     userData = user
                 });
 
                 //if (user != null)
