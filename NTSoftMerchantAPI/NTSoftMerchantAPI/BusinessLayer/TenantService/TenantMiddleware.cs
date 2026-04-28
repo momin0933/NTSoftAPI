@@ -22,15 +22,13 @@ namespace NTSoftMerchantAPI.BusinessLayer.TenantService
         }   
         public async Task InvokeAsync(HttpContext context, ITenantStore tenantStore)
         {
-            var tenantId = context.Request.Headers["TenantId"].FirstOrDefault(); // Extract tenant identifier from headers
+            var tenantId = context.Request.Headers["TenantId"].FirstOrDefault();
             if (!string.IsNullOrEmpty(tenantId))
             {
                 var tenant = tenantStore.GetTenant(tenantId);
                 if (tenant != null)
                 {
-                    context.Items["Tenant"] = tenant; // Store tenant in HttpContext
-                                                      // Log to confirm execution
-                    _logger.LogInformation("Tenant set in HttpContext: {Tenant}", context.Items["Tenant"]);
+                    context.Items["Tenant"] = tenant;
                 }
             }
 

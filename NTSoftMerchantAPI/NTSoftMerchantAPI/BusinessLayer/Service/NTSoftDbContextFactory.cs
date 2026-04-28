@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
+﻿
+using Microsoft.EntityFrameworkCore;
 using NTSoftMerchantAPI.BusinessLayer.TenantService;
 
 
@@ -8,42 +8,45 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
     public class NTSoftDbContextFactory
     {
         private readonly IHttpContextAccessor _httpContextAccessor;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly IConfiguration _configuration;
+        private readonly ITenantProvider _tenantProvider;
 
-        public NTSoftDbContextFactory(IHttpContextAccessor httpContextAccessor, ILoggerFactory loggerFactory)
+        //public NTSoftDbContextFactory(IHttpContextAccessor httpContextAccessor,IConfiguration configuration)
+        //{
+        //    _httpContextAccessor = httpContextAccessor;
+        //    _configuration = configuration;
+        //}
+        public NTSoftDbContextFactory(ITenantProvider tenantProvider)
         {
-            _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor));
-            _loggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
+            _tenantProvider = tenantProvider;
         }
-
         public NTSoftDbContext CreateDbContext()
         {
-            var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
-            var logger = _loggerFactory.CreateLogger<NTSoftDbContext>();
-
-                if (tenant?.ConnectionString == null)
-                {
-                    logger?.LogWarning("No tenant or connection string found in HttpContext");
-                    return CreateEmptyContext(logger);
-                }
-
-                return CreateContextWithConnection(tenant.ConnectionString, logger);
-            }
-
-            private NTSoftDbContext CreateEmptyContext(ILogger<NTSoftDbContext>? logger)
-            {
-                var optionsBuilder = new DbContextOptionsBuilder<NTSoftDbContext>();
-                // No connection string configured - using default behavior
-            
-            return new NTSoftDbContext(optionsBuilder.Options, _httpContextAccessor, logger!);
-        }
-
-        private NTSoftDbContext CreateContextWithConnection(string connectionString, ILogger<NTSoftDbContext>? logger)
-        {
             var optionsBuilder = new DbContextOptionsBuilder<NTSoftDbContext>();
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer(_tenantProvider.GetConnectionString());
 
-            return new NTSoftDbContext(optionsBuilder.Options, _httpContextAccessor, logger!);
+            return new NTSoftDbContext(optionsBuilder.Options);
         }
+        //public NTSoftDbContext CreateDbContext()
+        //{
+        //    var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
+
+        //    string connectionString;
+
+        //    if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
+        //    {
+        //        connectionString = tenant.ConnectionString;
+        //    }
+        //    else
+        //    {
+        //        // ⚠ fallback (careful use)
+        //        connectionString = _configuration.GetConnectionString("DefaultConnection");
+        //    }
+
+        //    var optionsBuilder = new DbContextOptionsBuilder<NTSoftDbContext>();
+        //    optionsBuilder.UseSqlServer(connectionString);
+
+        //    return new NTSoftDbContext(optionsBuilder.Options);
+        //}
     }
 }
