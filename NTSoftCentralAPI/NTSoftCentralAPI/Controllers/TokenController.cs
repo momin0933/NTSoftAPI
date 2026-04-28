@@ -42,21 +42,15 @@ namespace NTSoftCentralAPI.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromBody] RptUserAccount _userData)
         {
-            Console.WriteLine(">>> CONTROLLER START");
-
             if (_userData != null && _userData.UserId != null && _userData.password != null)
             {
-
                 // 1. Validate user
                 var user = GetUser(_userData.UserId, _userData.password);
-                //UserAccount user = new UserAccount();
-                //user.UserId = "apon";
-                //user.UserRole = "Administrator";
+                
                 // 2. Generate tokens
-                 var accessToken = _customService.GenerateToken(user);
-
+                var accessToken = _customService.GenerateToken(user);
                 var refreshToken = _customService.GenerateRefreshToken();
-                //Console.WriteLine("Token Refrsesh: " + sw.ElapsedMilliseconds);
+                
                 // 3. Store refresh token in DB
                 var refreshTokenEntity = new RefreshToken
                 {
@@ -69,11 +63,22 @@ namespace NTSoftCentralAPI.Controllers
 
                 return Ok(new
                 {
-                     accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
+                    accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
                     expiration = accessToken.ValidTo.ToLocalTime(),
                     refreshToken,
-                     userData = user
+                    userData = new
+                    {
+                        userId = user.UserId,
+                        role = user.UserRole,
+                        Name = user.Name
+                    }
                 });
+            }
+            else
+            {
+                return BadRequest();
+            }
+        }
 
                 //if (user != null)
                 //{
@@ -86,25 +91,7 @@ namespace NTSoftCentralAPI.Controllers
                 //    UserAccount UserData = new UserAccount();
                 //    var claims = new[] {
 
-                //        //new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                //        //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                //        //new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                //        //new Claim("UserLogin", user.UserLogin.ToString()),
-                //        //new Claim("FullName", user.FullName.ToString()),                       
-                //        new Claim("TenantId", tenant.TenantKey),
-                //        new Claim(ClaimTypes.NameIdentifier,user.UserId),
-                //        //new Claim(ClaimTypes.GivenName,user.username),
-                //        //new Claim(ClaimTypes.Email,user.Email),
-                //        //new Claim(ClaimTypes.Surname,user.FullName),
-                //        new Claim(ClaimTypes.Role,user.UserRole),
-                //    };
 
-                //    var accessToken = new JwtSecurityToken(
-                //        _configuration["Jwt:Issuer"],
-                //        _configuration["Jwt:Audience"],
-                //        claims,
-                //        expires: DateTime.UtcNow.AddMinutes(30),
-                //        signingCredentials: signIn);
 
 
 
@@ -117,13 +104,6 @@ namespace NTSoftCentralAPI.Controllers
                 //{
                 //    return BadRequest("Invalid credentials");
                 //}
-
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
 
         [AllowAnonymous]
         [Route("api/RefreshToken")]
@@ -289,13 +269,14 @@ namespace NTSoftCentralAPI.Controllers
         private UserAccount GetUser(string userid, string UserPassword)
         {            
             //string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
-            string query = "SELECT * FROM tblUserAccount WHERE UserId = @UserId";
+            string query = "SELECT * FROM tblUserAccount WHERE UserId = @UserId AND Password=@Password";
 
             var user = _dapperService.GetSingle<UserAccount>(query, new
             {
-                UserId = userid
+                UserId = userid,
+                Password = UserPassword
             });
-            if (user == null || user.Password != UserPassword)
+            if (user == null)
             {
                 return null;
             }
@@ -304,37 +285,25 @@ namespace NTSoftCentralAPI.Controllers
         }
         private int RefreshTokenAdd(RefreshToken entity)
         {
-            //string Query = "select * from tbluserAccount WHERE UserId = '"+ userid + "' AND password = '"+UserPassword+"' ";
-            //string procedur = "SP_RefreshToken";
-            //DynamicParameters p = new DynamicParameters();
-            //p.Add("@UserId", entity.UserId);
-            //p.Add("@Token", entity.Token);
-            //p.Add("@ExpiryDate", entity.ExpiryDate);
-            //p.Add("@ExpiryDate", entity.ExpiryDate);
-
-            //_dapperService.PostBySP(procedur, p);
-            string query = @"INSERT INTO tblRefreshToken (UserId, Token, ExpiryDate, IsRevoked)
-                 VALUES ("+entity.UserId+", '"+entity.Token+"', '"+entity.ExpiryDate+"', '"+entity.IsRevoked+"')";
-
-            _dapperService.Post(query);
-
-
-
-            return entity.Id;
-            // return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();            
+            var refreshTokenEntity = new RefreshToken
+            {
+                UserId = entity.UserId,
+                Token = entity.Token,
+                ExpiryDate = entity.ExpiryDate,
+                IsRevoked = entity.IsRevoked
+            };
+            
+            return _commonService.Add(refreshTokenEntity, true);
         }
         private UserAccount GetUserByUserId(string userid)
-        {          
-            string Query = "select * from tbluserAccount WHERE UserId = '" + userid + "' ";
-            return _dapperService.GetAllByQuery<UserAccount>(Query).FirstOrDefault();           
-        }
-        private EcomUser EcomGetUser(string userid, string UserPassword)
         {
-
-
-            string Query = "select * from EcomtblCustomer WHERE Email = '" + userid + "' AND Password = '" + UserPassword + "' ";
-            return _dapperService.GetAllByQuery<EcomUser>(Query).FirstOrDefault();
- ;
+            string query = "SELECT * FROM tblUserAccount WHERE UserId = @UserId";
+            return _dapperService.GetSingle<UserAccount>(query, new { UserId = userid });
+        }
+        private EcomUser EcomGetUser(string email, string password)
+        {
+            string query = "SELECT * FROM EcomtblCustomer WHERE Email = @Email AND Password = @Password";
+            return _dapperService.GetSingle<EcomUser>(query, new { Email = email, Password = password });
         }
     }
 }

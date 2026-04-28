@@ -75,18 +75,19 @@ namespace NTSoftCentralAPI.BusinessLayer.TenantService
         }
         public Tenant GetTenant(string tenantId)
         {
+            if (string.IsNullOrEmpty(tenantId))
+                return null;
+
             if (_cache.TryGetValue(tenantId, out Tenant tenant))
             {
-                Console.WriteLine("CACHE HIT");
                 return tenant;
             }
-
-            Console.WriteLine("CACHE MISS - DB CALL");
 
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
 
             using (var conn = new SqlConnection(connectionString))
             {
+                // Connection pooling is enabled by default in SQL Client
                 conn.Open();
 
                 var parameters = new DynamicParameters();
@@ -100,11 +101,14 @@ namespace NTSoftCentralAPI.BusinessLayer.TenantService
                 );
             }
 
-            _cache.Set(tenantId, tenant, new MemoryCacheEntryOptions
+            if (tenant != null)
             {
-                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
-                SlidingExpiration = TimeSpan.FromMinutes(10)
-            });
+                _cache.Set(tenantId, tenant, new MemoryCacheEntryOptions
+                {
+                    AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(30),
+                    SlidingExpiration = TimeSpan.FromMinutes(10)
+                });
+            }
 
             return tenant;
         }

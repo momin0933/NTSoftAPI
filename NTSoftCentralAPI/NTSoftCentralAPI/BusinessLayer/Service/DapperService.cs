@@ -53,13 +53,6 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             {
                 SqlConnection1.Open();
                 var q = SqlConnection1.Query<T>(query).ToList();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //serializer.MaxJsonLength = Int32.MaxValue;
-                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
-                //serializer.Serialize(collectionWrapper);
                 return q;
             }
         }
@@ -89,14 +82,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             {
 
                 SqlConnection1.Open();
-                //JsonSerializer jss = new JsonSerializer();
-                //jss.MaxJsonLength = Int32.MaxValue;
                 var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).ToList();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
                 return q;
             }
         }
@@ -105,15 +91,8 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
-
                 SqlConnection1.Open();
                 var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //string output = JsonSerializer.Serialize(collectionWrapper);
-                string output = JsonConvert.SerializeObject(collectionWrapper);
                 return q;
             }
         }
@@ -123,14 +102,7 @@ namespace NTSoftCentralAPI.BusinessLayer.Service
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
-                //JavaScriptSerializer serializer = new JavaScriptSerializer();
                 var q = SqlConnection1.Execute(query);
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //serializer.MaxJsonLength = Int32.MaxValue;               
-                string output = JsonConvert.SerializeObject(collectionWrapper);
                 return q;
             }
         }
