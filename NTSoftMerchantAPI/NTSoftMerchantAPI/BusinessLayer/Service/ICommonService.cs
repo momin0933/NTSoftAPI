@@ -12,12 +12,13 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 {
     public interface ICommonService
     {
-        int Add<T>(T entity, bool save = true) where T : Base;
-        int AddRange<T>(List<T> entity, bool save = true) where T : Base;
+        Task<int> Add<T>(T entity, bool save = true) where T : Base;
+        Task<int> AddRange<T>(List<T> entity, bool save = true) where T : Base;
         int Update<T>(T entity, bool save = true) where T : Base;
         int UpdateByProperty<T>(T entity, string PropertyName = "", bool save = true) where T : Base;
-        bool Remove<T>(T entity, bool save = true) where T : Base;
-        bool RemoveById<T>(int id, bool save = true) where T : Base;
+        //bool Remove<T>(T entity, bool save = true) where T : Base;
+        int Remove<T>(int id, bool save = true) where T : Base, new();
+         //bool RemoveById<T>(int id, bool save = true) where T : Base;
         T Get<T>(int id) where T : Base;
         T GetWithNoTracking<T>(int id) where T : Base;
 

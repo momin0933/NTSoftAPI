@@ -19,41 +19,46 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 {
     public class DapperService : IDapperService
     {
-        private readonly string connectionString;
+        //private readonly string connectionString;
         private readonly IHttpContextAccessor _httpContextAccessor;
-       // SQLConnectionString _connectionStringService = new SQLConnectionString();
-        public DapperService(IHttpContextAccessor httpContextAccessor)
+        private readonly IConfiguration _configuration;
+        private readonly ITenantProvider _tenantProvider;
+        // SQLConnectionString _connectionStringService = new SQLConnectionString();
+
+        public DapperService(ITenantProvider tenantProvider)
         {
-            _httpContextAccessor = httpContextAccessor;
-            var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
-
-            if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
-            {
-                connectionString = tenant.ConnectionString;
-            }
-            //connectionString = _connectionStringService.GetConnectionString("default");
-
+            _tenantProvider = tenantProvider;
         }
+        //public DapperService(IHttpContextAccessor httpContextAccessor, IConfiguration configuration)
+        //{
+        //    //_httpContextAccessor = httpContextAccessor;
+        //    //_configuration = configuration;
+        //    //var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
+
+        //    //if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
+        //    //{
+        //    //    connectionString = tenant.ConnectionString;
+        //    //}
+        //    //else
+        //    //{
+        //    //    connectionString = _configuration.GetConnectionString("DefaultConnection");
+        //    //}
+        //}       
+            
 
         public virtual IEnumerable<T> GetAllByQuery<T>(string query) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
                 var q = SqlConnection1.Query<T>(query).ToList();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //serializer.MaxJsonLength = Int32.MaxValue;
-                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
-                //serializer.Serialize(collectionWrapper);
                 return q;
             }
         }
         public virtual string GetStringByQuery(string query)
         {
-
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -72,55 +77,38 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 
         public IEnumerable<T> GetAllBySP<T>(string procedure, DynamicParameters p) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
 
                 SqlConnection1.Open();
-                //JsonSerializer jss = new JsonSerializer();
-                //jss.MaxJsonLength = Int32.MaxValue;
                 var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).ToList();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                string output = JsonConvert.SerializeObject(collectionWrapper, Formatting.Indented);
                 return q;
             }
         }
         public T GetByDynamicSPSingle<T>(string procedure, DynamicParameters p) where T : class
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
-
                 SqlConnection1.Open();
                 var q = SqlConnection1.Query<T>(procedure, p, commandType: CommandType.StoredProcedure).FirstOrDefault();
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //string output = JsonSerializer.Serialize(collectionWrapper);
-                string output = JsonConvert.SerializeObject(collectionWrapper);
                 return q;
             }
         }
         public int Post(string query)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
-                //JavaScriptSerializer serializer = new JavaScriptSerializer();
                 var q = SqlConnection1.Execute(query);
-                dynamic collectionWrapper = new
-                {
-                    OEBuyerFactName = q
-                };
-                //serializer.MaxJsonLength = Int32.MaxValue;               
-                string output = JsonConvert.SerializeObject(collectionWrapper);
                 return q;
             }
         }
         public int PostBySP(string procedure, DynamicParameters p)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -138,6 +126,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
         public bool PostBulkInsert<T>(IEnumerable<T> items, string tableName)
         {
             //var connectionString = ConfigurationManager.ConnectionStrings["YourConnectionString"].ConnectionString;
+            var connectionString = _tenantProvider.GetConnectionString();
             bool IsDbSave = false;
             try
             {
@@ -181,6 +170,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
         }
         public void GetByMultipleQueryResult(string query, out string ReqQty, out string ActQty)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -200,6 +190,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
         }
         public int UpdateByQuery(string query)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -210,6 +201,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 
         public int UpdateByquery(string query1)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (SqlConnection SqlConnection1 = new SqlConnection(connectionString))
             {
                 SqlConnection1.Open();
@@ -220,6 +212,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 
         public async Task ExecuteAsync(string sql, object parameters = null)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using (var connection = new SqlConnection(connectionString)) // Use your actual connection string
             {
                 await connection.OpenAsync();
@@ -231,6 +224,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 
         public async Task<IEnumerable<dynamic>> CallProcedureAsync(string procedureName, DynamicParameters parameters)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -245,6 +239,7 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
 
         public async Task<int> ExecuteProcedureNonQueryAsync(string procedureName, DynamicParameters parameters)
         {
+            var connectionString = _tenantProvider.GetConnectionString();
             using var connection = new SqlConnection(connectionString);
             await connection.OpenAsync();
 
@@ -255,6 +250,12 @@ namespace NTSoftMerchantAPI.BusinessLayer.Service
             );
 
             return affectedRows;
+        }
+        public T GetSingle<T>(string query, object param)
+        {
+            var connectionString = _tenantProvider.GetConnectionString();
+            using var conn = new SqlConnection(connectionString);
+            return conn.QueryFirstOrDefault<T>(query, param);
         }
     }
 }

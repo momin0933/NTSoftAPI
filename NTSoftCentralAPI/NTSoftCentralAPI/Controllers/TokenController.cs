@@ -79,38 +79,14 @@ namespace NTSoftCentralAPI.Controllers
                 return BadRequest();
             }
         }
-
-                //if (user != null)
-                //{
-                //    // password blank
-                //    user.Password = null;
-                //    var tenant = HttpContext.Items["Tenant"] as Tenant;
-                //    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                //    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                //    //create claims details based on the user information
-                //    UserAccount UserData = new UserAccount();
-                //    var claims = new[] {
-
-
-
-
-
-
-
-
-                //    //return Ok(new JwtSecurityTokenHandler().WriteToken(token));
-                //}
-                //else
-                //{
-                //    return BadRequest("Invalid credentials");
-                //}
+                      
 
         [AllowAnonymous]
         [Route("api/RefreshToken")]
         [HttpPost]
-        public async Task<IActionResult> RefreshToken(string refreshToken)
+        public async Task<IActionResult> RefreshToken(string rToken)
         {
-            var storedToken = _commonService.GetAll<RefreshToken>().FirstOrDefault(x => x.Token == refreshToken);
+            var storedToken = _commonService.GetAll<RefreshToken>().FirstOrDefault(x => x.Token == rToken);
 
             if (storedToken == null)
             {
@@ -155,116 +131,44 @@ namespace NTSoftCentralAPI.Controllers
                 accessToken = new JwtSecurityTokenHandler().WriteToken(newAccessToken),
                 expiration = newAccessToken.ValidTo.ToLocalTime(),
                 refreshToken = newrefreshToken,   // ✅ FIXED
-                userData = user
+                userData = new
+                {
+                    userId = user.UserId,
+                    role = user.UserRole,
+                    Name = user.Name
+                }
             });
         }
-
+               
         [AllowAnonymous]
-        [Route("api/EcomToken")]
-        [HttpPost]
-        public async Task<IActionResult> EcomPost([FromBody] EcomRptUserAccount _userData)
+        [Route("api/logout")]
+        [HttpPost]       
+        public IActionResult Logout(string rToken)
         {
-            if (_userData != null && _userData.Email != null && _userData.Password != null)
+            var storedToken = _commonService.GetAll<RefreshToken>().FirstOrDefault(x => x.Token == rToken);
+
+            if (storedToken == null)
             {
-                //var user = await GetUser(_userData.email, _userData.password);
-                var user = EcomGetUser(_userData.Email, _userData.Password);
-
-                if (user != null)
-                {
-                    // password blank
-                    user.Password = null;
-
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
-                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
-                    //create claims details based on the user information
-                    UserAccount UserData = new UserAccount();
-                    var claims = new[] {
-
-                        //new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
-                        //new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                        //new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
-                        //new Claim("UserLogin", user.UserLogin.ToString()),
-                        //new Claim("FullName", user.FullName.ToString()),                       
-                        //new Claim("Email", user.Email.ToString())
-                        new Claim(ClaimTypes.NameIdentifier,user.Email),
-                        //new Claim(ClaimTypes.GivenName,user.username),
-                        //new Claim(ClaimTypes.Email,user.Email),
-                        //new Claim(ClaimTypes.Surname,user.FullName),
-                        //new Claim(ClaimTypes.Role,user.UserRole),
-                    };
-
-                    var accessToken = new JwtSecurityToken(
-                        _configuration["Jwt:Issuer"],
-                        _configuration["Jwt:Audience"],
-                        claims,
-                        expires: DateTime.UtcNow.AddMinutes(1),
-                        signingCredentials: signIn);
-                    return Ok(new
-                    {
-                        accessToken = new JwtSecurityTokenHandler().WriteToken(accessToken),
-                        expiration = accessToken.ValidTo,
-                        userData = user
-                    });
-
-                    //return Ok(new JwtSecurityTokenHandler().WriteToken(token));
-                }
-                else
-                {
-                    return BadRequest("Invalid credentials");
-                }
-            }
-            else
-            {
-                return BadRequest();
-            }
-        }
-
-
-
-        [Route("api/tokenvalidate")]
-        [HttpPost]
-        public UserAccount tokenvalidate()
-        {
-            UserAccount user = new UserAccount();            
-            //const string HeaderKeyName = "Authorization";
-            var authorization = Request.Headers[HeaderNames.Authorization];
-            if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue))
-            {
-                // we have a valid AuthenticationHeaderValue that has the following details:
-
-                var scheme = headerValue.Scheme;
-                var token = headerValue.Parameter;
-                var handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadToken(token);
-                var tokenS = jsonToken as JwtSecurityToken;
-                var email = tokenS.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
-                //user = _context.UserAccounts.FirstOrDefault(x => x.Email == email);               
-            }          
-          
-            return user;
-        }
-        
-        [Route("api/tokenvalidateByGet")]
-        [HttpGet]
-        public UserAccount tokenvalidateByGet()
-        {
-            UserAccount user = new UserAccount();
-            //const string HeaderKeyName = "Authorization";
-            var authorization = Request.Headers[HeaderNames.Authorization];
-            if (AuthenticationHeaderValue.TryParse(authorization, out var headerValue))
-            {
-                // we have a valid AuthenticationHeaderValue that has the following details:
-
-                var scheme = headerValue.Scheme;
-                var token = headerValue.Parameter;
-                var handler = new JwtSecurityTokenHandler();
-                var jsonToken = handler.ReadToken(token);
-                var tokenS = jsonToken as JwtSecurityToken;
-                var email = tokenS.Claims.First(claim => claim.Type == ClaimTypes.Email).Value;
-               // user = _context.UserAccounts.FirstOrDefault(x => x.Email == email);
+                return Unauthorized(new { message = "Invalid refresh token" });
             }
 
-            return user;
+            if (storedToken.IsRevoked)
+            {
+                return Unauthorized(new { message = "Token already revoked" });
+            }
+
+            if (storedToken.ExpiryDate < DateTime.UtcNow)
+            {
+                return Unauthorized(new { message = "Token expired" });
+            }
+
+            // 🔥 Revoke token
+            storedToken.IsRevoked = true;
+            storedToken.IsActive = false;
+
+            _commonService.Update(storedToken);
+
+            return Ok(new { message = "Logout successful" });
         }
         private UserAccount GetUser(string userid, string UserPassword)
         {            
@@ -300,10 +204,6 @@ namespace NTSoftCentralAPI.Controllers
             string query = "SELECT * FROM tblUserAccount WHERE UserId = @UserId";
             return _dapperService.GetSingle<UserAccount>(query, new { UserId = userid });
         }
-        private EcomUser EcomGetUser(string email, string password)
-        {
-            string query = "SELECT * FROM EcomtblCustomer WHERE Email = @Email AND Password = @Password";
-            return _dapperService.GetSingle<EcomUser>(query, new { Email = email, Password = password });
-        }
+        
     }
 }
