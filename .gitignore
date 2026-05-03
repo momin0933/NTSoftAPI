@@ -61,3 +61,14 @@ dkms.conf
 
 /NTSoftCentralAPI/NTSoftCentralAPI/bin
 /NTSoftMerchantAPI/NTSoftMerchantAPI/bin
+/CentralAPI/.vs
+/CentralAPI/CentralAPI/bin
+/CentralAPI/CentralAPI/obj
+/HRAPI/.vs
+/HRAPI/HRAPI/bin
+/HRAPI/HRAPI/obj
+/HRAPI/HRAPI/Properties/PublishProfiles
+/MerchantAPI/.vs
+/MerchantAPI/MerchantAPI/bin
+/MerchantAPI/MerchantAPI/obj
+/MerchantAPI/MerchantAPI/Properties
