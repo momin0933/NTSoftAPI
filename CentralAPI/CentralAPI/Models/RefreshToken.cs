@@ -1,0 +1,11 @@
+﻿namespace CentralAPI.Models
+{
+    public class RefreshToken:Base
+    {        
+        public string UserId { get; set; }
+        public string Token { get; set; }
+        public DateTime ExpiryDate { get; set; }
+        public bool IsRevoked { get; set; }
+        
+    }
+}

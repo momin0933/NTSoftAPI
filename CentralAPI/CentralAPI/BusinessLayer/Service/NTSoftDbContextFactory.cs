@@ -1,0 +1,52 @@
+﻿
+using Microsoft.EntityFrameworkCore;
+using CentralAPI.BusinessLayer.TenantService;
+
+
+namespace CentralAPI.BusinessLayer.Service
+{
+    public class NTSoftDbContextFactory
+    {
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly IConfiguration _configuration;
+        private readonly ITenantProvider _tenantProvider;
+
+        //public NTSoftDbContextFactory(IHttpContextAccessor httpContextAccessor,IConfiguration configuration)
+        //{
+        //    _httpContextAccessor = httpContextAccessor;
+        //    _configuration = configuration;
+        //}
+        public NTSoftDbContextFactory(ITenantProvider tenantProvider)
+        {
+            _tenantProvider = tenantProvider;
+        }
+        public NTSoftDbContext CreateDbContext()
+        {
+            var optionsBuilder = new DbContextOptionsBuilder<NTSoftDbContext>();
+            optionsBuilder.UseSqlServer(_tenantProvider.GetConnectionString());
+
+            return new NTSoftDbContext(optionsBuilder.Options);
+        }
+        //public NTSoftDbContext CreateDbContext()
+        //{
+        //    var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
+
+        //    string connectionString;
+
+        //    if (tenant != null && !string.IsNullOrEmpty(tenant.ConnectionString))
+        //    {
+        //        connectionString = tenant.ConnectionString;
+        //    }
+        //    else
+        //    {
+        //        // ⚠ fallback (careful use)
+        //        connectionString = _configuration.GetConnectionString("DefaultConnection");
+        //    }
+
+        //    var optionsBuilder = new DbContextOptionsBuilder<NTSoftDbContext>();
+        //    optionsBuilder.UseSqlServer(connectionString);
+
+        //    return new NTSoftDbContext(optionsBuilder.Options);
+        //}
+    }
+}
