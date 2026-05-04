@@ -95,48 +95,18 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     };
 });
 
+var allowedOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(
-         "http://localhost:3000",
-         "http://localhost:3001",
-         "http://localhost:3002",
-         "http://localhost:3003",
-         "http://localhost:3004",
-         "http://localhost:3005",
-         "https://my.minglefashionbd.com",
-         "http://my.minglefashionbd.com",
-         "https://vms.minglefashionbd.com",
-         "http://vms.minglefashionbd.com",
-         "https://minglefashionbd.com",
-         "http://minglefashionbd.com",
-         "https://smart-hrm.vercel.app/",
-         "https://ecom.minglefashionbd.com",
-         "http://ecom.minglefashionbd.com",
-         "http://144.91.82.79:3000",
-         "https://144.91.82.79:3000",
-         "https://rfosbd.com",
-         "http://rfosbd.com",
-         "https://ntsoftbd.com",
-         "http://ntsoftbd.com",
-         "https://exam.minglefashionbd.com",
-         "http://exam.minglefashionbd.com",
-         "https://bms.ntsoftbd.com",
-         "http://bms.ntsoftbd.com",
-         "http://hr.minglefashionbd.com",
-         "https://hr.minglefashionbd.com",
-         "https://mingleinstylebd.com",
-         "http://mingleinstylebd.com",
-         "http://116.68.192.10:5000",
-         "https://hr.ntsoftbd.com",
-         "http://hr.ntsoftbd.com"
-
-)
-        .AllowAnyHeader()
-        .AllowAnyMethod()
-        .AllowCredentials();
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
     });
 });
 

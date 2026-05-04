@@ -1,8 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using MerchantAPI.BusinessLayer.TenantService;
-using MerchantAPI.Models;
+using BMSAPI.BusinessLayer.TenantService;
+using BMSAPI.Models;
 
-namespace MerchantAPI.BusinessLayer.Service
+namespace BMSAPI.BusinessLayer.Service
 {
     public class NTSoftDbContext : DbContext
     {
@@ -52,7 +52,6 @@ namespace MerchantAPI.BusinessLayer.Service
 
                             if (IsPropertyMapped(entry, nameof(Base.IsActive)))
                                 entry.Property(x => x.IsActive).IsModified = true;
-                                
                             break;
                     }
                 }

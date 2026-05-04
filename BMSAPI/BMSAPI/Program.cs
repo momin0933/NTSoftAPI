@@ -3,10 +3,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using MerchantAPI.BusinessLayer.Interface;
-using MerchantAPI.BusinessLayer.Manager;
-using MerchantAPI.BusinessLayer.Service;
-using MerchantAPI.BusinessLayer.TenantService;
+using BMSAPI.BusinessLayer.Interface;
+using BMSAPI.BusinessLayer.Manager;
+using BMSAPI.BusinessLayer.Service;
+using BMSAPI.BusinessLayer.TenantService;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
@@ -109,6 +109,8 @@ builder.Services.AddCors(options =>
               .AllowCredentials();
     });
 });
+
+
 
 
 var app = builder.Build();
