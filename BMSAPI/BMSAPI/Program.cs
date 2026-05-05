@@ -62,7 +62,7 @@ builder.Services.AddScoped<IDapperService, DapperService>();
 builder.Services.AddScoped<ICommonService, CommonService>();
 
 // Business services
-builder.Services.AddScoped<IOrderManager, OrderManager>();
+
 builder.Services.AddScoped<ITenantStore, TenantStore>();
 
 // Custom service
@@ -70,6 +70,23 @@ builder.Services.AddScoped<CustomService>();
 // Tenant Provider
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
+// Interface Scoped
+
+builder.Services.AddScoped<IBkashManager, BkashManager>();
+builder.Services.AddScoped<IUserManager, UserManager>();
+
+
+
+builder.Services.AddDistributedMemoryCache();
+
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
+builder.Services.AddHttpContextAccessor(); // ⚠️ important
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
@@ -137,6 +154,8 @@ app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
+
+app.UseSession();
 
 app.UseAuthorization();
 

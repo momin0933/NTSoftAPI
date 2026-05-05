@@ -12,12 +12,11 @@ namespace BMSAPI.BusinessLayer.Service
         }
 
         public virtual DbSet<Tenant> Tenants { get; set; } = null!;
-        public DbSet<Order> Orders { get; set; }  // ✅ এই লাইন যোগ করুন
+       
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Tenant>().ToTable("tblTenant");
-            modelBuilder.Entity<Order>().ToTable("tblOrders");
+            modelBuilder.Entity<Tenant>().ToTable("tblTenant");         
         }
 
         public override int SaveChanges()
