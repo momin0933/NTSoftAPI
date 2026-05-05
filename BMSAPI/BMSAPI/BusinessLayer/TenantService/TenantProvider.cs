@@ -13,7 +13,6 @@
             _configuration = configuration;
             _tenantStore = tenantStore;
         }
-
         public string GetConnectionString()
         {
             ////var tenant = _httpContextAccessor.HttpContext?.Items["Tenant"] as Tenant;
@@ -36,7 +35,12 @@
             if (string.IsNullOrEmpty(tenantId))
             {
                 tenantId = _httpContextAccessor.HttpContext?.User?.FindFirst("TenantId")?.Value;
+                
             }
+            if (string.IsNullOrEmpty(tenantId))
+            {
+                tenantId = _httpContextAccessor.HttpContext?.Session.GetString("TenantId");
+            }            
 
             if (!string.IsNullOrEmpty(tenantId))
             {

@@ -43,6 +43,7 @@ namespace BMSAPI.Models
         public string? ImageName { get; set; }
         public int? CompId { get; set; }
         public string? SMSAppName { get; set; }
+        public string? TenantId { get; set; }
         //public virtual ICollection<ExmCandidateList>? ExmCandidateLists { get; set; } = new List<ExmCandidateList>();
 
         #endregion
@@ -50,13 +51,5 @@ namespace BMSAPI.Models
 
     }
 
-    public class EcomUser : Base
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Password { get; set; }
-        public string? UserRole { get; set; }
-        public int? WhId { get; set; }
-    }
+    
 }
