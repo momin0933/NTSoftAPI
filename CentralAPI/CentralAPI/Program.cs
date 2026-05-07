@@ -65,6 +65,7 @@ builder.Services.AddScoped<ICommonService, CommonService>();
 builder.Services.AddScoped<IUser, UserManager>();
 builder.Services.AddScoped<ITenantStore, TenantStore>();
 builder.Services.AddScoped<IMenu, MenuManager>();
+builder.Services.AddScoped<IDropdown, DropdownManager>();
 // Custom service
 builder.Services.AddScoped<CustomService>();
 // Tenant Provider
