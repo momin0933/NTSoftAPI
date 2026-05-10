@@ -67,7 +67,100 @@ namespace BMSAPI.BusinessLayer.Manager
                 throw;
             }
         }
-        
+
+        //public bool SaveBkashPayment(BkashPaymentRequest request)
+        //{
+        //    try
+        //    {              
+        //        var user = _userData.GetUser(request.UserName, request.Password);
+        //        if (user == null)
+        //        {
+        //            _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
+        //            return false;
+        //        }
+
+        //        _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+        //        var payment = new VbntblBkashPayments
+        //        {               
+        //            FlatCode = request.FlatCode,
+        //            BillMonth = request.BillMonth,
+        //            Amount = request.Amount,
+        //            UserMobileNumber = request.UserMobileNumber,
+        //            TrxId = request.TrxId,
+        //            PayTime = request.PayTime
+        //        };
+
+        //        _ICommonService.Add(payment);
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error saving bKash payment");
+        //        throw;
+        //    }
+        //}
+
+        public bool SaveBkashPayment(BkashPaymentRequest request)
+        {
+            try
+            {
+                var user = _userData.GetUser(request.UserName, request.Password);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
+                    return false;
+                }
+
+                _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+           
+                string sql = @"
+                    SELECT TOP 1 
+                        FORMAT([Date], 'MMyyyy') AS BillMonth,
+                        BillAmount,
+                        BillNo
+                    FROM VbntblBill
+                    WHERE FORMAT([Date], 'MMyyyy') = @BillMonth
+                      AND FlatCode = @FlatCode
+                ";
+
+                var bill = _IDapperService.GetSingle<dynamic>(sql, new
+                {
+                    BillMonth = request.BillMonth,
+                    FlatCode = request.FlatCode
+                });
+
+                if (bill == null)
+                {
+                    _logger.LogWarning("Bill not found for FlatCode: {FlatCode}", request.FlatCode);
+                    return false;
+                }
+            
+                var payment = new VbntblBkashPayments
+                {
+                    FlatCode = request.FlatCode,
+                    BillMonth = request.BillMonth,
+                    Amount = request.Amount,
+                    UserMobileNumber = request.UserMobileNumber,
+                    TrxId = request.TrxId,
+                    PayTime = request.PayTime,
+
+                    // ADD BILL NO HERE
+                    BillNo = bill.BillNo
+                };
+
+                _ICommonService.Add(payment);
+                _ICommonService.Save(); // IMPORTANT
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving bKash payment");
+                throw;
+            }
+        }
+
         #endregion
     }
 }

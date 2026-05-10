@@ -1,4 +1,5 @@
 ﻿using BMSAPI.BusinessLayer.Interface;
+using BMSAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -28,6 +29,39 @@ namespace BMSAPI.Controllers
             {
                 _logger.LogError(ex, "Error retrieving bill");
                 return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("api/SaveBkashPayment")]
+        public IActionResult SaveBkashPayment([FromForm] BkashPaymentRequest request)
+        {
+            try
+            {
+                var result = _bkashManager.SaveBkashPayment(request);
+                if (!result)
+                {
+                    return Unauthorized(new
+                    {
+                        success = false,
+                        message = "Invalid UserName or Password"
+                    });
+                }
+
+                return Ok(new
+                {
+                    success = true,
+                    message = "Payment saved successfully"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving bKash payment");
+
+                return StatusCode(500, new
+                {
+                    success = false,
+                    message = ex.Message
+                });
             }
         }
 
