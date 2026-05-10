@@ -7,5 +7,7 @@ namespace BMSAPI.BusinessLayer.Interface
         // GET operations (Dapper)
         BkashBillInfo GetBillMonthWise(string UserName, string Password,string FlatCode, string BillMonth);
         bool SaveBkashPayment(BkashPaymentRequest request);
+
+        BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId);
     }
 }
