@@ -67,7 +67,156 @@ namespace BMSAPI.BusinessLayer.Manager
                 throw;
             }
         }
-        
+
+        //public bool SaveBkashPayment(BkashPaymentRequest request)
+        //{
+        //    try
+        //    {              
+        //        var user = _userData.GetUser(request.UserName, request.Password);
+        //        if (user == null)
+        //        {
+        //            _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
+        //            return false;
+        //        }
+
+        //        _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+        //        var payment = new VbntblBkashPayments
+        //        {               
+        //            FlatCode = request.FlatCode,
+        //            BillMonth = request.BillMonth,
+        //            Amount = request.Amount,
+        //            UserMobileNumber = request.UserMobileNumber,
+        //            TrxId = request.TrxId,
+        //            PayTime = request.PayTime
+        //        };
+
+        //        _ICommonService.Add(payment);
+        //        return true;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error saving bKash payment");
+        //        throw;
+        //    }
+        //}
+
+        public bool SaveBkashPayment(BkashPaymentRequest request)
+        {
+            try
+            {
+                var user = _userData.GetUser(request.UserName, request.Password);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
+                    return false;
+                }
+
+                _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+                // =========================
+                // GET BILL
+                // =========================
+                string sql = @"
+            SELECT TOP 1 
+                BillAmount,
+                BillNo
+            FROM VbntblBill
+            WHERE FORMAT([Date], 'MMyyyy') = @BillMonth
+              AND FlatCode = @FlatCode
+        ";
+
+                var bill = _IDapperService.GetSingle<dynamic>(sql, new
+                {
+                    BillMonth = request.BillMonth,
+                    FlatCode = request.FlatCode
+                });
+
+                if (bill == null)
+                {
+                    _logger.LogWarning("Bill not found for FlatCode: {FlatCode}", request.FlatCode);
+                    return false;
+                }
+
+                var payment = new VbntblBkashPayments
+                {
+                    FlatCode = request.FlatCode,
+                    BillMonth = request.BillMonth,
+                    Amount = request.Amount,
+                    UserMobileNumber = request.UserMobileNumber,
+                    TrxId = request.TrxId,
+                    PayTime = request.PayTime,
+                    BillNo = bill.BillNo
+                };
+
+                _ICommonService.Add(payment);
+                _ICommonService.Save();
+
+                string updateSql = @"
+                    UPDATE VbntblBill
+                    SET 
+                        Collection = @Collection,
+                        CollectionDate = GETDATE(),
+                        Status = 'Paid'
+                    WHERE BillNo = @BillNo";
+
+                _IDapperService.ExecuteAsync(updateSql, new
+                {
+                    Collection = request.Amount,
+                    BillNo = bill.BillNo
+                });
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error saving bKash payment");
+                throw;
+            }
+        }
+
+        public BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId)
+        {
+            try
+            {
+                if (UserName != null && Password != null)
+                {
+                    var user = _userData.GetUser(UserName, Password);
+
+                    if (user == null)
+                    {
+                        _logger.LogWarning("User authentication failed for: {UserName}", UserName);
+                        return null;
+                    }
+
+                    _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+                    string procedur = "SP_GetBillVarifyBYyTrxId";
+
+                    DynamicParameters p = new DynamicParameters();
+              
+                    p.Add("@QueryChecker", 1);
+
+                    p.Add("@TrxId", TrxId);
+
+                    var billInfo = _IDapperService
+                        .GetAllBySP<BkashBillInfo>(procedur, p)
+                        .FirstOrDefault();
+
+                    _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
+
+                    return billInfo;
+                }
+
+                _logger.LogWarning("Invalid input: UserName or Password is null");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting bill information");
+                throw;
+            }
+        }
         #endregion
     }
 }
