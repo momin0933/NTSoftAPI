@@ -241,7 +241,8 @@ namespace BMSAPI.BusinessLayer.Manager
                 VoucherDetails debitEntry = new VoucherDetails
                 {
                     AccVoucherId = voucherId,
-                    LedgerId = 2492,
+                    //LedgerId = 2492,
+                    LedgerId = list.BkLedgerId,
                     TranType = "Dr",
                     Amount = request.Amount,
                     DebitAmount = request.Amount,

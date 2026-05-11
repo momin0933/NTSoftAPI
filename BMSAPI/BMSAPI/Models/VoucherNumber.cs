@@ -3,6 +3,7 @@
     public class VoucherNumber
     {
         public int LedgerId { get; set; }
+        public int BkLedgerId { get; set; }
         public int CollectorLedgerId { get; set; }
         public string? LastVoucherNumber { get; set; }
         public string? LdgAccNo { get; set; }
