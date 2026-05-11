@@ -22,9 +22,9 @@ namespace BMSAPI.BusinessLayer.Service
             modelBuilder.Entity<VbntblBkashPayments>().ToTable("VbntblBkashPayments");
             modelBuilder.Entity<Bill>().ToTable("VbnTblBill");
             modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
-            modelBuilder.Entity<VoucherDetails>()
-          .ToTable("AcctblVoucherDetails",
+            modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
               tb => tb.UseSqlOutputClause(false));
+
         }
 
         public override int SaveChanges()
