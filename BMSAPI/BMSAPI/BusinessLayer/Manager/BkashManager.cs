@@ -308,88 +308,88 @@ namespace BMSAPI.BusinessLayer.Manager
             }
         }
 
-        public int UpdateBill(ViewModalBill entity)
-        {
-            try
-            {
-                decimal voucherAmount = 0;
+        //public int UpdateBill(ViewModalBill entity)
+        //{
+        //    try
+        //    {
+        //        decimal voucherAmount = 0;
 
-                foreach (var item in entity.Bills)
-                {
-                    voucherAmount += Convert.ToDecimal(item.Remarks);
+        //        foreach (var item in entity.Bills)
+        //        {
+        //            voucherAmount += Convert.ToDecimal(item.Remarks);
 
-                    _ICommonService.Update<Bill>(item);
-                }
+        //            _ICommonService.Update<Bill>(item);
+        //        }
 
 
-                string SP = "Sp_VbnExpense";
-                DynamicParameters p = new DynamicParameters();
-                p.Add("@QueryChecker", 12);
-                p.Add("@OwnerCode", entity.FlatCode);
-                p.Add("@CollectorCode", entity.UpdateBy);
-                p.Add("@VoucherType", "RV");
+        //        string SP = "Sp_VbnExpense";
+        //        DynamicParameters p = new DynamicParameters();
+        //        p.Add("@QueryChecker", 12);
+        //        p.Add("@OwnerCode", entity.FlatCode);
+        //        p.Add("@CollectorCode", entity.UpdateBy);
+        //        p.Add("@VoucherType", "RV");
 
-                var list = _IDapperService.GetAllBySP<VoucherNumber>(SP, p).FirstOrDefault();
+        //        var list = _IDapperService.GetAllBySP<VoucherNumber>(SP, p).FirstOrDefault();
 
-                List<VoucherDetails> VoucherDetailsList = new List<VoucherDetails>();
+        //        List<VoucherDetails> VoucherDetailsList = new List<VoucherDetails>();
 
-                VoucherDetails details = new VoucherDetails();
-                // Crdit
-                details.LedgerId = list.LedgerId;
-                details.TranType = "Cr";
-                details.Amount = voucherAmount;
-                details.ShortDesc = "";
-                details.EntryBy = entity.UpdateBy;
+        //        VoucherDetails details = new VoucherDetails();
+        //        // Crdit
+        //        details.LedgerId = list.LedgerId;
+        //        details.TranType = "Cr";
+        //        details.Amount = voucherAmount;
+        //        details.ShortDesc = "";
+        //        details.EntryBy = entity.UpdateBy;
 
-                VoucherDetailsList.Add(details);
-                // for debit
+        //        VoucherDetailsList.Add(details);
+        //        // for debit
 
-                details = new VoucherDetails();
+        //        details = new VoucherDetails();
 
-                details.LedgerId = 12;
-                details.TranType = "Dr";
-                details.Amount = voucherAmount;
-                details.ShortDesc = "Collection From " + (entity.UpdateBy ?? "");
-                details.EntryBy = entity.UpdateBy;
+        //        details.LedgerId = 12;
+        //        details.TranType = "Dr";
+        //        details.Amount = voucherAmount;
+        //        details.ShortDesc = "Collection From " + (entity.UpdateBy ?? "");
+        //        details.EntryBy = entity.UpdateBy;
 
-                VoucherDetailsList.Add(details);
+        //        VoucherDetailsList.Add(details);
 
-                string newVoucherNumber = ""; // default
-                if (!string.IsNullOrEmpty(list.LastVoucherNumber) && list.LastVoucherNumber.StartsWith("RV#"))
-                {
-                    var numberPart = list.LastVoucherNumber.Substring(3); // get after "RV#"
-                    if (int.TryParse(numberPart, out int num))
-                    {
-                        newVoucherNumber = $"RV#{num + 1}";
-                    }
-                }
-                else
-                {
-                    newVoucherNumber = $"RV#1";
-                }
+        //        string newVoucherNumber = ""; // default
+        //        if (!string.IsNullOrEmpty(list.LastVoucherNumber) && list.LastVoucherNumber.StartsWith("RV#"))
+        //        {
+        //            var numberPart = list.LastVoucherNumber.Substring(3); // get after "RV#"
+        //            if (int.TryParse(numberPart, out int num))
+        //            {
+        //                newVoucherNumber = $"RV#{num + 1}";
+        //            }
+        //        }
+        //        else
+        //        {
+        //            newVoucherNumber = $"RV#1";
+        //        }
 
-                AccVoucher accVoucher = new AccVoucher
-                {
-                    VoucherType = "RV",
-                    VoucherNumber = newVoucherNumber,
-                    CompanyId = entity.CompanyId,
-                    VoucherDate = entity.Date,
-                    Narration = entity.Remarks,
-                    TotalAmount = voucherAmount,
-                    VoucherStatus = "Pending",
-                    EntryBy = entity.UpdateBy,
-                    Remarks = entity.BillNo,
-                    voucherEntryDetails = VoucherDetailsList
+        //        AccVoucher accVoucher = new AccVoucher
+        //        {
+        //            VoucherType = "RV",
+        //            VoucherNumber = newVoucherNumber,
+        //            CompanyId = entity.CompanyId,
+        //            VoucherDate = entity.Date,
+        //            Narration = entity.Remarks,
+        //            TotalAmount = voucherAmount,
+        //            VoucherStatus = "Pending",
+        //            EntryBy = entity.UpdateBy,
+        //            Remarks = entity.BillNo,
+        //            voucherEntryDetails = VoucherDetailsList
 
-                };
-                _ICommonService.Add<AccVoucher>(accVoucher);
-                return entity.Id;
-            }
-            catch (Exception ex)
-            {
-                return 0;
-            }
-        }
+        //        };
+        //        _ICommonService.Add<AccVoucher>(accVoucher);
+        //        return entity.Id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return 0;
+        //    }
+        //}
         #endregion
     }
 }

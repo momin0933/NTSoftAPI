@@ -10,6 +10,6 @@ namespace BMSAPI.BusinessLayer.Interface
 
         BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId);
 
-        public int UpdateBill(ViewModalBill entity);
+        //public int UpdateBill(ViewModalBill entity);
     }
 }
