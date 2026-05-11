@@ -115,7 +115,7 @@ namespace BMSAPI.BusinessLayer.Manager
                 _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
 
                 string sql = @"
-            SELECT TOP 1 
+            SELECT TOP 1  Id, 
                 BillAmount,
                 BillNo
             FROM VbntblBill
@@ -144,6 +144,7 @@ namespace BMSAPI.BusinessLayer.Manager
                     TrxId = request.TrxId,
                     PayTime = request.PayTime,
                     BillNo = bill.BillNo,
+                    BillId = bill.Id,
                     EntryBy = "bKash",
                     EntryDate = DateTime.Now,
                     IsActive = true

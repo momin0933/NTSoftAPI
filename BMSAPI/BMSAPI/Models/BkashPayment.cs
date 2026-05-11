@@ -3,6 +3,7 @@
     public class VbntblBkashPayments : Base
     {
         public int Id { get; set; }
+        public int BillId { get; set; }
         public string FlatCode { get; set; }
         public string BillNo { get; set; }
         public string BillMonth { get; set; }
