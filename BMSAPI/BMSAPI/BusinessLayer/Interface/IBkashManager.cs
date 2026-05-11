@@ -9,5 +9,7 @@ namespace BMSAPI.BusinessLayer.Interface
         bool SaveBkashPayment(BkashPaymentRequest request);
 
         BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId);
+
+        public int UpdateBill(ViewModalBill entity);
     }
 }
