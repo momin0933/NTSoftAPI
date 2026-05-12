@@ -70,5 +70,25 @@ namespace CentralAPI.Controllers
             }
             catch { throw; }
         }
+        [Route("api/Dropdown/GetAllOrderSeasons")]
+        [HttpGet]
+        public List<OrderSeasonDropdown> GetAllOrderSeasons()
+        {
+            try
+            {
+                return _ServiceManager.GetAllOrderSeasons();
+            }
+            catch { throw; }
+        }
+        [Route("api/Dropdown/GetAllOrderTypes")]
+        [HttpGet]
+        public List<OrderTypeDropdown> GetAllOrderTypes()
+        {
+            try
+            {
+                return _ServiceManager.GetAllOrderTypes();
+            }
+            catch { throw; }
+        }
     }
 }
