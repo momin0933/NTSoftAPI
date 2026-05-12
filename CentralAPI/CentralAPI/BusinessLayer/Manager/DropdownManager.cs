@@ -99,5 +99,35 @@ namespace CentralAPI.BusinessLayer.Manager
                 return null;
             }
         }
+
+        public List<OrderSeasonDropdown> GetAllOrderSeasons()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 6);
+                return _IDapperService.GetAllBySP<OrderSeasonDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching order seasons");
+                return null;
+            }
+        }
+
+        public List<OrderTypeDropdown> GetAllOrderTypes()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 7);
+                return _IDapperService.GetAllBySP<OrderTypeDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching order types");
+                return null;
+            }
+        }
     }
 }

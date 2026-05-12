@@ -9,5 +9,7 @@ namespace CentralAPI.BusinessLayer.Interface
         List<CustomerDropdown> GetAllCustomers();
         List<DepartmentDropdown> GetAllDepartments();
         List<FactoryDropdown> GetAllFactories();
+        List<OrderSeasonDropdown> GetAllOrderSeasons();
+        List<OrderTypeDropdown> GetAllOrderTypes();
     }
 }
