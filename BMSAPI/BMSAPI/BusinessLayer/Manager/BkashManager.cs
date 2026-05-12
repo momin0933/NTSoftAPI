@@ -153,12 +153,14 @@ namespace BMSAPI.BusinessLayer.Manager
                 _ICommonService.Add(payment).Wait();
 
                 string updateSql = @"
-            UPDATE VbntblBill
-            SET 
-                Collection = @Collection,
-                CollectionDate = GETDATE(),
-                Status = 'Paid'
-            WHERE BillNo = @BillNo";
+                           UPDATE VbntblBill
+                    SET 
+                        Collection = @Collection,
+                        CollectionDate = GETDATE(),
+                        Status = 'Paid',
+                        UpdateBy = 'Bkash',
+                        IsActive = 'True'
+                    WHERE BillNo = @BillNo";
 
                 _IDapperService.ExecuteAsync(updateSql, new
                 {
@@ -205,7 +207,7 @@ namespace BMSAPI.BusinessLayer.Manager
                     PaymentType = "bKash",
                     Narration = "bKash Collection",
                     TotalAmount = request.Amount,
-                    VoucherStatus = "Approved",
+                    VoucherStatus = "Pending",
                     CompanyId = 1,
                     Remarks = bill.BillNo,
                     EntryBy = "bKash",
