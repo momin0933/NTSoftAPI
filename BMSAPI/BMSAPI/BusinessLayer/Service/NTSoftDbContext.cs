@@ -12,12 +12,19 @@ namespace BMSAPI.BusinessLayer.Service
         }
 
         public virtual DbSet<Tenant> Tenants { get; set; } = null!;
-
+        public virtual DbSet<Bill> Bills { get; set; } = null!;
         public virtual DbSet<VbntblBkashPayments> VbntblBkashPayments { get; set; } = null!;
+        public virtual DbSet<AccVoucher> voucherEntryDetails { get; set; } = null!;
+        public virtual DbSet<VoucherDetails> VoucherEntry { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
             modelBuilder.Entity<VbntblBkashPayments>().ToTable("VbntblBkashPayments");
+            modelBuilder.Entity<Bill>().ToTable("VbnTblBill");
+            modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
+            modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
+              tb => tb.UseSqlOutputClause(false));
+
         }
 
         public override int SaveChanges()
