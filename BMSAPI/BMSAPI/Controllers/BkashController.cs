@@ -32,43 +32,6 @@ namespace BMSAPI.Controllers
             }
         }
 
-        //[HttpPost("api/SaveBkashPayment")]
-        //public IActionResult SaveBkashPayment([FromForm] BkashPaymentRequest request)
-        //{
-        //    try
-        //    {
-        //        var result = _bkashManager.SaveBkashPayment(request);
-        //        if (!result)
-        //        {
-        //            return Unauthorized(new
-        //            {
-        //                success = false,
-        //                message = "Invalid UserName or Password"
-        //            });
-        //        }
-
-        //        return Ok(new
-        //        {
-        //            success = true,
-        //            message = "Payment saved successfully"
-        //        });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error saving bKash payment");
-
-        //        return StatusCode(500, new
-        //        {
-        //            success = false,
-        //            message = ex.Message
-        //        });
-        //    }
-        //}
-
-        // ==============================
-        // CONTROLLER
-        // File: Controllers/BkashController.cs
-        // ==============================
 
         [HttpPost("api/SaveBkashPayment")]
         public IActionResult SaveBkashPayment([FromForm] BkashPaymentRequest request)
@@ -77,35 +40,25 @@ namespace BMSAPI.Controllers
             {
                 var result = _bkashManager.SaveBkashPayment(request);
 
-                return Ok(result);
+                return Ok(new
+                {
+                    success = true,
+                    data = result,
+                    message = "Payment processed successfully"
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving bKash payment");
 
-                return StatusCode(500, new BkashBillPaymentResponse
+                return StatusCode(500, new
                 {
-                    ErrorCode = "500",
-                    ErrorMsg = ex.Message
+                    success = false,
+                    message = ex.Message
                 });
             }
         }
 
-
-        //[HttpGet("api/GetBillByTrxId")]
-        //public IActionResult GetBillByTrxId(string UserName, string Password, string TrxId)
-        //{
-        //    try
-        //    {
-        //        var Bill = _bkashManager.GetBillByTrxId(UserName, Password, TrxId);
-        //        return Ok(new { success = true, data = Bill, message = "Bill retrieved successfully" });
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        _logger.LogError(ex, "Error retrieving bill");
-        //        return StatusCode(500, new { success = false, message = ex.Message });
-        //    }
-        //}
 
         [HttpGet("api/GetBillByTrxId")]
         public IActionResult GetBillByTrxId(string UserName, string Password, string TrxId)
@@ -114,16 +67,21 @@ namespace BMSAPI.Controllers
             {
                 var result = _bkashManager.GetBillByTrxId(UserName, Password, TrxId);
 
-                return Ok(result);
+                return Ok(new
+                {
+                    success = true,
+                    data = result,
+                    message = "Bill retrieved successfully"
+                });
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving bill");
 
-                return StatusCode(500, new BkashBillPaymentResponse
+                return StatusCode(500, new
                 {
-                    ErrorCode = "500",
-                    ErrorMsg = ex.Message
+                    success = false,
+                    message = ex.Message
                 });
             }
         }
