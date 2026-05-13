@@ -1,4 +1,5 @@
-﻿using BMSAPI.BusinessLayer.Interface;
+﻿using Azure.Core;
+using BMSAPI.BusinessLayer.Interface;
 using BMSAPI.BusinessLayer.Service;
 using BMSAPI.Models;
 using Dapper;
@@ -68,11 +69,14 @@ namespace BMSAPI.BusinessLayer.Manager
             }
         }
 
+
+
         //public bool SaveBkashPayment(BkashPaymentRequest request)
         //{
         //    try
-        //    {              
+        //    {          
         //        var user = _userData.GetUser(request.UserName, request.Password);
+
         //        if (user == null)
         //        {
         //            _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
@@ -80,17 +84,152 @@ namespace BMSAPI.BusinessLayer.Manager
         //        }
 
         //        _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+        //        string sql = @"
+        //    SELECT TOP 1  Id, 
+        //        BillAmount,
+        //        BillNo
+        //    FROM VbntblBill
+        //    WHERE FORMAT([Date], 'MMyyyy') = @BillMonth
+        //      AND FlatCode = @FlatCode
+        //";
+
+        //        var bill = _IDapperService.GetSingle<dynamic>(sql, new
+        //        {
+        //            BillMonth = request.BillMonth,
+        //            FlatCode = request.FlatCode
+        //        });
+
+        //        if (bill == null)
+        //        {
+        //            _logger.LogWarning("Bill not found for FlatCode: {FlatCode}", request.FlatCode);
+        //            return false;
+        //        }
+
         //        var payment = new VbntblBkashPayments
-        //        {               
+        //        {
         //            FlatCode = request.FlatCode,
         //            BillMonth = request.BillMonth,
         //            Amount = request.Amount,
         //            UserMobileNumber = request.UserMobileNumber,
         //            TrxId = request.TrxId,
-        //            PayTime = request.PayTime
+        //            PayTime = request.PayTime,
+        //            BillNo = bill.BillNo,
+        //            BillId = bill.Id,
+        //            EntryBy = "bKash",
+        //            EntryDate = DateTime.Now,
+        //            IsActive = true
         //        };
 
-        //        _ICommonService.Add(payment);
+        //        _ICommonService.Add(payment).Wait();
+
+        //        string updateSql = @"
+        //                   UPDATE VbntblBill
+        //            SET 
+        //                Collection = @Collection,
+        //                CollectionDate = GETDATE(),
+        //                Status = 'Paid',
+        //                UpdateBy = 'Bkash',
+        //                IsActive = 'True'
+        //            WHERE BillNo = @BillNo";
+
+        //        _IDapperService.ExecuteAsync(updateSql, new
+        //        {
+        //            Collection = request.Amount,
+        //            BillNo = bill.BillNo
+        //        });
+
+
+        //        string SP = "Sp_VbnExpense";
+
+        //        DynamicParameters p = new DynamicParameters();
+        //        p.Add("@QueryChecker", 13);
+        //        p.Add("@OwnerCode", request.FlatCode);
+        //        p.Add("@VoucherType", "RV");
+
+        //        var list = _IDapperService
+        //            .GetAllBySP<VoucherNumber>(SP, p)
+        //            .FirstOrDefault();
+
+        //        if (list == null)
+        //        {
+        //            _logger.LogWarning("Voucher setup not found");
+        //            return false;
+        //        }
+
+        //        string newVoucherNumber = "RV#1";
+
+        //        if (!string.IsNullOrEmpty(list.LastVoucherNumber) &&
+        //            list.LastVoucherNumber.StartsWith("RV#"))
+        //        {
+        //            var numberPart = list.LastVoucherNumber.Substring(3);
+
+        //            if (int.TryParse(numberPart, out int num))
+        //            {
+        //                newVoucherNumber = $"RV#{num + 1}";
+        //            }
+        //        }
+
+        //        AccVoucher accVoucher = new AccVoucher
+        //        {
+        //            VoucherType = "RV",
+        //            VoucherNumber = newVoucherNumber,
+        //            VoucherDate = DateTime.Now,
+        //            PaymentType = "bKash",
+        //            Narration = "bKash Collection",
+        //            TotalAmount = request.Amount,
+        //            VoucherStatus = "Pending",
+        //            CompanyId = 1,
+        //            Remarks = bill.BillNo,
+        //            EntryBy = "bKash",
+        //            EntryDate = DateTime.Now,
+        //            IsActive = true
+        //        };
+
+        //        int voucherId = _ICommonService.Add(accVoucher).Result;
+
+        //        if (voucherId <= 0)
+        //        {
+        //            _logger.LogError("AccVoucher insert failed");
+        //            return false;
+        //        }
+
+
+        //        VoucherDetails creditEntry = new VoucherDetails
+        //        {
+        //            AccVoucherId = voucherId,
+        //            LedgerId = list.LedgerId,
+        //            TranType = "Cr",
+        //            Amount = request.Amount,
+        //            CreditAmount = request.Amount,
+        //            DebitAmount = 0,
+        //            ShortDesc = "bKash Collection Credit",
+        //            PaymentType = "bKash",
+        //            EntryBy = "bKash",
+        //            EntryDate = DateTime.Now,
+        //            IsActive = true
+        //        };
+
+        //        _ICommonService.Add(creditEntry).Wait();
+
+        //        VoucherDetails debitEntry = new VoucherDetails
+        //        {
+        //            AccVoucherId = voucherId,
+        //            //LedgerId = 2492,
+        //            LedgerId = list.BkLedgerId,
+        //            TranType = "Dr",
+        //            Amount = request.Amount,
+        //            DebitAmount = request.Amount,
+        //            CreditAmount = 0,
+        //            ShortDesc = "Collection From bKash",
+        //            PaymentType = "bKash",
+        //            EntryBy = "bKash",
+        //            EntryDate = DateTime.Now,
+        //            IsActive = true
+        //        };
+
+        //        _ICommonService.Add(debitEntry).Wait();
+
         //        return true;
         //    }
         //    catch (Exception ex)
@@ -100,39 +239,58 @@ namespace BMSAPI.BusinessLayer.Manager
         //    }
         //}
 
-        public bool SaveBkashPayment(BkashPaymentRequest request)
+        // ==============================
+        // SERVICE METHOD
+        // File: BkashManager.cs
+        // ==============================
+
+        public BkashBillPaymentResponse SaveBkashPayment(BkashPaymentRequest request)
         {
             try
-            {          
+            {
                 var user = _userData.GetUser(request.UserName, request.Password);
 
                 if (user == null)
                 {
                     _logger.LogWarning("User authentication failed for: {UserName}", request.UserName);
-                    return false;
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "403",
+                        ErrorMsg = "Authentication failed"
+                    };
                 }
 
                 _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
 
                 string sql = @"
-            SELECT TOP 1  Id, 
-                BillAmount,
-                BillNo
-            FROM VbntblBill
-            WHERE FORMAT([Date], 'MMyyyy') = @BillMonth
-              AND FlatCode = @FlatCode
-        ";
+                 SELECT TOP 1
+                     b.Id,
+                     b.BillAmount,
+                     b.BillNo,
+                    b.FlatCode,
+	                fo.OwnerName
+                 FROM VbntblBill as b
+                 LEFT JOIN Vw_FlatOwnerInfo fo on fo.FlatCode = b.FlatCode
+                WHERE FORMAT([Date], 'MMyyyy') = @BillMonth
+                AND b.FlatCode = @FlatCode";
 
                 var bill = _IDapperService.GetSingle<dynamic>(sql, new
                 {
                     BillMonth = request.BillMonth,
                     FlatCode = request.FlatCode
                 });
+  
 
                 if (bill == null)
                 {
                     _logger.LogWarning("Bill not found for FlatCode: {FlatCode}", request.FlatCode);
-                    return false;
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "404",
+                        ErrorMsg = "Data not found"
+                    };
                 }
 
                 var payment = new VbntblBkashPayments
@@ -153,8 +311,8 @@ namespace BMSAPI.BusinessLayer.Manager
                 _ICommonService.Add(payment).Wait();
 
                 string updateSql = @"
-                           UPDATE VbntblBill
-                    SET 
+                    UPDATE VbntblBill
+                    SET
                         Collection = @Collection,
                         CollectionDate = GETDATE(),
                         Status = 'Paid',
@@ -167,7 +325,6 @@ namespace BMSAPI.BusinessLayer.Manager
                     Collection = request.Amount,
                     BillNo = bill.BillNo
                 });
-
 
                 string SP = "Sp_VbnExpense";
 
@@ -183,8 +340,14 @@ namespace BMSAPI.BusinessLayer.Manager
                 if (list == null)
                 {
                     _logger.LogWarning("Voucher setup not found");
-                    return false;
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "404",
+                        ErrorMsg = "Voucher setup not found"
+                    };
                 }
+
 
                 string newVoucherNumber = "RV#1";
 
@@ -198,6 +361,7 @@ namespace BMSAPI.BusinessLayer.Manager
                         newVoucherNumber = $"RV#{num + 1}";
                     }
                 }
+
 
                 AccVoucher accVoucher = new AccVoucher
                 {
@@ -220,10 +384,14 @@ namespace BMSAPI.BusinessLayer.Manager
                 if (voucherId <= 0)
                 {
                     _logger.LogError("AccVoucher insert failed");
-                    return false;
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "500",
+                        ErrorMsg = "Voucher insert failed"
+                    };
                 }
 
- 
                 VoucherDetails creditEntry = new VoucherDetails
                 {
                     AccVoucherId = voucherId,
@@ -239,12 +407,11 @@ namespace BMSAPI.BusinessLayer.Manager
                     IsActive = true
                 };
 
-                _ICommonService.Add(creditEntry).Wait();
+                _ICommonService.Add(creditEntry).Wait();  
 
                 VoucherDetails debitEntry = new VoucherDetails
                 {
                     AccVoucherId = voucherId,
-                    //LedgerId = 2492,
                     LedgerId = list.BkLedgerId,
                     TranType = "Dr",
                     Amount = request.Amount,
@@ -258,140 +425,146 @@ namespace BMSAPI.BusinessLayer.Manager
                 };
 
                 _ICommonService.Add(debitEntry).Wait();
+     
 
-                return true;
+                return new BkashBillPaymentResponse
+                {
+                    ErrorCode = "200",
+                    ErrorMsg = "Successful",
+                    ConsumerName = bill.OwnerName,
+                    TotalAmount = request.Amount.ToString(),
+                    TrxId = request.TrxId,
+                    MiddlewarePayTime = DateTime.Now.ToString("yyyyMMddHHmmss"),                        
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error saving bKash payment");
-                throw;
+
+                return new BkashBillPaymentResponse
+                {
+                    ErrorCode = "500",
+                    ErrorMsg = ex.Message
+                };
             }
         }
-        public BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId)
+        //public BkashBillInfo GetBillByTrxId(string UserName, string Password, string TrxId)
+        //{
+        //    try
+        //    {
+        //        if (UserName != null && Password != null)
+        //        {
+        //            var user = _userData.GetUser(UserName, Password);
+
+        //            if (user == null)
+        //            {
+        //                _logger.LogWarning("User authentication failed for: {UserName}", UserName);
+        //                return null;
+        //            }
+
+        //            _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+        //            string procedur = "SP_GetBillVarifyBYyTrxId";
+
+        //            DynamicParameters p = new DynamicParameters();
+
+        //            p.Add("@QueryChecker", 1);
+
+        //            p.Add("@TrxId", TrxId);
+
+        //            var billInfo = _IDapperService
+        //                .GetAllBySP<BkashBillInfo>(procedur, p)
+        //                .FirstOrDefault();
+
+        //            _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
+
+        //            return billInfo;
+        //        }
+
+        //        _logger.LogWarning("Invalid input: UserName or Password is null");
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error getting bill information");
+        //        throw;
+        //    }
+        //}
+
+        public BkashBillPaymentResponse GetBillByTrxId(string UserName, string Password, string TrxId)
         {
             try
-            {
-                if (UserName != null && Password != null)
+            {         
+                if (string.IsNullOrEmpty(UserName) || string.IsNullOrEmpty(Password))
                 {
-                    var user = _userData.GetUser(UserName, Password);
-
-                    if (user == null)
+                    return new BkashBillPaymentResponse
                     {
-                        _logger.LogWarning("User authentication failed for: {UserName}", UserName);
-                        return null;
-                    }
+                        ErrorCode = "406",
+                        ErrorMsg = "Mandatory Field Missing"
+                    };
+                }
+      
+                var user = _userData.GetUser(UserName, Password);
 
-                    _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+                if (user == null)
+                {
+                    _logger.LogWarning("User authentication failed for: {UserName}", UserName);
 
-                    string procedur = "SP_GetBillVarifyBYyTrxId";
-
-                    DynamicParameters p = new DynamicParameters();
-              
-                    p.Add("@QueryChecker", 1);
-
-                    p.Add("@TrxId", TrxId);
-
-                    var billInfo = _IDapperService
-                        .GetAllBySP<BkashBillInfo>(procedur, p)
-                        .FirstOrDefault();
-
-                    _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
-
-                    return billInfo;
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "403",
+                        ErrorMsg = "Authentication failed"
+                    };
                 }
 
-                _logger.LogWarning("Invalid input: UserName or Password is null");
-                return null;
+                _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+
+                string procedur = "SP_GetBillVarifyBYyTrxId";
+
+                DynamicParameters p = new DynamicParameters();
+
+                p.Add("@QueryChecker", 1);
+                p.Add("@TrxId", TrxId);
+
+                var billInfo = _IDapperService
+                    .GetAllBySP<BkashBillInfo>(procedur, p)
+                    .FirstOrDefault();
+
+                _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
+
+                if (billInfo == null)
+                {
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "404",
+                        ErrorMsg = "Data not found"
+                    };
+                }
+
+                return new BkashBillPaymentResponse
+                {
+                    ErrorCode = "200",
+                    ErrorMsg = "Successful",
+                    TotalAmount = billInfo.BillAmount.ToString(),
+                    ConsumerName = billInfo.OwnerName,
+                    TrxId = TrxId,
+                    MiddlewarePayTime = DateTime.Now.ToString("yyyyMMddHHmmss"),
+              
+                };
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting bill information");
-                throw;
+
+                return new BkashBillPaymentResponse
+                {
+                    ErrorCode = "500",
+                    ErrorMsg = ex.Message
+                };
             }
         }
 
-        //public int UpdateBill(ViewModalBill entity)
-        //{
-        //    try
-        //    {
-        //        decimal voucherAmount = 0;
-
-        //        foreach (var item in entity.Bills)
-        //        {
-        //            voucherAmount += Convert.ToDecimal(item.Remarks);
-
-        //            _ICommonService.Update<Bill>(item);
-        //        }
-
-
-        //        string SP = "Sp_VbnExpense";
-        //        DynamicParameters p = new DynamicParameters();
-        //        p.Add("@QueryChecker", 12);
-        //        p.Add("@OwnerCode", entity.FlatCode);
-        //        p.Add("@CollectorCode", entity.UpdateBy);
-        //        p.Add("@VoucherType", "RV");
-
-        //        var list = _IDapperService.GetAllBySP<VoucherNumber>(SP, p).FirstOrDefault();
-
-        //        List<VoucherDetails> VoucherDetailsList = new List<VoucherDetails>();
-
-        //        VoucherDetails details = new VoucherDetails();
-        //        // Crdit
-        //        details.LedgerId = list.LedgerId;
-        //        details.TranType = "Cr";
-        //        details.Amount = voucherAmount;
-        //        details.ShortDesc = "";
-        //        details.EntryBy = entity.UpdateBy;
-
-        //        VoucherDetailsList.Add(details);
-        //        // for debit
-
-        //        details = new VoucherDetails();
-
-        //        details.LedgerId = 12;
-        //        details.TranType = "Dr";
-        //        details.Amount = voucherAmount;
-        //        details.ShortDesc = "Collection From " + (entity.UpdateBy ?? "");
-        //        details.EntryBy = entity.UpdateBy;
-
-        //        VoucherDetailsList.Add(details);
-
-        //        string newVoucherNumber = ""; // default
-        //        if (!string.IsNullOrEmpty(list.LastVoucherNumber) && list.LastVoucherNumber.StartsWith("RV#"))
-        //        {
-        //            var numberPart = list.LastVoucherNumber.Substring(3); // get after "RV#"
-        //            if (int.TryParse(numberPart, out int num))
-        //            {
-        //                newVoucherNumber = $"RV#{num + 1}";
-        //            }
-        //        }
-        //        else
-        //        {
-        //            newVoucherNumber = $"RV#1";
-        //        }
-
-        //        AccVoucher accVoucher = new AccVoucher
-        //        {
-        //            VoucherType = "RV",
-        //            VoucherNumber = newVoucherNumber,
-        //            CompanyId = entity.CompanyId,
-        //            VoucherDate = entity.Date,
-        //            Narration = entity.Remarks,
-        //            TotalAmount = voucherAmount,
-        //            VoucherStatus = "Pending",
-        //            EntryBy = entity.UpdateBy,
-        //            Remarks = entity.BillNo,
-        //            voucherEntryDetails = VoucherDetailsList
-
-        //        };
-        //        _ICommonService.Add<AccVoucher>(accVoucher);
-        //        return entity.Id;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return 0;
-        //    }
-        //}
         #endregion
     }
 }
