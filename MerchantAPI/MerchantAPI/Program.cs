@@ -63,6 +63,7 @@ builder.Services.AddScoped<ICommonService, CommonService>();
 
 // Business services
 builder.Services.AddScoped<IOrderManager, OrderManager>();
+builder.Services.AddScoped<IDevelopmentManager, DevelopmentManager>();
 builder.Services.AddScoped<ITenantStore, TenantStore>();
 
 // Custom service
