@@ -5,7 +5,9 @@ namespace MerchantAPI.Models
 {
     
     public class Order : Base
-    {     
+    {
+        [ForeignKey("Development")]
+        public int? DevId { get; set; }
 
         [ForeignKey("Buyer")]
         public int? BuyerId { get; set; }
