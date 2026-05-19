@@ -5,7 +5,7 @@ namespace MerchantAPI.BusinessLayer.Interface
     public interface IDevelopmentManager
     {
         // GET operations (Dapper)
-        IEnumerable<Development> GetAllDevelopments(int PageNumber, int PageSize);
+        IEnumerable<RptDevelopment> GetAllDevelopments(int PageNumber, int PageSize);
         IEnumerable<Development> GetDevelopmentsByBuyer(int buyerId);
         IEnumerable<Development> GetDevelopmentsByCustomer(int customerId);
         IEnumerable<Development> GetDevelopmentsByFactory(int factoryId);

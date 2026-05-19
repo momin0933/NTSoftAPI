@@ -26,7 +26,7 @@ namespace MerchantAPI.BusinessLayer.Manager
         #region GET Operations (Dapper)
 
         // Action = 1 → Get All Paginated
-        public IEnumerable<Development> GetAllDevelopments(int PageNumber, int PageSize)
+        public IEnumerable<RptDevelopment> GetAllDevelopments(int PageNumber, int PageSize)
         {
             try
             {
@@ -35,7 +35,7 @@ namespace MerchantAPI.BusinessLayer.Manager
                 p.Add("@PageNumber", PageNumber);
                 p.Add("@PageSize", PageSize);
 
-                return _IDapperService.GetAllBySP<Development>(SP_NAME, p).ToList();
+                return _IDapperService.GetAllBySP<RptDevelopment>(SP_NAME, p).ToList();
             }
             catch (Exception ex)
             {
