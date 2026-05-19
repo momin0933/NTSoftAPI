@@ -40,16 +40,19 @@ namespace MerchantAPI.BusinessLayer.Manager
 
         #region GET Operations (Dapper)
 
-        public IEnumerable<Order> GetAllOrders(int PageNumber, int PageSize)
+        public IEnumerable<RptOrder> GetAllOrders(int PageNumber, int PageSize)
         {
             try
             {
                 string procedur = "SP_Order_GetAll";
+
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@PageNumber", PageNumber);
                 p.Add("@PageSize", PageSize);
-                var UserList = _IDapperService.GetAllBySP<Order>(procedur, p).ToList();
-                return UserList;
+
+                return _IDapperService
+                    .GetAllBySP<RptOrder>(procedur, p)
+                    .ToList();
             }
             catch (Exception ex)
             {
