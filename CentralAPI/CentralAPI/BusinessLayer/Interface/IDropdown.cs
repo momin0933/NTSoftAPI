@@ -11,5 +11,9 @@ namespace CentralAPI.BusinessLayer.Interface
         List<FactoryDropdown> GetAllFactories();
         List<OrderSeasonDropdown> GetAllOrderSeasons();
         List<OrderTypeDropdown> GetAllOrderTypes();
+        List<ShipmentTermsDropdown> GetAllShipmentTerms();
+        List<DestinationDropdown> GetAllDestinations();
+        List<ShippingModeDropdown> GetAllShippingModes();
+        List<PaymentModeDropdown> GetAllPaymentModes();
     }
 }

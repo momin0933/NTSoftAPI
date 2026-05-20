@@ -85,6 +85,21 @@ namespace CentralAPI.BusinessLayer.Manager
             }
         }
 
+        public List<DestinationDropdown> GetAllDestinations()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 8);
+                return _IDapperService.GetAllBySP<DestinationDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching factories");
+                return null;
+            }
+        }
+
         public List<FactoryDropdown> GetAllFactories()
         {
             try
@@ -126,6 +141,51 @@ namespace CentralAPI.BusinessLayer.Manager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error fetching order types");
+                return null;
+            }
+        }
+
+        public List<PaymentModeDropdown> GetAllPaymentModes()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 11);
+                return _IDapperService.GetAllBySP<PaymentModeDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching factories");
+                return null;
+            }
+        }
+
+        public List<ShipmentTermsDropdown> GetAllShipmentTerms()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 9);
+                return _IDapperService.GetAllBySP<ShipmentTermsDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching factories");
+                return null;
+            }
+        }
+
+        public List<ShippingModeDropdown> GetAllShippingModes()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 10);
+                return _IDapperService.GetAllBySP<ShippingModeDropdown>(SP, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error fetching factories");
                 return null;
             }
         }
