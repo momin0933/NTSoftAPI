@@ -90,5 +90,48 @@ namespace CentralAPI.Controllers
             }
             catch { throw; }
         }
+        [Route("api/Dropdown/GetAllDestinations")]
+        [HttpGet]
+        public List<DestinationDropdown> GetAllDestinations()
+        {
+            try
+            {
+                return _ServiceManager.GetAllDestinations();
+            }
+            catch { throw; }
+        }
+
+        [Route("api/Dropdown/GetAllShipmentTerms")]
+        [HttpGet]
+        public List<ShipmentTermsDropdown> GetAllShipmentTerms()
+        {
+            try
+            {
+                return _ServiceManager.GetAllShipmentTerms();
+            }
+            catch { throw; }
+        }
+
+        [Route("api/Dropdown/GetAllShippingModes")]
+        [HttpGet]
+        public List<ShippingModeDropdown> GetAllShippingModes()
+        {
+            try
+            {
+                return _ServiceManager.GetAllShippingModes();
+            }
+            catch { throw; }
+        }
+
+        [Route("api/Dropdown/GetAllPaymentModes")]
+        [HttpGet]
+        public List<PaymentModeDropdown> GetAllPaymentModes()
+        {
+            try
+            {
+                return _ServiceManager.GetAllPaymentModes();
+            }
+            catch { throw; }
+        }
     }
 }

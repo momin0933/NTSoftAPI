@@ -24,6 +24,15 @@ namespace MerchantAPI.Models
         public int? DepartmentId { get; set; }
         public string? DName { get; set; }
 
+        public int? DestinationId { get; set; }
+        public string? DestName { get; set; }
+        public int? ShipmentTermsId { get; set; }
+        public string? STName { get; set; }
+        public int? ShippingModeId { get; set; }
+        public string? SMName { get; set; }
+        public int? PaymentModeId { get; set; }
+        public string? PMName { get; set; }
+
         [StringLength(50)]
         public string? CategoryId { get; set; }
         public string? CaName { get; set; }
@@ -43,11 +52,6 @@ namespace MerchantAPI.Models
 
         [StringLength(100)]
         public string? FabricDescription { get; set; }
-
-        public int? DestinationId { get; set; }
-        public int? ShipmentTermsId { get; set; }
-        public int? ShippingModeId { get; set; }
-        public int? PaymentModeId { get; set; }
 
         public int? TotalOrderQty { get; set; }
         public decimal? BuyerPrice { get; set; }
