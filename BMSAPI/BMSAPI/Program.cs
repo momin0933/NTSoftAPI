@@ -150,9 +150,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 app.UseCors("AllowFrontend");  // **CORS Middleware**
-app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
-
 app.UseSession();
+app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
