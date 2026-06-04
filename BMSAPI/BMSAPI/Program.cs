@@ -149,14 +149,28 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowFrontend");  // **CORS Middleware**
-app.UseSession();
-app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
-app.UseStaticFiles();
+//app.UseCors("AllowFrontend");  // **CORS Middleware**
+//app.UseSession();
+//app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
+//app.UseStaticFiles();
+
+//app.UseHttpsRedirection();
+
+////app.UseSession();
+
+//app.UseAuthorization();
+
+//app.MapControllers();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
 
-//app.UseSession();
+app.UseCors("AllowFrontend");
+
+app.UseSession();
+
+app.UseMiddleware<TenantMiddleware>();
 
 app.UseAuthorization();
 
