@@ -151,11 +151,13 @@ if (app.Environment.IsDevelopment())
 }
 app.UseCors("AllowFrontend");  // **CORS Middleware**
 app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
+
+app.UseSession();
 app.UseStaticFiles();
 
 app.UseHttpsRedirection();
 
-app.UseSession();
+//app.UseSession();
 
 app.UseAuthorization();
 
