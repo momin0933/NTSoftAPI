@@ -31,41 +31,116 @@ namespace BMSAPI.BusinessLayer.Manager
             _userData = userData ?? throw new ArgumentNullException(nameof(userData));
             _httpContextAccessor = httpContextAccessor ?? throw new ArgumentNullException(nameof(httpContextAccessor)); // Assign
         }
-        
+
         #region GET Operations (Dapper)
-        public BkashBillInfo GetBillMonthWise(string UserName, string Password, string FlatCode, string BillMonth)
+        //public BkashBillInfo GetBillMonthWise(string UserName, string Password, string FlatCode, string BillMonth)
+        //{
+        //    try
+        //    {
+        //        if (UserName != null && Password != null)
+        //        {
+        //            // 1. Validate user
+        //            var user = _userData.GetUser(UserName, Password);                    
+
+        //            if (user == null)
+        //            {
+        //                _logger.LogWarning("User authentication failed for: {UserName}", UserName);
+        //                return null;
+        //            }
+
+        //            // Use IHttpContextAccessor to access the current HttpContext
+        //            _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+        //            string procedur = "SP_GetBillForBkash";
+        //            DynamicParameters p = new DynamicParameters();
+        //            p.Add("@FlatCode", FlatCode);
+        //            p.Add("@BillMonth", BillMonth);
+        //            BkashBillInfo billInfo = _IDapperService.GetAllBySP<BkashBillInfo>(procedur, p).FirstOrDefault();
+        //            _httpContextAccessor.HttpContext?.Session.Remove("TenantId");                    
+        //            return billInfo;
+        //        }
+
+        //        _logger.LogWarning("Invalid input: UserName or Password is null");
+        //        return null;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        _logger.LogError(ex, "Error getting bill information");
+        //        throw;
+        //    }
+        //}
+
+
+        public BkashBillInfo GetBillMonthWise(string UserName,string Password,string FlatCode,string BillMonth)
         {
             try
             {
-                if (UserName != null && Password != null)
+                if (string.IsNullOrWhiteSpace(UserName) ||
+                    string.IsNullOrWhiteSpace(Password))
                 {
-                    // 1. Validate user
-                    var user = _userData.GetUser(UserName, Password);                    
-
-                    if (user == null)
+                    return new BkashBillInfo
                     {
-                        _logger.LogWarning("User authentication failed for: {UserName}", UserName);
-                        return null;
-                    }
-
-                    // Use IHttpContextAccessor to access the current HttpContext
-                    _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
-                    string procedur = "SP_GetBillForBkash";
-                    DynamicParameters p = new DynamicParameters();
-                    p.Add("@FlatCode", FlatCode);
-                    p.Add("@BillMonth", BillMonth);
-                    BkashBillInfo billInfo = _IDapperService.GetAllBySP<BkashBillInfo>(procedur, p).FirstOrDefault();
-                    _httpContextAccessor.HttpContext?.Session.Remove("TenantId");                    
-                    return billInfo;
+                        ErrorCode = "406",
+                        ErrorMsg = "Mandatory Field Missing",
+                        QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                    };
                 }
 
-                _logger.LogWarning("Invalid input: UserName or Password is null");
-                return null;
+                // Validate User
+                var user = _userData.GetUser(UserName, Password);
+
+                if (user == null)
+                {
+                    _logger.LogWarning("User authentication failed for: {UserName}", UserName);
+
+                    return new BkashBillInfo
+                    {
+                        ErrorCode = "403",
+                        ErrorMsg = "Authentication failed",
+                        QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                    };
+                }
+
+                _httpContextAccessor.HttpContext?.Session.SetString("TenantId", user.TenantId);
+
+                string procedure = "SP_GetBillForBkash";
+
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@FlatCode", FlatCode);
+                p.Add("@BillMonth", BillMonth);
+
+                var billInfo = _IDapperService
+                    .GetAllBySP<BkashBillInfo>(procedure, p)
+                    .FirstOrDefault();
+
+                _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
+
+                if (billInfo == null)
+                {
+                    return new BkashBillInfo
+                    {
+                        ErrorCode = "404",
+                        ErrorMsg = "Data Not Found",
+                        QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                    };
+                }
+
+                // Success Response
+                billInfo.ErrorCode = "200";
+                billInfo.ErrorMsg = "Bill retrieved successfully";
+                billInfo.QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss");
+           
+                return billInfo;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error getting bill information");
-                throw;
+
+                return new BkashBillInfo
+                {
+                    ErrorCode = "500",
+                    ErrorMsg = "Internal Server Error",
+                    QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                };
             }
         }
 
@@ -330,7 +405,7 @@ namespace BMSAPI.BusinessLayer.Manager
                     ErrorCode = "200",
                     ErrorMsg = "Successful",
                     TotalAmount = billInfo.BillAmount.ToString(),
-                    ConsumerName = billInfo.OwnerName,
+                    ConsumerName = billInfo.ConsumerName,
                     TrxId = TrxId,
                     MiddlewarePayTime = DateTime.Now.ToString("yyyyMMddHHmmss")
                 };

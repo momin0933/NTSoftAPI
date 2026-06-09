@@ -23,7 +23,8 @@ namespace BMSAPI.Controllers
             try
             {
                 var Bill = _bkashManager.GetBillMonthWise(UserName, Password, FlatCode, BillMonth);
-                return Ok(new { success = true, data = Bill, message = "Bill retrieved successfully" });
+                //return Ok(new { success = true, data = Bill, message = "Bill retrieved successfully" });
+                return Ok(Bill);
             }
             catch (Exception ex)
             {
@@ -42,9 +43,9 @@ namespace BMSAPI.Controllers
 
                 return Ok(new
                 {
-                    success = true,
+                    //success = true,
                     data = result,
-                    message = "Payment processed successfully"
+                    //message = "Payment processed successfully"
                 });
             }
             catch (Exception ex)
