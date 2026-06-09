@@ -183,6 +183,7 @@ namespace BMSAPI.BusinessLayer.Manager
                 b.BillAmount,
                 b.BillNo,
                 b.FlatCode,
+                b.Status,
                 fo.OwnerName
             FROM VbntblBill as b
             LEFT JOIN Vw_FlatOwnerInfo fo ON fo.FlatCode = b.FlatCode
@@ -203,6 +204,23 @@ namespace BMSAPI.BusinessLayer.Manager
                     {
                         ErrorCode = "404",
                         ErrorMsg = "Data not found"
+                    };
+                }
+
+       
+                string status = bill.Status?.ToString();
+                string billNo = bill.BillNo?.ToString();
+
+                if (!string.IsNullOrEmpty(status) && status.Equals("Paid", StringComparison.OrdinalIgnoreCase))
+                {
+                    _logger.LogWarning("Bill already paid for BillNo: {BillNo}", billNo);
+
+                    _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "410",
+                        ErrorMsg = "Bill already paid"
                     };
                 }
 
