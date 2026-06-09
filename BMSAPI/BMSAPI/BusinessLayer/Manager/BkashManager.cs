@@ -213,7 +213,7 @@ namespace BMSAPI.BusinessLayer.Manager
                 {
                     _logger.LogWarning("Amount mismatch. DB: {DBAmount}, Request: {ReqAmount}",
                         billAmount, requestAmount);
-
+                    _httpContextAccessor.HttpContext?.Session.Remove("TenantId");
                     return new BkashBillPaymentResponse
                     {
                         ErrorCode = "409",
