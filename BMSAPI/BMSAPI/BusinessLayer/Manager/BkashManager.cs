@@ -75,7 +75,9 @@ namespace BMSAPI.BusinessLayer.Manager
             try
             {
                 if (string.IsNullOrWhiteSpace(UserName) ||
-                    string.IsNullOrWhiteSpace(Password))
+                    string.IsNullOrWhiteSpace(Password) ||
+                    string.IsNullOrWhiteSpace(FlatCode) ||
+                    string.IsNullOrWhiteSpace(BillMonth))
                 {
                     return new BkashBillInfo
                     {
@@ -149,7 +151,7 @@ namespace BMSAPI.BusinessLayer.Manager
         {
             try
             {
-                if (request.UserName == null || request.Password == null)
+                if (request.UserName == null || request.Password == null || request.FlatCode == null || request.BillMonth == null)
                 {
                     _logger.LogWarning("Invalid input: UserName or Password is null");
 
@@ -201,6 +203,21 @@ namespace BMSAPI.BusinessLayer.Manager
                     {
                         ErrorCode = "404",
                         ErrorMsg = "Data not found"
+                    };
+                }
+
+                decimal billAmount = Convert.ToDecimal(bill.BillAmount ?? 0);
+                decimal requestAmount = Convert.ToDecimal(request.Amount);
+
+                if (billAmount != requestAmount)
+                {
+                    _logger.LogWarning("Amount mismatch. DB: {DBAmount}, Request: {ReqAmount}",
+                        billAmount, requestAmount);
+
+                    return new BkashBillPaymentResponse
+                    {
+                        ErrorCode = "409",
+                        ErrorMsg = $"Amount mismatch. Bill amount is {billAmount}, but received {requestAmount}"
                     };
                 }
 

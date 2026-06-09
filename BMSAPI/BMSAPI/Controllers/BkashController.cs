@@ -18,10 +18,23 @@ namespace BMSAPI.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
         [HttpGet("api/BillMonthWise")]
-        public IActionResult GetBillMonthWise(string UserName, string Password, string FlatCode, string BillMonth)
+        public IActionResult GetBillMonthWise(string UserName, string Password, string? FlatCode, string? BillMonth)
         {
             try
             {
+
+                //if (string.IsNullOrWhiteSpace(BillMonth))
+                //{
+                //    var result = new BkashBillInfo
+                //    {
+                //        ErrorCode = "406",
+                //        ErrorMsg = "BillMonth is required",
+                //        QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                //    };
+
+                //    return Ok(result);
+                //}
+
                 var Bill = _bkashManager.GetBillMonthWise(UserName, Password, FlatCode, BillMonth);
                 //return Ok(new { success = true, data = Bill, message = "Bill retrieved successfully" });
                 return Ok(Bill);
