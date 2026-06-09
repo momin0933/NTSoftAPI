@@ -126,6 +126,19 @@ namespace BMSAPI.BusinessLayer.Manager
                     };
                 }
 
+                if (billInfo != null &&
+                    !string.IsNullOrEmpty(billInfo.Status) &&
+                    billInfo.Status == "Paid")
+                {
+                    return new BkashBillInfo
+                    {
+                        ErrorCode = "405",
+                        ErrorMsg = "Already paid",
+                        BillAmount = "0",
+                        QueryTime = DateTime.Now.ToString("yyyyMMddHHmmss")
+                    };
+                }
+
                 // Success Response
                 billInfo.ErrorCode = "200";
                 billInfo.ErrorMsg = "Bill retrieved successfully";
