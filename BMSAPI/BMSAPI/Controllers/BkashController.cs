@@ -75,7 +75,7 @@ namespace BMSAPI.Controllers
 
 
         [HttpGet("api/GetBillByTrxId")]
-        public IActionResult GetBillByTrxId(string UserName, string Password, string TrxId)
+        public IActionResult GetBillByTrxId(string? UserName, string? Password, string? TrxId)
         {
             try
             {
