@@ -76,3 +76,6 @@ dkms.conf
 /BMSAPI/BMSAPI/bin
 /BMSAPI/BMSAPI/obj
 /BMSAPI/BMSAPI/Properties/PublishProfiles
+/InventoryAccountsAPI/.vs
+/InventoryAccountsAPI/obj
+/InventoryAccountsAPI/bin
