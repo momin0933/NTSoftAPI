@@ -1,9 +1,11 @@
 ﻿using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FTSoftAPI.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
