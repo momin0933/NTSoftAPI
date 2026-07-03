@@ -69,8 +69,11 @@ namespace CentralAPI.Controllers
                     userData = new
                     {
                         userId = user.UserId,
-                        role = user.UserRole,
-                        Name = user.Name
+                        userRole = user.UserRole,
+                        Name = user.Name,
+                        TenantId = "",
+                        SMSAppName = user.SMSAppName,
+                        CompId=user.CompId
                     }
                 });
             }

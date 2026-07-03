@@ -25,6 +25,7 @@
         public string ProjectName { get; set; }
         public int? CompId { get; set; }
         public bool? Access { get; set; }
+        public bool IsHeaderDivider { get; set; }
         #endregion
     }
 }
