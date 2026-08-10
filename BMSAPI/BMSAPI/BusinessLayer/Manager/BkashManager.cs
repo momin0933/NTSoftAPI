@@ -652,26 +652,23 @@ namespace BMSAPI.BusinessLayer.Manager
                     IsActive = true
                 }).Wait();
 
-
-                // ============================================================
-                // SMS MESSAGE
-                // ============================================================
-
-                try
-                {
+          
                     string phoneNumber = bill.TntPhone?.ToString();
                     string ownerName = bill.OwnerName?.ToString();
                     string smsBillNo = bill.BillNo?.ToString();
 
                     if (!string.IsNullOrWhiteSpace(phoneNumber))
                     {
-                        string message =
-                            $"Dear {ownerName}, your bKash payment of " +
-                            $"BDT {request.Amount:0.00} for Bill No {smsBillNo} " +
-                            $"(Flat: {request.FlatCode}) has been received successfully. " +
-                            $"Thank you.";
+                    string message =
+                             $"RFOS Bill Info\n" +
+                             $"Date: {DateTime.Now:dd-MM-yyyy}\n" +
+                             $"Bill No : {smsBillNo}\n" +
+                             $"Flat Code: {request.FlatCode}\n" +
+                             $"Paid Amount:{request.Amount:0.00}\n" +
+                             $"Status: Paid\n" +
+                             $"Thank You";
 
-                        var smsPayload = new
+                    var smsPayload = new
                         {
                             PhoneNumber = phoneNumber,
                             AppName = "Ruposhi",
@@ -724,17 +721,8 @@ namespace BMSAPI.BusinessLayer.Manager
                         _logger.LogWarning(
                             "Tenant phone number not found for FlatCode: {FlatCode}",
                             flatCode);
-                    }
-                }
-                catch (Exception smsEx)
-                {
-                    string smsBillNo = bill.BillNo?.ToString();
-
-                    _logger.LogError(
-                        smsEx,
-                        "SMS API error for BillNo: {BillNo}",
-                        smsBillNo);
-                }
+                    }                
+             
 
                 // ============================================================
                 // REMOVE TENANT SESSION
