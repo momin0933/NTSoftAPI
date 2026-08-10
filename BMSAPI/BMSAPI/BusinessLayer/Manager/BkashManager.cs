@@ -645,7 +645,7 @@ namespace BMSAPI.BusinessLayer.Manager
                     Amount = request.Amount,
                     DebitAmount = request.Amount,
                     CreditAmount = 0,
-                    ShortDesc = "Collection From bKash",
+                    ShortDesc = "Collection By bKash",
                     PaymentType = "bKash",
                     EntryBy = "bKash",
                     EntryDate = DateTime.Now,
