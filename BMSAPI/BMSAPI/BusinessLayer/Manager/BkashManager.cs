@@ -665,7 +665,7 @@ namespace BMSAPI.BusinessLayer.Manager
                              $"Bill No : {smsBillNo}\n" +
                              $"Flat Code: {request.FlatCode}\n" +
                              $"Paid Amount:{request.Amount:0.00}\n" +
-                             $"Status: Paid\n" +
+                             $"Status: Paid By bKash\n" +
                              $"Thank You";
 
                     var smsPayload = new
