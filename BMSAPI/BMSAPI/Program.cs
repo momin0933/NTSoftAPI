@@ -10,6 +10,9 @@ using BMSAPI.BusinessLayer.TenantService;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
+using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
+using BMSAPI.Models.Apps.PropHUB;
+using BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -74,7 +77,9 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 builder.Services.AddScoped<IBkashManager, BkashManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
-
+//APP INTERFACES SCOPED
+//PropHUB Applications
+builder.Services.AddScoped<IUserRegistration,UserRegistrationManager>();
 
 
 builder.Services.AddDistributedMemoryCache();
