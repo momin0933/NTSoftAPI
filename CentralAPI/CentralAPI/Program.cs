@@ -10,6 +10,8 @@ using CentralAPI.BusinessLayer.Service;
 using CentralAPI.BusinessLayer.TenantService;
 using System.Diagnostics;
 using System.Text;
+using CentralAPI.BusinessLayer.Interface.IApp;
+using CentralAPI.BusinessLayer.Manager.AppManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -70,7 +72,8 @@ builder.Services.AddScoped<IDropdown, DropdownManager>();
 builder.Services.AddScoped<CustomService>();
 // Tenant Provider
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
-
+//APP
+builder.Services.AddScoped<IUserAuth, UserAuthManager>();
 
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
