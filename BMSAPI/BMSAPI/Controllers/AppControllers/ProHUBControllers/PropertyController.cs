@@ -80,5 +80,22 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("api/GetPropertyDetailsList")]
+        public IActionResult GetPropertyDetailsList(int propertyId)
+        {
+            try
+            {
+                if (propertyId <= 0)
+                    return BadRequest(new { success = false, message = "A valid propertyId is required" });
+
+                var list = _propertyService.GetPropertyDetailsList(propertyId);
+                return Ok(new { success = true, data = list, message = "Property details list retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving property details list for PropertyId: {PropertyId}", propertyId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

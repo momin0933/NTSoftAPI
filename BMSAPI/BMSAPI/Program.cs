@@ -81,6 +81,7 @@ builder.Services.AddScoped<IUserManager, UserManager>();
 //PropHUB Applications
 builder.Services.AddScoped<IUserRegistration,UserRegistrationManager>();
 builder.Services.AddScoped<IProperty, PropertyManager>();
+builder.Services.AddScoped<ITenant, TenantManager>();
 
 
 builder.Services.AddDistributedMemoryCache();

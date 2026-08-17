@@ -7,5 +7,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         bool AddProperty(Property model);
         IEnumerable<Property> GetPropertyList();
         bool AddPropertyDetails(PropertyDetails model);
+        IEnumerable<PropertyDetails> GetPropertyDetailsList(int propertyId);
     }
 }

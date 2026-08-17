@@ -100,5 +100,24 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+
+        public IEnumerable<PropertyDetails> GetPropertyDetailsList(int propertyId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 4);
+                p.Add("@PropertyId", propertyId);
+
+                return _IDapperService.GetAllBySP<PropertyDetails>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting property details list for PropertyId: {PropertyId}", propertyId);
+                throw;
+            }
+        }
+
     }
 }
