@@ -5,6 +5,7 @@
         public string? Phone { get; set; }
         public int? PropertyId { get; set; }
         public int? PropDetailsId { get; set; }
+        public string? TenantName { get; set; }
         public string? NID { get; set; }
         public string? TenantPhone { get; set; }
         public string? TenantEmail { get; set; }

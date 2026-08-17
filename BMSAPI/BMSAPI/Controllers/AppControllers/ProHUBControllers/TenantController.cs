@@ -31,8 +31,8 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (model.PropDetailsId == null || model.PropDetailsId <= 0)
                     return BadRequest(new { success = false, message = "A valid PropDetailsId is required" });
 
-                if (string.IsNullOrWhiteSpace(model.TenantPhone))
-                    return BadRequest(new { success = false, message = "Tenant phone is required" });
+                if (string.IsNullOrWhiteSpace(model.TenantName) || string.IsNullOrWhiteSpace(model.TenantPhone))
+                    return BadRequest(new { success = false, message = "Tenant name and phone are required" });
 
                 var result = _tenantService.AddTenant(model);
                 if (!result)
@@ -42,7 +42,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error adding tenant with TenantPhone: {TenantPhone}", model?.TenantPhone);
+                _logger.LogError(ex, "Error adding tenant with TenantName: {TenantName}", model?.TenantName);
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
