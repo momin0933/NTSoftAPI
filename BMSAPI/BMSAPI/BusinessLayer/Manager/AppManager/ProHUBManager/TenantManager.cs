@@ -26,6 +26,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@Phone", model.Phone);
                 p.Add("@PropertyId", model.PropertyId);
                 p.Add("@PropDetailsId", model.PropDetailsId);
+                p.Add("@TenantName", model.TenantName);
                 p.Add("@NID", model.NID);
                 p.Add("@TenantPhone", model.TenantPhone);
                 p.Add("@TenantEmail", model.TenantEmail);
