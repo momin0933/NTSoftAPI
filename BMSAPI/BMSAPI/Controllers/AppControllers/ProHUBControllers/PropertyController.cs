@@ -97,5 +97,40 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("api/GetMyPropertyList")]
+        public IActionResult GetMyPropertyList(string phone)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(phone))
+                    return BadRequest(new { success = false, message = "A valid phone number is required" });
+
+                var list = _propertyService.GetMyPropertyList(phone);
+                return Ok(new { success = true, data = list, message = "My property list retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving my property list for Phone: {Phone}", phone);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetPropertyDetailsFullList")]
+        public IActionResult GetPropertyDetailsFullList(int propertyId)
+        {
+            try
+            {
+                if (propertyId <= 0)
+                    return BadRequest(new { success = false, message = "A valid propertyId is required" });
+
+                var list = _propertyService.GetPropertyDetailsFullList(propertyId);
+                return Ok(new { success = true, data = list, message = "Full property details retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving full property details for PropertyId: {PropertyId}", propertyId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
