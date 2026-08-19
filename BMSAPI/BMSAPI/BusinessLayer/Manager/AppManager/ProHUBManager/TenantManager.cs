@@ -18,11 +18,30 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+     
+        public IEnumerable<TenantFullView> GetTenantList(string phone)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 2);
+                p.Add("@Phone", phone);
+
+                return _IDapperService.GetAllBySP<TenantFullView>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting tenant list for Phone: {Phone}", phone);
+                throw;
+            }
+        }
+
         public bool AddTenant(TenantData model)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 1);
                 p.Add("@Phone", model.Phone);
                 p.Add("@PropertyId", model.PropertyId);
                 p.Add("@PropDetailsId", model.PropDetailsId);
@@ -61,22 +80,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error adding tenant with TenantPhone: {TenantPhone}", model.TenantPhone);
-                throw;
-            }
-        }
-        public IEnumerable<TenantFullView> GetTenantList(string phone)
-        {
-            try
-            {
-                DynamicParameters p = new DynamicParameters();
-                p.Add("@QueryChecker", 2);
-                p.Add("@Phone", phone);
-
-                return _IDapperService.GetAllBySP<TenantFullView>(SP_NAME, p).ToList();
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error getting tenant list for Phone: {Phone}", phone);
                 throw;
             }
         }
