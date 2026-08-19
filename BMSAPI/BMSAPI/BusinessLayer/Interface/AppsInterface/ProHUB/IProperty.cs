@@ -8,5 +8,7 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         IEnumerable<Property> GetPropertyList();
         bool AddPropertyDetails(PropertyDetails model);
         IEnumerable<PropertyDetails> GetPropertyDetailsList(int propertyId);
+        IEnumerable<Property> GetMyPropertyList(string phone);
+        IEnumerable<PropertyDetailsFullView> GetPropertyDetailsFullList(int propertyId);
     }
 }

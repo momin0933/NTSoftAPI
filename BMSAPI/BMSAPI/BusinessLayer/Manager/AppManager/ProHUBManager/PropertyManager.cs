@@ -119,5 +119,37 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
+        public IEnumerable<Property> GetMyPropertyList(string phone)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 5);
+                p.Add("@Phone", phone);
+
+                return _IDapperService.GetAllBySP<Property>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting my property list for Phone: {Phone}", phone);
+                throw;
+            }
+        }
+        public IEnumerable<PropertyDetailsFullView> GetPropertyDetailsFullList(int propertyId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 6);
+                p.Add("@PropertyId", propertyId);
+
+                return _IDapperService.GetAllBySP<PropertyDetailsFullView>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting full property details list for PropertyId: {PropertyId}", propertyId);
+                throw;
+            }
+        }
     }
 }
