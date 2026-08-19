@@ -64,5 +64,21 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+        public IEnumerable<TenantFullView> GetTenantList(string phone)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 2);
+                p.Add("@Phone", phone);
+
+                return _IDapperService.GetAllBySP<TenantFullView>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting tenant list for Phone: {Phone}", phone);
+                throw;
+            }
+        }
     }
 }
