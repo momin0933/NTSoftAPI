@@ -132,5 +132,36 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/ToggleProperty")]
+        public IActionResult ToggleProperty([FromBody] TogglePropertyStatusRequest request)
+        {
+            try
+            {
+                if (request == null || request.PropertyId <= 0 || string.IsNullOrWhiteSpace(request.Phone))
+                    return BadRequest(new { success = false, message = "A valid PropertyId and Phone are required" });
+
+                var result = _propertyService.ToggleActiveStatus(
+                    request.PropertyId,
+                    request.IsActive,
+                    request.Phone,
+                    request.Phone
+                );
+
+                if (!result)
+                    return StatusCode(500, new { success = false, message = "Failed to update property status, please try again" });
+
+                return Ok(new
+                {
+                    success = true,
+                    data = result,
+                    message = request.IsActive ? "Property activated successfully" : "Property deactivated successfully",
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling property status for PropertyId: {PropertyId}", request?.PropertyId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
