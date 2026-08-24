@@ -10,5 +10,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         IEnumerable<PropertyDetails> GetPropertyDetailsList(int propertyId);
         IEnumerable<Property> GetMyPropertyList(string phone);
         IEnumerable<PropertyDetailsFullView> GetPropertyDetailsFullList(int propertyId);
+        bool ToggleActiveStatus(int propertyId, bool isActive, string phone, string entryBy);
     }
 }

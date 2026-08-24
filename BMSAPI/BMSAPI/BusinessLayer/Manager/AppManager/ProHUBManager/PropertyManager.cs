@@ -151,5 +151,35 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public bool ToggleActiveStatus(int propertyId, bool isActive, string phone, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 7);
+                p.Add("@PropertyId", propertyId);
+                p.Add("@IsActive", isActive);
+                p.Add("@Phone", phone);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+
+                if (affectedRows <= 0)
+                {
+                    _logger.LogWarning("Toggle active status failed for PropertyId: {PropertyId}", propertyId);
+                    return false;
+                }
+
+                _logger.LogInformation("Property {PropertyId} active status set to {IsActive}", propertyId, isActive);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error toggling active status for PropertyId: {PropertyId}", propertyId);
+                throw;
+            }
+        }
     }
 }
