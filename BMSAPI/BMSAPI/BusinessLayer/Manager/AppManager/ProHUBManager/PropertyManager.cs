@@ -181,5 +181,34 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public bool DeletePropertyDetails(int propDetailsId, string phone, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 8);
+                p.Add("@PropDetailsId", propDetailsId);
+                p.Add("@Phone", phone);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+
+                if (affectedRows <= 0)
+                {
+                    _logger.LogWarning("Delete property details failed for Id: {Id}", propDetailsId);
+                    return false;
+                }
+
+                _logger.LogInformation("Property details {Id} removed", propDetailsId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting property details for Id: {Id}", propDetailsId);
+                throw;
+            }
+        }
     }
 }

@@ -163,5 +163,26 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/DeletePropertyDetails")]
+        public IActionResult DeletePropertyDetails([FromBody] DeletePropertyDetailsRequest request)
+        {
+            try
+            {
+                if (request == null || request.PropDetailsId <= 0 || string.IsNullOrWhiteSpace(request.Phone))
+                    return BadRequest(new { success = false, message = "A valid PropDetailsId and Phone are required" });
+
+                var result = _propertyService.DeletePropertyDetails(request.PropDetailsId, request.Phone, request.Phone);
+
+                if (!result)
+                    return StatusCode(500, new { success = false, message = "Failed to delete unit, please try again" });
+
+                return Ok(new { success = true, data = result, message = "Unit deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deleting property details Id: {Id}", request?.PropDetailsId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

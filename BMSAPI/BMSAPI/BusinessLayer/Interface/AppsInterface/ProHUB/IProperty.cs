@@ -11,5 +11,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         IEnumerable<Property> GetMyPropertyList(string phone);
         IEnumerable<PropertyDetailsFullView> GetPropertyDetailsFullList(int propertyId);
         bool ToggleActiveStatus(int propertyId, bool isActive, string phone, string entryBy);
+        bool DeletePropertyDetails(int propDetailsId, string phone, string entryBy);
     }
 }
