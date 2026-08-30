@@ -34,9 +34,15 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (!result.Success)
                     return StatusCode(500, new { success = false, message = "Registration failed, please try again" });
 
-                var registrationId = $"AHGS-{DateTime.Now.Year}-{result.Id:D6}";
+                var registrationId = model.RegNo;
 
-                return Ok(new { success = true, registrationId, id = result.Id, message = "Registration সফল হয়েছে" });
+                return Ok(new
+                {
+                    success = true,
+                    registrationId = model.RegNo,
+                    id = result.Id,
+                    message = "Registration সফল হয়েছে"
+                });
             }
             catch (Exception ex)
             {

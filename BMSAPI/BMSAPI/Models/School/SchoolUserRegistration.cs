@@ -17,6 +17,7 @@
         public string? TranID { get; set; }
         public string? SpecialNote { get; set; }
         public string? Status { get; set; }
+        public string? RegNo { get; set; }
     }
 
     public class RegistrationResult

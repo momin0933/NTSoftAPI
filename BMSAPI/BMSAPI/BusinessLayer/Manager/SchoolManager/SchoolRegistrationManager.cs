@@ -28,6 +28,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
+                p.Add("@RegNo", model.RegNo);
                 p.Add("@Name", model.Name);
                 p.Add("@BName", model.BName);
                 p.Add("@Phone", model.Phone);
