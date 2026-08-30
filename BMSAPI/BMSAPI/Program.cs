@@ -1,18 +1,19 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using BMSAPI.BusinessLayer.Interface;
+using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
+using BMSAPI.BusinessLayer.Interface.SchoolInterface;
+using BMSAPI.BusinessLayer.Manager;
+using BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager;
+using BMSAPI.BusinessLayer.Service;
+using BMSAPI.BusinessLayer.TenantService;
+using BMSAPI.Models.Apps.PropHUB;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.IdentityModel.Tokens;
-using BMSAPI.BusinessLayer.Interface;
-using BMSAPI.BusinessLayer.Manager;
-using BMSAPI.BusinessLayer.Service;
-using BMSAPI.BusinessLayer.TenantService;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
-using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
-using BMSAPI.Models.Apps.PropHUB;
-using BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -83,7 +84,7 @@ builder.Services.AddScoped<IUserRegistration,UserRegistrationManager>();
 builder.Services.AddScoped<IProperty, PropertyManager>();
 builder.Services.AddScoped<ITenant, TenantManager>();
 builder.Services.AddScoped<IBill, BillManager>();
-
+builder.Services.AddScoped<ISchoolRegistration, SchoolRegistrationManager>();
 
 builder.Services.AddDistributedMemoryCache();
 
