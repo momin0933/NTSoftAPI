@@ -23,7 +23,7 @@ namespace BMSAPI.BusinessLayer.TenantService
             _configuration = configuration;
         }
         public Tenant GetTenant(string tenantId)
-        {
+            {
             if (string.IsNullOrEmpty(tenantId))
                 return null;
 
