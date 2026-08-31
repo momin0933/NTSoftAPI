@@ -39,6 +39,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@Guest", model.Guest);
                 p.Add("@PresentAddress", model.PresentAddress);
                 p.Add("@PremanetAddress", model.PremanetAddress);
+                p.Add("@Occupation", model.Occupation);
                 p.Add("@ImgPath", model.ImgPath);
                 p.Add("@PaymentMethod", model.PaymentMethod);
                 p.Add("@TranID", model.TranID);

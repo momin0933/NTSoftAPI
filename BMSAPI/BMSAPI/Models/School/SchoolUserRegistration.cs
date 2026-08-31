@@ -12,6 +12,7 @@
         public int Guest { get; set; }
         public string? PresentAddress { get; set; }
         public string? PremanetAddress { get; set; }
+        public string? Occupation { get; set; }
         public string? ImgPath { get; set; }
         public string? PaymentMethod { get; set; }
         public string? TranID { get; set; }
