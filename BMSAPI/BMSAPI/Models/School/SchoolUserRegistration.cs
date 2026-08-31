@@ -13,6 +13,7 @@
         public string? PresentAddress { get; set; }
         public string? PremanetAddress { get; set; }
         public string? Occupation { get; set; }
+        public decimal? TotalFee { get; set; }
         public string? ImgPath { get; set; }
         public string? PaymentMethod { get; set; }
         public string? TranID { get; set; }
