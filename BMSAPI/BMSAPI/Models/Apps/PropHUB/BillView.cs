@@ -16,6 +16,7 @@
         public string? BillMonth { get; set; }
         public string? BillYear { get; set; }
         public decimal? Amount { get; set; }
+        public decimal? PaidAmount { get; set; }
         public string? Status { get; set; }
         public System.DateTime? CollectionDate { get; set; }
     }
