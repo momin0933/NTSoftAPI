@@ -187,6 +187,7 @@ public RegistrationResult UpdateRegistration(
 
                 p.Add("@RegNo", model.RegNo);
                 p.Add("@Name", model.Name);
+                p.Add("@Email", model.Email);
                 p.Add("@BName", model.BName);
                 p.Add("@Phone", model.Phone);
                 p.Add("@Batch", model.Batch);
