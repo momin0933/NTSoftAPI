@@ -206,6 +206,7 @@ public RegistrationResult UpdateRegistration(
                 p.Add("@TotalFee", model.TotalFee);
                 p.Add("@Remarks", model.Remarks);
                 p.Add("@EntryBy", model.EntryBy);
+                p.Add("@UpdateBy", model.UpdateBy);
 
                 var result =
                     _IDapperService
