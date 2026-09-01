@@ -33,6 +33,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@Name", model.Name);
                 p.Add("@BName", model.BName);
                 p.Add("@Phone", model.Phone);
+                p.Add("@Email", model.Email);
                 p.Add("@Batch", model.Batch);
                 p.Add("@RollSection", model.RollSection);
                 p.Add("@Division", model.Division);
@@ -186,6 +187,7 @@ public RegistrationResult UpdateRegistration(
 
                 p.Add("@RegNo", model.RegNo);
                 p.Add("@Name", model.Name);
+                p.Add("@Email", model.Email);
                 p.Add("@BName", model.BName);
                 p.Add("@Phone", model.Phone);
                 p.Add("@Batch", model.Batch);
