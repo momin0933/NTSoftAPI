@@ -257,7 +257,40 @@ public RegistrationResult UpdateRegistration(
             }
         }
 
-#endregion
+        #endregion
+
+        #region Get Sponsors — QueryChecker = 4
+
+        public IEnumerable<SponsorModel> GetSponsors()
+        {
+            try
+            {
+                DynamicParameters p =
+                    new DynamicParameters();
+
+                p.Add("@QueryChecker", 4);
+              
+                var result =
+                    _IDapperService
+                        .GetAllBySP<SponsorModel>(
+                            REPORT_SP_NAME,
+                            p
+                        );
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error loading sponsors"
+                );
+
+                throw;
+            }
+        }
+
+        #endregion
 
 
     }

@@ -14,5 +14,8 @@ namespace BMSAPI.BusinessLayer.Interface.SchoolInterface
         SchoolUserRegistration GetRegistrationById(int id);
 
         RegistrationResult UpdateRegistration(SchoolUserRegistration model);
+
+        // Sponsors — QueryChecker = 4
+        IEnumerable<SponsorModel> GetSponsors();
     }
 }
