@@ -99,5 +99,34 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/UpdateBillPayment")]
+        public IActionResult UpdateBillPayment([FromBody] UpdateBillPaymentRequest request)
+        {
+            try
+            {
+                if (request == null
+                    || request.BillId <= 0
+                    || string.IsNullOrWhiteSpace(request.Phone)
+                    || request.PaidAmount == null
+                    || request.PaidAmount <= 0)
+                {
+                    return BadRequest(new { success = false, message = "BillId, Phone, and a valid PaidAmount are required" });
+                }
+
+                var updated = _billService.UpdateBillPayment(request.BillId, request.Phone, request.PaidAmount.Value);
+
+                if (!updated)
+                {
+                    return NotFound(new { success = false, message = "Bill not found or already updated." });
+                }
+
+                return Ok(new { success = true, data = true, message = "Payment recorded successfully." });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating bill payment for BillId: {BillId}", request?.BillId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

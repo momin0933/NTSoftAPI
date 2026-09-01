@@ -7,5 +7,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         GenerateBillResult GenerateBill(string phone, string billMonth, string billYear, string entryBy);
         IEnumerable<BillView> GetBillList(string phone, string billMonth, string billYear);
         bool CheckBillExists(string phone, string billMonth, string billYear);
+        bool UpdateBillPayment(int billId, string phone, decimal paidAmount);
     }
 }

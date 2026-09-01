@@ -91,5 +91,36 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public bool UpdateBillPayment(int billId, string phone, decimal paidAmount)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 4);
+                p.Add("@BillId", billId);
+                p.Add("@Phone", phone);
+                p.Add("@PaidAmount", paidAmount);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+
+                if (affectedRows > 0)
+                {
+                    _logger.LogInformation("Bill {BillId} marked as Paid for Phone: {Phone}, amount {Amount}", billId, phone, paidAmount);
+                }
+                else
+                {
+                    _logger.LogWarning("Bill payment update affected 0 rows — BillId: {BillId}, Phone: {Phone}", billId, phone);
+                }
+
+                return affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating bill payment — BillId: {BillId}, Phone: {Phone}", billId, phone);
+                throw;
+            }
+        }
     }
 }
