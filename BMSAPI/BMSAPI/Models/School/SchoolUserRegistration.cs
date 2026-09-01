@@ -5,6 +5,7 @@
         public string? Name { get; set; }
         public string? BName { get; set; }
         public string? Phone { get; set; }
+        public string? Email { get; set; }
         public string? Batch { get; set; }
         public string? RollSection { get; set; }
         public string? Division { get; set; }
