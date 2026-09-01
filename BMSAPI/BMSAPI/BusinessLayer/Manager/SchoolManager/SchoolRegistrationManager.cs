@@ -206,6 +206,7 @@ public RegistrationResult UpdateRegistration(
                 p.Add("@TotalFee", model.TotalFee);
                 p.Add("@Remarks", model.Remarks);
                 p.Add("@EntryBy", model.EntryBy);
+                p.Add("@UpdateBy", model.UpdateBy);
 
                 var result =
                     _IDapperService
@@ -256,7 +257,40 @@ public RegistrationResult UpdateRegistration(
             }
         }
 
-#endregion
+        #endregion
+
+        #region Get Sponsors — QueryChecker = 4
+
+        public IEnumerable<SponsorModel> GetSponsors()
+        {
+            try
+            {
+                DynamicParameters p =
+                    new DynamicParameters();
+
+                p.Add("@QueryChecker", 4);
+              
+                var result =
+                    _IDapperService
+                        .GetAllBySP<SponsorModel>(
+                            REPORT_SP_NAME,
+                            p
+                        );
+
+                return result;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error loading sponsors"
+                );
+
+                throw;
+            }
+        }
+
+        #endregion
 
 
     }

@@ -299,6 +299,38 @@ public IActionResult UpdateRegistration(
             }
         }
 
+        [HttpGet("api/Sponsors")]
+        public IActionResult GetSponsors()
+        {
+            try
+            {
+                var result =
+                    _schoolRegistrationService
+                        .GetSponsors();
+
+                return Ok(new
+                {
+                    success = true,
+                    data = result
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Error loading sponsors"
+                );
+
+                return StatusCode(
+                    500,
+                    new
+                    {
+                        success = false,
+                        message = ex.Message
+                    }
+                );
+            }
+        }
 
     }
 }
