@@ -91,8 +91,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
-
-        public bool UpdateBillPayment(int billId, string phone, decimal paidAmount)
+        public RecordBillPaymentResult RecordBillPayment(int billId, string phone, decimal paymentAmount, string paymentType, string remarks, string entryBy)
         {
             try
             {
@@ -100,25 +99,55 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@QueryChecker", 4);
                 p.Add("@BillId", billId);
                 p.Add("@Phone", phone);
-                p.Add("@PaidAmount", paidAmount);
+                p.Add("@PaidAmount", paymentAmount);
+                p.Add("@PaymentType", paymentType);
+                p.Add("@Remarks", remarks);
+                p.Add("@EntryBy", entryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
-                int affectedRows = (int)result.AffectedRows;
 
-                if (affectedRows > 0)
+                var output = new RecordBillPaymentResult
                 {
-                    _logger.LogInformation("Bill {BillId} marked as Paid for Phone: {Phone}, amount {Amount}", billId, phone, paidAmount);
+                    AffectedRows = (int)result.AffectedRows,
+                    PaidAmount = result.PaidAmount,
+                    Amount = result.Amount,
+                    Status = result.Status,
+                };
+
+                if (output.AffectedRows > 0)
+                {
+                    _logger.LogInformation(
+                        "Recorded payment of {Amount} ({Type}) for BillId: {BillId}, Phone: {Phone} — new status {Status}",
+                        paymentAmount, paymentType, billId, phone, output.Status);
                 }
                 else
                 {
-                    _logger.LogWarning("Bill payment update affected 0 rows — BillId: {BillId}, Phone: {Phone}", billId, phone);
+                    _logger.LogWarning("Payment not recorded — BillId: {BillId} not found for Phone: {Phone}", billId, phone);
                 }
 
-                return affectedRows > 0;
+                return output;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating bill payment — BillId: {BillId}, Phone: {Phone}", billId, phone);
+                _logger.LogError(ex, "Error recording payment for BillId: {BillId}, Phone: {Phone}", billId, phone);
+                throw;
+            }
+        }
+
+        public IEnumerable<BillPaymentView> GetBillPaymentHistory(string phone, int billId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 5);
+                p.Add("@Phone", phone);
+                p.Add("@BillId", billId);
+
+                return _IDapperService.GetAllBySP<BillPaymentView>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting payment history for BillId: {BillId}, Phone: {Phone}", billId, phone);
                 throw;
             }
         }

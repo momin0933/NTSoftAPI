@@ -99,32 +99,55 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-        [HttpPost("api/UpdateBillPayment")]
-        public IActionResult UpdateBillPayment([FromBody] UpdateBillPaymentRequest request)
+        [HttpPost("api/RecordBillPayment")]
+        public IActionResult RecordBillPayment([FromBody] RecordBillPaymentRequest request)
         {
             try
             {
                 if (request == null
                     || request.BillId <= 0
                     || string.IsNullOrWhiteSpace(request.Phone)
-                    || request.PaidAmount == null
-                    || request.PaidAmount <= 0)
+                    || request.PaymentAmount == null
+                    || request.PaymentAmount <= 0
+                    || string.IsNullOrWhiteSpace(request.PaymentType))
                 {
-                    return BadRequest(new { success = false, message = "BillId, Phone, and a valid PaidAmount are required" });
+                    return BadRequest(new { success = false, message = "BillId, Phone, a valid PaymentAmount, and PaymentType are required" });
                 }
 
-                var updated = _billService.UpdateBillPayment(request.BillId, request.Phone, request.PaidAmount.Value);
+                var result = _billService.RecordBillPayment(
+                    request.BillId, request.Phone, request.PaymentAmount.Value,
+                    request.PaymentType, request.Remarks, request.EntryBy);
 
-                if (!updated)
+                if (result.AffectedRows <= 0)
                 {
-                    return NotFound(new { success = false, message = "Bill not found or already updated." });
+                    return NotFound(new { success = false, message = "Bill not found." });
                 }
 
-                return Ok(new { success = true, data = true, message = "Payment recorded successfully." });
+                return Ok(new { success = true, data = result, message = "Payment recorded successfully." });
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating bill payment for BillId: {BillId}", request?.BillId);
+                _logger.LogError(ex, "Error recording bill payment for BillId: {BillId}", request?.BillId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetBillPaymentHistory")]
+        public IActionResult GetBillPaymentHistory(string phone, int billId)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(phone) || billId <= 0)
+                {
+                    return BadRequest(new { success = false, message = "Phone and BillId are required" });
+                }
+
+                var history = _billService.GetBillPaymentHistory(phone, billId);
+                return Ok(new { success = true, data = history });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting payment history for BillId: {BillId}", billId);
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
