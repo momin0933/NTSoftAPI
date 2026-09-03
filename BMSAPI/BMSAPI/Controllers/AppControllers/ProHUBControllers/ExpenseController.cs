@@ -15,7 +15,6 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             _expenseService = expenseService;
             _logger = logger;
         }
-
         [HttpPost("api/AddExpense")]
         public IActionResult AddExpense([FromBody] AddExpenseRequest request)
         {
