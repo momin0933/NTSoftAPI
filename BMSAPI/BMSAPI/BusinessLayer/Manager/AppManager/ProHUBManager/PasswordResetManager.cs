@@ -1,16 +1,11 @@
-﻿using System;
-using System.IO;
+﻿using System.Net.Mail;
 using System.Net;
-using System.Net.Mail;
-using System.Text;
-using System.Threading.Tasks;
-using Dapper;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Logging;
 using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
 using BMSAPI.BusinessLayer.Service;
+using Dapper;
 using BMSAPI.Models.Apps.PropHUB;
+using System.Net.Mime;
+using System.Text;
 
 namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
 {
@@ -160,43 +155,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             return secret;
         }
 
-        // Reads the logo from wwwroot/images/logo.png and returns it as a
-        // base64 data URI, embedded directly into the HTML at send time.
-        // This avoids relying on a separate LinkedResource/cid attachment
-        // being correctly matched — if the file genuinely isn't found, this
-        // returns null and the HTML template simply omits the <img> tag
-        // entirely, rather than leaving a broken/dangling image reference.
-        private string GetLogoDataUri()
-        {
-            try
-            {
-                var webRoot = _webHostEnvironment.WebRootPath;
-                if (string.IsNullOrWhiteSpace(webRoot))
-                {
-                    _logger.LogWarning("WebRootPath is not configured — wwwroot may be missing from this project. Sending email without logo.");
-                    return null;
-                }
-
-                var logoPath = Path.Combine(webRoot, "images", "logo.png");
-                _logger.LogInformation("Looking for email logo at: {LogoPath}", logoPath);
-
-                if (!File.Exists(logoPath))
-                {
-                    _logger.LogWarning("Logo file NOT FOUND at {LogoPath} — check that it was actually deployed to the live server's wwwroot/images folder, not just present locally. Sending email without logo.", logoPath);
-                    return null;
-                }
-
-                var bytes = File.ReadAllBytes(logoPath);
-                _logger.LogInformation("Logo found ({Size} bytes) — embedding as data URI.", bytes.Length);
-                return $"data:image/png;base64,{Convert.ToBase64String(bytes)}";
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Error reading logo file — sending email without it.");
-                return null;
-            }
-        }
-
         private async Task SendOtpEmailAsync(string toEmail, string otp)
         {
             var emailSecret = GetActiveEmailSecret();
@@ -214,33 +172,21 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             using var message = new MailMessage
             {
                 From = new MailAddress(emailSecret.SenderEmail, $"{senderName} (No-Reply)"),
+                // Mirrors the pattern real transactional senders (Google,
+                // Facebook, etc.) use — the code visible in the subject line
+                // itself reads as a familiar, legitimate pattern rather than
+                // a generic marketing-style subject.
                 Subject = $"{otp} is your PropHub verification code",
-                SubjectEncoding = Encoding.UTF8,
+                SubjectEncoding = System.Text.Encoding.UTF8,
             };
             message.To.Add(toEmail);
             message.ReplyToList.Add(new MailAddress(emailSecret.SenderEmail));
 
             var year = DateTime.Now.Year;
-            var logoDataUri = GetLogoDataUri();
 
-            // Brand colors — matching the app's own theme.js (colors.primaryDark /
-            // colors.teal), which the logo itself was designed against.
-            const string brandDark = "#006644";
-            const string brandTeal = "#0e7c66";
-
-            // The logo has its own white background baked in — placing it inside a
-            // white circular badge turns that into a deliberate design element
-            // instead of an awkward box sitting on the colored header.
-            var logoHtml = logoDataUri != null
-                ? $@"<table role=""presentation"" align=""center"" cellpadding=""0"" cellspacing=""0"" style=""margin:0 auto 12px;"">
-              <tr>
-                <td style=""width:64px;height:64px;border-radius:32px;background-color:#ffffff;text-align:center;vertical-align:middle;"">
-                  <img src=""{logoDataUri}"" width=""42"" height=""42"" alt="""" style=""display:block;margin:11px auto;border-radius:8px;"" />
-                </td>
-              </tr>
-            </table>"
-                : "";
-
+            // Plain-text fallback — a proper multipart/alternative structure
+            // (both plain text AND html) is a real, recognized deliverability
+            // signal that a single-part HTML-only email lacks.
             var plainTextBody = $@"Hello,
 
 We received a request to reset the password for your PropHub account.
@@ -263,8 +209,8 @@ This is an automated message from PropHub. Please do not reply.
       <td align=""center"">
         <table role=""presentation"" width=""480"" cellpadding=""0"" cellspacing=""0"" style=""background-color:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"">
           <tr>
-            <td style=""background-color:{brandDark};padding:28px 28px 24px;text-align:center;"">
-              {logoHtml}
+            <td style=""background-color:#0F9D58;padding:26px 28px;text-align:center;"">
+              <img src=""cid:prophub_logo"" width=""46"" height=""46"" alt=""PropHub"" style=""display:block;margin:0 auto 10px;border-radius:10px;"" />
               <span style=""color:#ffffff;font-size:18px;font-weight:bold;letter-spacing:0.3px;"">PropHub</span>
             </td>
           </tr>
@@ -274,8 +220,8 @@ This is an automated message from PropHub. Please do not reply.
               <p style=""font-size:14px;color:#374151;line-height:22px;margin:0 0 22px;"">
                 We received a request to reset the password for your PropHub account. Use the verification code below to continue:
               </p>
-              <div style=""background-color:#F0FBF5;border:1px solid {brandTeal};border-radius:10px;padding:20px;text-align:center;margin-bottom:22px;"">
-                <span style=""font-size:32px;font-weight:bold;letter-spacing:8px;color:{brandTeal};"">{otp}</span>
+              <div style=""background-color:#F0FBF5;border:1px solid #0F9D58;border-radius:10px;padding:20px;text-align:center;margin-bottom:22px;"">
+                <span style=""font-size:32px;font-weight:bold;letter-spacing:8px;color:#0F9D58;"">{otp}</span>
               </div>
               <p style=""font-size:13px;color:#6B7280;line-height:20px;margin:0 0 4px;"">
                 This code will expire in <strong>10 minutes</strong>.
@@ -304,11 +250,27 @@ This is an automated message from PropHub. Please do not reply.
             var plainView = AlternateView.CreateAlternateViewFromString(plainTextBody, null, "text/plain");
             var htmlView = AlternateView.CreateAlternateViewFromString(htmlBody, null, "text/html");
 
+            var logoPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "logo.png");
+            if (File.Exists(logoPath))
+            {
+                var logoResource = new LinkedResource(logoPath, "image/png")
+                {
+                    ContentId = "prophub_logo",
+                    TransferEncoding = TransferEncoding.Base64,
+                };
+                htmlView.LinkedResources.Add(logoResource);
+            }
+            else
+            {
+                _logger.LogWarning("Logo file not found at {LogoPath} — email will send without it.", logoPath);
+            }
+
             message.AlternateViews.Add(plainView);
             message.AlternateViews.Add(htmlView);
 
             await client.SendMailAsync(message);
         }
+
         #endregion
     }
 }
