@@ -4,6 +4,7 @@ using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
 using BMSAPI.BusinessLayer.Service;
 using Dapper;
 using BMSAPI.Models.Apps.PropHUB;
+using System.Net.Mime;
 
 namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
 {
@@ -13,6 +14,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
         private readonly IDapperService _IDapperService;
         private readonly IConfiguration _configuration;
         private readonly IUserRegistration _userRegistrationService;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
         private const string SP_RESET = "SP_PasswordReset";
         private const string SP_USER_ACCOUNT = "SP_UserAccount";
@@ -22,11 +24,13 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             IDapperService dapperService,
             IConfiguration configuration,
             IUserRegistration userRegistrationService,
+            IWebHostEnvironment webHostEnvironment,
             ILogger<PasswordResetManager> logger)
         {
             _IDapperService = dapperService;
             _configuration = configuration;
             _userRegistrationService = userRegistrationService;
+            _webHostEnvironment = webHostEnvironment;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -134,9 +138,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             return random.Next(100000, 999999).ToString();
         }
 
-        // Fetches the active sender email + app password from tblEmailSecret,
-        // instead of appsettings.json — lets the sending account be rotated
-        // by updating a database row, with no redeploy needed.
         private EmailSecret GetActiveEmailSecret()
         {
             DynamicParameters p = new DynamicParameters();
@@ -157,8 +158,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
         {
             var emailSecret = GetActiveEmailSecret();
 
-            // SmtpHost/Port/SenderName are plain config, not secrets — these
-            // still come from appsettings.json.
             var smtpHost = _configuration["EmailSettings:SmtpHost"];
             var smtpPort = int.Parse(_configuration["EmailSettings:SmtpPort"] ?? "587");
             var senderName = _configuration["EmailSettings:SenderName"] ?? "PropHub";
@@ -169,31 +168,104 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 EnableSsl = true,
             };
 
-            var message = new MailMessage
+            using var message = new MailMessage
             {
-                // The display name signals "no-reply" — this is the standard
-                // convention, but it's not a technical block: Gmail SMTP
-                // requires the From address to be a real, deliverable
-                // mailbox, so a reply from the recipient's email client will
-                // still land in that Gmail inbox regardless of the label.
                 From = new MailAddress(emailSecret.SenderEmail, $"{senderName} (No-Reply)"),
-                Subject = "Your PropHub password reset code — please do not reply",
-                Body = $@"
-                    <div style='font-family:Arial,sans-serif;padding:20px;'>
-                        <h2 style='color:#0F9D58;'>PropHub password reset</h2>
-                        <p>Your verification code is:</p>
-                        <h1 style='letter-spacing:4px;color:#111827;'>{otp}</h1>
-                        <p>This code expires in 10 minutes.</p>
-                        <hr style='border:none;border-top:1px solid #E5E7EB;margin:20px 0;' />
-                        <p style='color:#9CA3AF;font-size:12px;'>
-                            This is an automated message from PropHub. This mailbox is not
-                            monitored — please do not reply. If you didn't request this code,
-                            you can safely ignore this email.
-                        </p>
-                    </div>",
-                IsBodyHtml = true,
+                // Mirrors the pattern real transactional senders (Google,
+                // Facebook, etc.) use — the code visible in the subject line
+                // itself reads as a familiar, legitimate pattern rather than
+                // a generic marketing-style subject.
+                Subject = $"{otp} is your PropHub verification code",
+                SubjectEncoding = System.Text.Encoding.UTF8,
             };
             message.To.Add(toEmail);
+            message.ReplyToList.Add(new MailAddress(emailSecret.SenderEmail));
+
+            var year = DateTime.Now.Year;
+
+            // Plain-text fallback — a proper multipart/alternative structure
+            // (both plain text AND html) is a real, recognized deliverability
+            // signal that a single-part HTML-only email lacks.
+            var plainTextBody = $@"Hello,
+
+We received a request to reset the password for your PropHub account.
+
+Your verification code is: {otp}
+
+This code will expire in 10 minutes.
+
+If you didn't request this, you can safely ignore this email.
+
+This is an automated message from PropHub. Please do not reply.
+
+© {year} PropHub. All rights reserved.";
+
+            var htmlBody = $@"
+<html>
+<body style=""margin:0;padding:0;background-color:#f4f6f9;font-family:Arial,Helvetica,sans-serif;"">
+  <table role=""presentation"" width=""100%"" cellpadding=""0"" cellspacing=""0"" style=""background-color:#f4f6f9;padding:28px 0;"">
+    <tr>
+      <td align=""center"">
+        <table role=""presentation"" width=""480"" cellpadding=""0"" cellspacing=""0"" style=""background-color:#ffffff;border-radius:14px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.06);"">
+          <tr>
+            <td style=""background-color:#0F9D58;padding:26px 28px;text-align:center;"">
+              <img src=""cid:prophub_logo"" width=""46"" height=""46"" alt=""PropHub"" style=""display:block;margin:0 auto 10px;border-radius:10px;"" />
+              <span style=""color:#ffffff;font-size:18px;font-weight:bold;letter-spacing:0.3px;"">PropHub</span>
+            </td>
+          </tr>
+          <tr>
+            <td style=""padding:32px 28px;"">
+              <p style=""font-size:15px;color:#111827;margin:0 0 16px;"">Hello,</p>
+              <p style=""font-size:14px;color:#374151;line-height:22px;margin:0 0 22px;"">
+                We received a request to reset the password for your PropHub account. Use the verification code below to continue:
+              </p>
+              <div style=""background-color:#F0FBF5;border:1px solid #0F9D58;border-radius:10px;padding:20px;text-align:center;margin-bottom:22px;"">
+                <span style=""font-size:32px;font-weight:bold;letter-spacing:8px;color:#0F9D58;"">{otp}</span>
+              </div>
+              <p style=""font-size:13px;color:#6B7280;line-height:20px;margin:0 0 4px;"">
+                This code will expire in <strong>10 minutes</strong>.
+              </p>
+              <p style=""font-size:13px;color:#6B7280;line-height:20px;margin:0 0 26px;"">
+                If you didn't request a password reset, you can safely ignore this email — your account is still secure.
+              </p>
+              <hr style=""border:none;border-top:1px solid #E5E7EB;margin:0 0 20px;"" />
+              <p style=""font-size:11px;color:#9CA3AF;line-height:18px;margin:0;"">
+                This is an automated message from PropHub. Please do not reply to this email — this mailbox is not monitored.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <td style=""background-color:#F9FAFB;padding:16px 28px;text-align:center;"">
+              <p style=""font-size:11px;color:#9CA3AF;margin:0;"">© {year} PropHub. All rights reserved.</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>";
+
+            var plainView = AlternateView.CreateAlternateViewFromString(plainTextBody, null, "text/plain");
+            var htmlView = AlternateView.CreateAlternateViewFromString(htmlBody, null, "text/html");
+
+            var logoPath = Path.Combine(_webHostEnvironment.WebRootPath, "images", "logo.png");
+            if (File.Exists(logoPath))
+            {
+                var logoResource = new LinkedResource(logoPath, "image/png")
+                {
+                    ContentId = "prophub_logo",
+                    TransferEncoding = TransferEncoding.Base64,
+                };
+                htmlView.LinkedResources.Add(logoResource);
+            }
+            else
+            {
+                _logger.LogWarning("Logo file not found at {LogoPath} — email will send without it.", logoPath);
+            }
+
+            message.AlternateViews.Add(plainView);
+            message.AlternateViews.Add(htmlView);
 
             await client.SendMailAsync(message);
         }
