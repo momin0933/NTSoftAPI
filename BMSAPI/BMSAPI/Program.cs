@@ -86,6 +86,7 @@ builder.Services.AddScoped<ITenant, TenantManager>();
 builder.Services.AddScoped<IBill, BillManager>();
 builder.Services.AddScoped<ISchoolRegistration, SchoolRegistrationManager>();
 builder.Services.AddScoped<IExpense, ExpenseManager>();
+builder.Services.AddScoped<IPasswordReset, PasswordResetManager>();
 
 builder.Services.AddDistributedMemoryCache();
 
