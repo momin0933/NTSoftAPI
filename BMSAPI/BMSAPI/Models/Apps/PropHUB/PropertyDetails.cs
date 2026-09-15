@@ -2,6 +2,7 @@
 {
     public class PropertyDetails:Base
     {
+        public int? UId { get; set; }
         public string? Phone { get; set; }
         public int? PropertyId { get; set; }
         public string? FlatName { get; set; }

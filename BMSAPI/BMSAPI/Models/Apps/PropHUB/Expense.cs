@@ -2,6 +2,7 @@
 {
     public class Expense:Base
     {
+        public int? UId { get; set; }
         public string? Phone { get; set; }
         public string? ExpenseType { get; set; }
         public string? ExpenseName { get; set; }

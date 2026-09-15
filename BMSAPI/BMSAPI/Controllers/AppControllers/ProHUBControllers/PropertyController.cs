@@ -40,11 +40,14 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             }
         }
         [HttpGet("api/GetPropertyList")]
-        public IActionResult GetPropertyList()
+        public IActionResult GetPropertyList(int uId)
         {
             try
             {
-                var list = _propertyService.GetPropertyList();
+                if (uId <= 0)
+                    return BadRequest(new { success = false, message = "A valid uId is required" });
+
+                var list = _propertyService.GetPropertyList(uId);
                 return Ok(new { success = true, data = list, message = "Property list retrieved successfully" });
             }
             catch (Exception ex)
@@ -98,14 +101,14 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             }
         }
         [HttpGet("api/GetMyPropertyList")]
-        public IActionResult GetMyPropertyList(string phone)
+        public IActionResult GetMyPropertyList(string phone, int uId)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(phone))
                     return BadRequest(new { success = false, message = "A valid phone number is required" });
 
-                var list = _propertyService.GetMyPropertyList(phone);
+                var list = _propertyService.GetMyPropertyList(phone, uId);
                 return Ok(new { success = true, data = list, message = "My property list retrieved successfully" });
             }
             catch (Exception ex)
@@ -144,6 +147,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                     request.PropertyId,
                     request.IsActive,
                     request.Phone,
+                    request.UId,
                     request.Phone
                 );
 
@@ -171,7 +175,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (request == null || request.PropDetailsId <= 0 || string.IsNullOrWhiteSpace(request.Phone))
                     return BadRequest(new { success = false, message = "A valid PropDetailsId and Phone are required" });
 
-                var result = _propertyService.DeletePropertyDetails(request.PropDetailsId, request.Phone, request.Phone);
+                var result = _propertyService.DeletePropertyDetails(request.PropDetailsId, request.Phone, request.UId, request.Phone);
 
                 if (!result)
                     return StatusCode(500, new { success = false, message = "Failed to delete unit, please try again" });

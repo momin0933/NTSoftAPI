@@ -47,14 +47,14 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             }
         }
         [HttpGet("api/GetTenantList")]
-        public IActionResult GetTenantList(string phone)
+        public IActionResult GetTenantList(string phone, int uId)
         {
             try
             {
                 if (string.IsNullOrWhiteSpace(phone))
                     return BadRequest(new { success = false, message = "A valid phone number is required" });
 
-                var list = _tenantService.GetTenantList(phone);
+                var list = _tenantService.GetTenantList(phone, uId);
                 return Ok(new { success = true, data = list, message = "Tenant list retrieved successfully" });
             }
             catch (Exception ex)
