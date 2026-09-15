@@ -20,45 +20,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        #region INSERT Operation (Dapper) — QueryChecker = 1
-
-        public bool RegisterUser(UserRegistration model)
-        {
-            try
-            {
-                DynamicParameters p = new DynamicParameters();
-                p.Add("@QueryChecker", 1);
-                p.Add("@Name", model.Name);
-                p.Add("@Phone", model.Phone);
-                p.Add("@Mail", model.Mail);
-                p.Add("@Password", model.Password);
-                p.Add("@UserRole", model.UserRole);
-                p.Add("@ImgPath", model.ImgPath);
-                p.Add("@Address", model.Address);
-                p.Add("@Remarks", model.Remarks);
-                p.Add("@EntryBy", model.EntryBy);
-
-                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
-                int affectedRows = (int)result.AffectedRows;
-
-                if (affectedRows <= 0)
-                {
-                    _logger.LogWarning("User registration failed for Mail: {Mail}", model.Mail);
-                    return false;
-                }
-
-                _logger.LogInformation("User registered successfully with Id: {Id}, Mail: {Mail}", (int)result.Id, model.Mail);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error registering user with Mail: {Mail}", model.Mail);
-                throw;
-            }
-        }
-
-        #endregion
-
         #region Duplicate Checks (Dapper) — QueryChecker = 2, 3
 
         public bool IsEmailExists(string email)
@@ -97,6 +58,41 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking phone existence: {Phone}", phone);
+                throw;
+            }
+        }
+
+        public int RegisterUser(UserRegistration model)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 1);
+                p.Add("@Name", model.Name);
+                p.Add("@Phone", model.Phone);
+                p.Add("@Mail", model.Mail);
+                p.Add("@Password", model.Password);
+                p.Add("@ImgPath", model.ImgPath);
+                p.Add("@Address", model.Address);
+                p.Add("@Remarks", model.Remarks);
+                p.Add("@EntryBy", model.EntryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+
+                if (affectedRows <= 0)
+                {
+                    _logger.LogWarning("User registration failed for Mail: {Mail}", model.Mail);
+                    return 0;
+                }
+
+                int newId = (int)result.Id;
+                _logger.LogInformation("User registered successfully with Id: {Id}, Mail: {Mail}", newId, model.Mail);
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error registering user with Mail: {Mail}", model.Mail);
                 throw;
             }
         }
