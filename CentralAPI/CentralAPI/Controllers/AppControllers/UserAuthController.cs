@@ -96,8 +96,6 @@ namespace CentralAPI.Controllers.AppControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
-        [Authorize]
         [Route("api/GetUserRoles")]
         [HttpGet]
         public IActionResult GetUserRoles(int uId)
