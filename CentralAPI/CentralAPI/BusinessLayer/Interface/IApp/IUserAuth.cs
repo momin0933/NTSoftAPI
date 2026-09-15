@@ -7,5 +7,6 @@ namespace CentralAPI.BusinessLayer.Interface.IApp
         UserAuthResult? Login(string phone, string password);
         UserAuthResult? RefreshToken(string refreshToken);
         bool Logout(string refreshToken);
+        IEnumerable<UserRoleItem> GetUserRoles(int uId);
     }
 }

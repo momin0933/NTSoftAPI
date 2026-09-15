@@ -96,5 +96,25 @@ namespace CentralAPI.Controllers.AppControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        [Authorize]
+        [Route("api/GetUserRoles")]
+        [HttpGet]
+        public IActionResult GetUserRoles(int uId)
+        {
+            try
+            {
+                if (uId <= 0)
+                    return BadRequest(new { success = false, message = "A valid uId is required" });
+
+                var roles = _userAuthService.GetUserRoles(uId);
+                return Ok(new { success = true, data = roles, message = "User roles retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving user roles for UId: {UId}", uId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

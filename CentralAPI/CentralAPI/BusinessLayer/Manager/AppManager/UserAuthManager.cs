@@ -18,7 +18,7 @@ namespace CentralAPI.BusinessLayer.Manager.AppManager
 
         private const string SP_USER_LOGIN = "SP_UserLogin";
         private const string SP_TOKEN = "SP_UserRefreshToken";
-
+        private const string SP_USER_ROLE = "SP_UserRole";
         private static readonly TimeSpan AccessTokenLifetime = TimeSpan.FromMinutes(15);
         private static readonly TimeSpan RefreshTokenLifetime = TimeSpan.FromDays(7);
 
@@ -190,6 +190,23 @@ namespace CentralAPI.BusinessLayer.Manager.AppManager
             using var rng = RandomNumberGenerator.Create();
             rng.GetBytes(randomBytes);
             return Convert.ToBase64String(randomBytes);
+        }
+
+        public IEnumerable<UserRoleItem> GetUserRoles(int uId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 2);
+                p.Add("@UId", uId);
+
+                return _IDapperService.GetAllBySP<UserRoleItem>(SP_USER_ROLE, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting user roles for UId: {UId}", uId);
+                throw;
+            }
         }
 
         #endregion
