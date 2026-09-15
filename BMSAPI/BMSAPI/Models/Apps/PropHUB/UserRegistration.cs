@@ -9,5 +9,6 @@
         public string? UserRole { get; set; }
         public string? ImgPath { get; set; }
         public string? Address { get; set; }
+        public List<string>? UserRoles { get; set; }
     }
 }

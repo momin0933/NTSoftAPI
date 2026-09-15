@@ -8,11 +8,16 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
     public class UserRegistrationController : ControllerBase
     {
         private readonly IUserRegistration _userRegistrationService;
+        private readonly IUserRole _userRoleService;
         private readonly ILogger<UserRegistrationController> _logger;
 
-        public UserRegistrationController(IUserRegistration userRegistrationService, ILogger<UserRegistrationController> logger)
+        public UserRegistrationController(
+            IUserRegistration userRegistrationService,
+            IUserRole userRoleService,
+            ILogger<UserRegistrationController> logger)
         {
             _userRegistrationService = userRegistrationService ?? throw new ArgumentNullException(nameof(userRegistrationService));
+            _userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
@@ -27,17 +32,32 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (string.IsNullOrWhiteSpace(model.Mail) || string.IsNullOrWhiteSpace(model.Phone) || string.IsNullOrWhiteSpace(model.Password))
                     return BadRequest(new { success = false, message = "Name, Phone, Mail, and Password are required" });
 
+                if (model.UserRoles == null || model.UserRoles.Count == 0)
+                    return BadRequest(new { success = false, message = "At least one user role must be selected" });
+
                 if (_userRegistrationService.IsEmailExists(model.Mail))
                     return Conflict(new { success = false, message = "An account with this email already exists" });
 
                 if (_userRegistrationService.IsPhoneExists(model.Phone))
                     return Conflict(new { success = false, message = "An account with this phone number already exists" });
 
-                var result = _userRegistrationService.RegisterUser(model);
-                if (!result)
+                var newUId = _userRegistrationService.RegisterUser(model);
+                if (newUId <= 0)
                     return StatusCode(500, new { success = false, message = "Registration failed, please try again" });
 
-                return Ok(new { success = true, data = result, message = "Registration successful" });
+                // One tblUserRole row per checked role. If a role insert
+                // fails partway through, the account itself still exists —
+                // logged, but not rolled back, since the account is
+                // functional even with a subset of roles recorded.
+                foreach (var role in model.UserRoles)
+                {
+                    if (string.IsNullOrWhiteSpace(role)) continue;
+                    var roleAdded = _userRoleService.AddUserRole(newUId, role, model.EntryBy ?? model.Phone);
+                    if (!roleAdded)
+                        _logger.LogWarning("Failed to add role {Role} for new UId: {UId}", role, newUId);
+                }
+
+                return Ok(new { success = true, data = true, message = "Registration successful" });
             }
             catch (Exception ex)
             {
