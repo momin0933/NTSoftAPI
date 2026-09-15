@@ -21,6 +21,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
+                p.Add("@UId", model.UId);
                 p.Add("@Phone", model.Phone);
                 p.Add("@Name", model.Name);
                 p.Add("@Address", model.Address);
@@ -49,18 +50,19 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public IEnumerable<Property> GetPropertyList()
+        public IEnumerable<Property> GetPropertyList(int uId)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 2);
+                p.Add("@UId", uId);
 
                 return _IDapperService.GetAllBySP<Property>(SP_NAME, p).ToList();
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error getting property list");
+                _logger.LogError(ex, "Error getting property list for UId: {UId}", uId);
                 throw;
             }
         }
@@ -71,6 +73,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 3);
+                p.Add("@UId", model.UId);
                 p.Add("@Phone", model.Phone);
                 p.Add("@PropertyId", model.PropertyId);
                 p.Add("@FlatName", model.FlatName);
@@ -119,13 +122,14 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public IEnumerable<Property> GetMyPropertyList(string phone)
+        public IEnumerable<Property> GetMyPropertyList(string phone, int uId)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 5);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
 
                 return _IDapperService.GetAllBySP<Property>(SP_NAME, p).ToList();
             }
@@ -152,7 +156,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public bool ToggleActiveStatus(int propertyId, bool isActive, string phone, string entryBy)
+        public bool ToggleActiveStatus(int propertyId, bool isActive, string phone, int uId, string entryBy)
         {
             try
             {
@@ -161,6 +165,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@PropertyId", propertyId);
                 p.Add("@IsActive", isActive);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
                 p.Add("@EntryBy", entryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
@@ -182,7 +187,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public bool DeletePropertyDetails(int propDetailsId, string phone, string entryBy)
+        public bool DeletePropertyDetails(int propDetailsId, string phone, int uId, string entryBy)
         {
             try
             {
@@ -190,6 +195,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 p.Add("@QueryChecker", 8);
                 p.Add("@PropDetailsId", propDetailsId);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
                 p.Add("@EntryBy", entryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);

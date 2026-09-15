@@ -3,6 +3,7 @@
     public class ExpenseView
     {
         public int Id { get; set; }
+        public int? UId { get; set; }
         public string? Phone { get; set; }
         public string? ExpenseType { get; set; }
         public string? ExpenseName { get; set; }

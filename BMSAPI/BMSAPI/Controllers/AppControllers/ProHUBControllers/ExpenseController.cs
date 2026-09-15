@@ -41,7 +41,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
         }
 
         [HttpGet("api/GetExpenseList")]
-        public IActionResult GetExpenseList(string phone, int? expenseMonth = null, int? expenseYear = null)
+        public IActionResult GetExpenseList(string phone, int uId, int? expenseMonth = null, int? expenseYear = null)
         {
             try
             {
@@ -50,7 +50,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                     return BadRequest(new { success = false, message = "Phone is required" });
                 }
 
-                var list = _expenseService.GetExpenseList(phone, expenseMonth, expenseYear);
+                var list = _expenseService.GetExpenseList(phone, uId, expenseMonth, expenseYear);
                 return Ok(new { success = true, data = list, message = "Expense list retrieved successfully" });
             }
             catch (Exception ex)
@@ -61,7 +61,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
         }
 
         [HttpGet("api/GetExpenseSourceOptions")]
-        public IActionResult GetExpenseSourceOptions(string phone)
+        public IActionResult GetExpenseSourceOptions(string phone, int uId)
         {
             try
             {
@@ -70,7 +70,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                     return BadRequest(new { success = false, message = "Phone is required" });
                 }
 
-                var options = _expenseService.GetExpenseSourceOptions(phone);
+                var options = _expenseService.GetExpenseSourceOptions(phone, uId);
                 return Ok(new { success = true, data = options });
             }
             catch (Exception ex)
@@ -81,7 +81,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
         }
 
         [HttpPost("api/DeleteExpense")]
-        public IActionResult DeleteExpense(string phone, int expenseId, string updateBy)
+        public IActionResult DeleteExpense(string phone, int uId, int expenseId, string updateBy)
         {
             try
             {
@@ -90,7 +90,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                     return BadRequest(new { success = false, message = "Phone and ExpenseId are required" });
                 }
 
-                var deleted = _expenseService.DeleteExpense(phone, expenseId, updateBy);
+                var deleted = _expenseService.DeleteExpense(phone, uId, expenseId, updateBy);
                 if (!deleted)
                 {
                     return NotFound(new { success = false, message = "Expense not found." });

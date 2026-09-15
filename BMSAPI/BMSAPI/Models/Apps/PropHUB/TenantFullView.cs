@@ -3,6 +3,7 @@
     public class TenantFullView
     {
         public int Id { get; set; }
+        public int? UId { get; set; }
         public string? Phone { get; set; }
         public int? PropertyId { get; set; }
         public string? PropertyName { get; set; }

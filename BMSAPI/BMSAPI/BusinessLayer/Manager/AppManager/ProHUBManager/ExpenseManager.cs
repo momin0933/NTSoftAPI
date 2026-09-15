@@ -21,6 +21,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
+                p.Add("@UId", request.UId);
                 p.Add("@Phone", request.Phone);
                 p.Add("@ExpenseType", request.ExpenseType);
                 p.Add("@ExpenseName", request.ExpenseName);
@@ -48,13 +49,14 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public IEnumerable<ExpenseView> GetExpenseList(string phone, int? expenseMonth, int? expenseYear)
+        public IEnumerable<ExpenseView> GetExpenseList(string phone, int uId, int? expenseMonth, int? expenseYear)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 2);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
                 p.Add("@ExpenseMonth", expenseMonth);
                 p.Add("@ExpenseYear", expenseYear);
 
@@ -67,13 +69,14 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public IEnumerable<ExpenseSourceOption> GetExpenseSourceOptions(string phone)
+        public IEnumerable<ExpenseSourceOption> GetExpenseSourceOptions(string phone, int uId)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 3);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
 
                 return _IDapperService.GetAllBySP<ExpenseSourceOption>(SP_NAME, p).ToList();
             }
@@ -84,13 +87,14 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public bool DeleteExpense(string phone, int expenseId, string updateBy)
+        public bool DeleteExpense(string phone, int uId, int expenseId, string updateBy)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 4);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
                 p.Add("@ExpenseId", expenseId);
                 p.Add("@EntryBy", updateBy);
 

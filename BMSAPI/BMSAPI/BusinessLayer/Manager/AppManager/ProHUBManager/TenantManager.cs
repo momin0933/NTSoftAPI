@@ -18,14 +18,15 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-     
-        public IEnumerable<TenantFullView> GetTenantList(string phone)
+
+        public IEnumerable<TenantFullView> GetTenantList(string phone, int uId)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 2);
                 p.Add("@Phone", phone);
+                p.Add("@UId", uId);
 
                 return _IDapperService.GetAllBySP<TenantFullView>(SP_NAME, p).ToList();
             }
@@ -42,6 +43,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
+                p.Add("@UId", model.UId);
                 p.Add("@Phone", model.Phone);
                 p.Add("@PropertyId", model.PropertyId);
                 p.Add("@PropDetailsId", model.PropDetailsId);

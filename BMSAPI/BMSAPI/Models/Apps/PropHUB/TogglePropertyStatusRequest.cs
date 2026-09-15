@@ -2,6 +2,7 @@
 {
     public class TogglePropertyStatusRequest
     {
+        public int UId { get; set; }
         public int PropertyId { get; set; }
         public bool IsActive { get; set; }
         public string Phone { get; set; } = string.Empty;
