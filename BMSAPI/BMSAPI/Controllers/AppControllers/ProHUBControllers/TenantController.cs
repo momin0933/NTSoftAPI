@@ -63,5 +63,25 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("api/GetMyTenancy")]
+        public IActionResult GetMyTenancy(string tenantPhone)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(tenantPhone))
+                    return BadRequest(new { success = false, message = "A valid tenantPhone is required" });
+
+                var tenancy = _tenantService.GetMyTenancy(tenantPhone);
+                if (tenancy == null)
+                    return NotFound(new { success = false, message = "No active tenancy found for this account" });
+
+                return Ok(new { success = true, data = tenancy, message = "Tenancy retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving my tenancy for TenantPhone: {TenantPhone}", tenantPhone);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

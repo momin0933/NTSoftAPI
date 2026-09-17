@@ -7,5 +7,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
     {
         bool AddTenant(TenantData model);
         IEnumerable<TenantFullView> GetTenantList(string phone, int uId);
+        TenantFullView? GetMyTenancy(string tenantPhone);
     }
 }

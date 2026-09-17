@@ -85,5 +85,22 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public TenantFullView? GetMyTenancy(string tenantPhone)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 3);
+                p.Add("@TenantPhone", tenantPhone);
+
+                return _IDapperService.GetByDynamicSPSingle<TenantFullView>(SP_NAME, p);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting my tenancy for TenantPhone: {TenantPhone}", tenantPhone);
+                throw;
+            }
+        }
     }
 }
