@@ -29,13 +29,16 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (model == null)
                     return BadRequest(new { success = false, message = "Registration data is required" });
 
-                if (string.IsNullOrWhiteSpace(model.Mail) || string.IsNullOrWhiteSpace(model.Phone) || string.IsNullOrWhiteSpace(model.Password))
-                    return BadRequest(new { success = false, message = "Name, Phone, Mail, and Password are required" });
+                if (string.IsNullOrWhiteSpace(model.Phone) || string.IsNullOrWhiteSpace(model.Password))
+                    return BadRequest(new { success = false, message = "Phone and Password are required" });
 
                 if (model.UserRoles == null || model.UserRoles.Count == 0)
                     return BadRequest(new { success = false, message = "At least one user role must be selected" });
 
-                if (_userRegistrationService.IsEmailExists(model.Mail))
+                // Email is optional — only check for a duplicate if one
+                // was actually provided. An empty/null Mail has nothing
+                // to collide with.
+                if (!string.IsNullOrWhiteSpace(model.Mail) && _userRegistrationService.IsEmailExists(model.Mail))
                     return Conflict(new { success = false, message = "An account with this email already exists" });
 
                 if (_userRegistrationService.IsPhoneExists(model.Phone))
@@ -45,10 +48,6 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 if (newUId <= 0)
                     return StatusCode(500, new { success = false, message = "Registration failed, please try again" });
 
-                // One tblUserRole row per checked role. If a role insert
-                // fails partway through, the account itself still exists —
-                // logged, but not rolled back, since the account is
-                // functional even with a subset of roles recorded.
                 foreach (var role in model.UserRoles)
                 {
                     if (string.IsNullOrWhiteSpace(role)) continue;
