@@ -1,0 +1,146 @@
+﻿using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
+using BMSAPI.BusinessLayer.Service;
+using BMSAPI.Models.Apps.PropHUB;
+using Dapper;
+
+namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
+{
+    public class TenantConnectionRequestManager : ITenantConnectionRequest
+    {
+        private readonly ILogger<TenantConnectionRequestManager> _logger;
+        private readonly IDapperService _IDapperService;
+        private const string SP_NAME = "SP_TenantConnectionRequest";
+
+        public TenantConnectionRequestManager(IDapperService dapperService, ILogger<TenantConnectionRequestManager> logger)
+        {
+            _IDapperService = dapperService;
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        public int SendRequest(SendConnectionRequestBody body)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 1);
+                p.Add("@TenantUId", body.TenantUId);
+                p.Add("@TenantHomeId", body.TenantHomeId);
+                p.Add("@LandlordMobile", body.LandlordMobile);
+                p.Add("@TenancyId", body.TenancyId);
+                p.Add("@PropertyId", body.PropertyId);
+                p.Add("@PropDetailsId", body.PropDetailsId);
+                p.Add("@MatchType", body.MatchType);
+                p.Add("@EntryBy", body.EntryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+                int newId = affectedRows <= 0 ? 0 : (int)result.Id;
+
+                // An 'Auto' match is deterministic — the landlord already
+                // typed this exact phone number, so there's no real
+                // decision left. Accept immediately.
+                if (newId > 0 && body.MatchType == "Auto")
+                {
+                    Accept(newId, body.EntryBy ?? "system");
+                }
+
+                return newId;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending connection request for TenantUId: {UId}", body.TenantUId);
+                throw;
+            }
+        }
+
+        public IEnumerable<ConnectionRequestItem> GetForLandlord(int landlordUId, string landlordMobile)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 2);
+                p.Add("@LandlordUId", landlordUId);
+                p.Add("@LandlordMobile", landlordMobile);
+
+                return _IDapperService.GetAllBySP<ConnectionRequestItem>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting requests for LandlordUId: {UId}", landlordUId);
+                throw;
+            }
+        }
+
+        public IEnumerable<ConnectionRequestItem> GetForTenant(int tenantUId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 3);
+                p.Add("@TenantUId", tenantUId);
+
+                return _IDapperService.GetAllBySP<ConnectionRequestItem>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting requests for TenantUId: {UId}", tenantUId);
+                throw;
+            }
+        }
+
+        public bool Accept(int requestId, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 4);
+                p.Add("@RequestId", requestId);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                return Convert.ToInt32(result.AffectedRows) > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error accepting request {Id}", requestId);
+                throw;
+            }
+        }
+
+        public bool Reject(int requestId, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 5);
+                p.Add("@RequestId", requestId);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                return Convert.ToInt32(result.AffectedRows) > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error rejecting request {Id}", requestId);
+                throw;
+            }
+        }
+
+        public AutoMatchResult? CheckAutoMatch(string tenantPhone)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 6);
+                p.Add("@TenantPhone", tenantPhone);
+
+                return _IDapperService.GetByDynamicSPSingle<AutoMatchResult>(SP_NAME, p);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error checking auto-match for phone: {Phone}", tenantPhone);
+                throw;
+            }
+        }
+    }
+}
