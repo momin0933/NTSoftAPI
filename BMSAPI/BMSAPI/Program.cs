@@ -90,6 +90,8 @@ builder.Services.AddScoped<IPasswordReset, PasswordResetManager>();
 builder.Services.AddScoped<IMasterChild, MasterChildManager>();
 builder.Services.AddScoped<IUserRole, UserRoleManager>();
 builder.Services.AddScoped<IComplain, ComplainManager>();
+builder.Services.AddScoped<ITenantHome, TenantHomeManager>();
+builder.Services.AddScoped<ITenantConnectionRequest, TenantConnectionRequestManager>();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>

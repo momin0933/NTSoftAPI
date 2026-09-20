@@ -1,0 +1,76 @@
+﻿using BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB;
+using BMSAPI.Models.Apps.PropHUB;
+using Microsoft.AspNetCore.Mvc;
+
+namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
+{
+    [ApiController]
+    public class TenantHomeController : ControllerBase
+    {
+        private readonly ITenantHome _tenantHomeService;
+        private readonly ILogger<TenantHomeController> _logger;
+
+        public TenantHomeController(ITenantHome tenantHomeService, ILogger<TenantHomeController> logger)
+        {
+            _tenantHomeService = tenantHomeService ?? throw new ArgumentNullException(nameof(tenantHomeService));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        }
+
+        [HttpPost("api/AddTenantHome")]
+        public IActionResult AddTenantHome([FromBody] AddTenantHomeRequest request)
+        {
+            try
+            {
+                if (request == null || request.UId <= 0 || string.IsNullOrWhiteSpace(request.PropertyName))
+                    return BadRequest(new { success = false, message = "UId and PropertyName are required" });
+
+                var newId = _tenantHomeService.AddTenantHome(request);
+                if (newId <= 0)
+                    return StatusCode(500, new { success = false, message = "Failed to save home, please try again" });
+
+                return Ok(new { success = true, data = newId, message = "Home saved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding tenant home");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetMyCurrentHome")]
+        public IActionResult GetMyCurrentHome(int uId)
+        {
+            try
+            {
+                if (uId <= 0)
+                    return BadRequest(new { success = false, message = "A valid uId is required" });
+
+                var home = _tenantHomeService.GetMyCurrentHome(uId);
+                return Ok(new { success = true, data = home, message = "Retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving current home for UId: {UId}", uId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetMyHomeHistory")]
+        public IActionResult GetMyHomeHistory(int uId)
+        {
+            try
+            {
+                if (uId <= 0)
+                    return BadRequest(new { success = false, message = "A valid uId is required" });
+
+                var list = _tenantHomeService.GetMyHomeHistory(uId);
+                return Ok(new { success = true, data = list, message = "Retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving home history for UId: {UId}", uId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+    }
+}
