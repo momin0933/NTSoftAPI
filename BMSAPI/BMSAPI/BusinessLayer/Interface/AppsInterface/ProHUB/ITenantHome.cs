@@ -7,7 +7,8 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         int AddTenantHome(AddTenantHomeRequest request);
         TenantHomeItem? GetMyCurrentHome(int uId);
         IEnumerable<TenantHomeItem> GetMyHomeHistory(int uId);
-        bool UpdateConnection(int tenantHomeId, int uId, string connectionStatus, int? linkedTenancyId, string entryBy);
+        bool UpdateConnection(UpdateTenantHomeConnectionRequest request);
         bool DeactivateMyHome(int tenantHomeId, int uId, string entryBy);
+        int AddTenantHomeFromTenancy(AddTenantHomeFromTenancyRequest request);
     }
 }
