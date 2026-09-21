@@ -8,5 +8,6 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         TenantHomeItem? GetMyCurrentHome(int uId);
         IEnumerable<TenantHomeItem> GetMyHomeHistory(int uId);
         bool UpdateConnection(int tenantHomeId, int uId, string connectionStatus, int? linkedTenancyId, string entryBy);
+        bool DeactivateMyHome(int tenantHomeId, int uId, string entryBy);
     }
 }
