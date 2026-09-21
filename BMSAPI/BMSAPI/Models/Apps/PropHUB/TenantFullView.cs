@@ -26,5 +26,7 @@
         public string? EPhone { get; set; }
         public string? ERelation { get; set; }
         public string? EAddress { get; set; }
+        public int? TenantUserId { get; set; }
+        public string? ConnectionStatus { get; set; }
     }
 }
