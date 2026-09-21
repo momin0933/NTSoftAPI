@@ -99,5 +99,25 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public bool DeactivateMyHome(int tenantHomeId, int uId, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 5);
+                p.Add("@TenantHomeId", tenantHomeId);
+                p.Add("@UId", uId);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                return Convert.ToInt32(result.AffectedRows) > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating home {Id}", tenantHomeId);
+                throw;
+            }
+        }
     }
 }

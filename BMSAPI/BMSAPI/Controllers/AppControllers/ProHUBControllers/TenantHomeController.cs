@@ -72,5 +72,25 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/DeactivateMyHome")]
+        public IActionResult DeactivateMyHome([FromBody] DeactivateHomeRequest request)
+        {
+            try
+            {
+                if (request == null || request.TenantHomeId <= 0 || request.UId <= 0)
+                    return BadRequest(new { success = false, message = "A valid TenantHomeId and UId are required" });
+
+                var result = _tenantHomeService.DeactivateMyHome(request.TenantHomeId, request.UId, request.EntryBy);
+                if (!result)
+                    return StatusCode(500, new { success = false, message = "Failed to deactivate home" });
+
+                return Ok(new { success = true, data = result, message = "Home deactivated successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error deactivating home");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
