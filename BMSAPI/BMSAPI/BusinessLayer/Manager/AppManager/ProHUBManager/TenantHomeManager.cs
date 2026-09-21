@@ -24,13 +24,24 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
                 p.Add("@UId", request.UId);
-                p.Add("@PropertyName", request.PropertyName);
-                p.Add("@Address", request.Address);
-                p.Add("@Area", request.Area);
-                p.Add("@UnitNo", request.UnitNo);
-                p.Add("@MonthlyRent", request.MonthlyRent);
-                p.Add("@RentDueDay", request.RentDueDay);
-                p.Add("@MoveInDate", request.MoveInDate);
+                p.Add("@PropertyNameText", request.PropertyNameText);
+                p.Add("@UnitNoText", request.UnitNoText);
+                p.Add("@TenantName", request.TenantName);
+                p.Add("@NID", request.NID);
+                p.Add("@TenantPhone", request.TenantPhone);
+                p.Add("@TenantEmail", request.TenantEmail);
+                p.Add("@DOB", request.DOB);
+                p.Add("@TenantType", request.TenantType);
+                p.Add("@Religion", request.Religion);
+                p.Add("@StartDate", request.StartDate);
+                p.Add("@Advance", request.Advance);
+                p.Add("@MonthlyAmount", request.MonthlyAmount);
+                p.Add("@PoliceForm", request.PoliceForm);
+                p.Add("@AgreementForm", request.AgreementForm);
+                p.Add("@EName", request.EName);
+                p.Add("@EPhone", request.EPhone);
+                p.Add("@ERelation", request.ERelation);
+                p.Add("@EAddress", request.EAddress);
                 p.Add("@EntryBy", request.EntryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
@@ -78,24 +89,25 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public bool UpdateConnection(int tenantHomeId, int uId, string connectionStatus, int? linkedTenancyId, string entryBy)
+        public bool UpdateConnection(UpdateTenantHomeConnectionRequest request)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 4);
-                p.Add("@TenantHomeId", tenantHomeId);
-                p.Add("@UId", uId);
-                p.Add("@ConnectionStatus", connectionStatus);
-                p.Add("@LinkedTenancyId", linkedTenancyId);
-                p.Add("@EntryBy", entryBy);
+                p.Add("@TenantHomeId", request.TenantHomeId);
+                p.Add("@UId", request.UId);
+                p.Add("@ConnectionStatus", request.ConnectionStatus);
+                p.Add("@PropertyId", request.PropertyId);
+                p.Add("@PropDetailsId", request.PropDetailsId);
+                p.Add("@EntryBy", request.EntryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
                 return Convert.ToInt32(result.AffectedRows) > 0;
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error updating connection for TenantHomeId: {Id}", tenantHomeId);
+                _logger.LogError(ex, "Error updating connection for TenantHomeId: {Id}", request.TenantHomeId);
                 throw;
             }
         }
@@ -116,6 +128,27 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deactivating home {Id}", tenantHomeId);
+                throw;
+            }
+        }
+
+        public int AddTenantHomeFromTenancy(AddTenantHomeFromTenancyRequest request)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 6);
+                p.Add("@UId", request.UId);
+                p.Add("@SourceTenantId", request.SourceTenantId);
+                p.Add("@EntryBy", request.EntryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+                return affectedRows <= 0 ? 0 : (int)result.Id;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding tenant home from tenancy {Id}", request.SourceTenantId);
                 throw;
             }
         }

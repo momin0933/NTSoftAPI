@@ -21,8 +21,8 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
         {
             try
             {
-                if (request == null || request.UId <= 0 || string.IsNullOrWhiteSpace(request.PropertyName))
-                    return BadRequest(new { success = false, message = "UId and PropertyName are required" });
+                if (request == null || request.UId <= 0 || string.IsNullOrWhiteSpace(request.PropertyNameText) || string.IsNullOrWhiteSpace(request.TenantName))
+                    return BadRequest(new { success = false, message = "UId, PropertyNameText and TenantName are required" });
 
                 var newId = _tenantHomeService.AddTenantHome(request);
                 if (newId <= 0)
@@ -72,6 +72,28 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
+        [HttpPost("api/UpdateTenantHomeConnection")]
+        public IActionResult UpdateTenantHomeConnection([FromBody] UpdateTenantHomeConnectionRequest request)
+        {
+            try
+            {
+                if (request == null || request.TenantHomeId <= 0 || request.UId <= 0)
+                    return BadRequest(new { success = false, message = "A valid TenantHomeId and UId are required" });
+
+                var result = _tenantHomeService.UpdateConnection(request);
+                if (!result)
+                    return StatusCode(500, new { success = false, message = "Failed to update connection" });
+
+                return Ok(new { success = true, data = result, message = "Connection updated" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error updating tenant home connection");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
         [HttpPost("api/DeactivateMyHome")]
         public IActionResult DeactivateMyHome([FromBody] DeactivateHomeRequest request)
         {
@@ -89,6 +111,27 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error deactivating home");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("api/AddTenantHomeFromTenancy")]
+        public IActionResult AddTenantHomeFromTenancy([FromBody] AddTenantHomeFromTenancyRequest request)
+        {
+            try
+            {
+                if (request == null || request.UId <= 0 || request.SourceTenantId <= 0)
+                    return BadRequest(new { success = false, message = "UId and SourceTenantId are required" });
+
+                var newId = _tenantHomeService.AddTenantHomeFromTenancy(request);
+                if (newId <= 0)
+                    return StatusCode(500, new { success = false, message = "Failed to add to profile, please try again" });
+
+                return Ok(new { success = true, data = newId, message = "Added to your profile" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error adding tenant home from tenancy");
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
