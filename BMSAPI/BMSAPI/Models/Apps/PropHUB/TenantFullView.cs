@@ -28,5 +28,9 @@
         public string? EAddress { get; set; }
         public int? TenantUserId { get; set; }
         public string? ConnectionStatus { get; set; }
+        public string? PropertyNameText { get; set; }
+        public string? UnitNoText { get; set; }
+        public string? DisplayPropertyName { get; set; }
+        public string? DisplayUnitNo { get; set; }
     }
 }

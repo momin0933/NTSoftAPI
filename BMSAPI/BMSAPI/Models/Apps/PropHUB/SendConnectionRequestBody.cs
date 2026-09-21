@@ -9,6 +9,7 @@
         public int? PropertyId { get; set; }
         public int? PropDetailsId { get; set; }
         public string? MatchType { get; set; }
+        public int? LandlordUId { get; set; }
         public string? EntryBy { get; set; }
     }
 }

@@ -93,10 +93,10 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
         {
             try
             {
-                if (body == null || body.RequestId <= 0)
-                    return BadRequest(new { success = false, message = "A valid RequestId is required" });
+                if (body == null || body.RequestId <= 0 || body.LandlordUId <= 0)
+                    return BadRequest(new { success = false, message = "A valid RequestId and LandlordUId are required" });
 
-                var result = _service.Accept(body.RequestId, body.EntryBy);
+                var result = _service.Accept(body.RequestId, body.LandlordUId, body.EntryBy);
                 if (!result)
                     return StatusCode(500, new { success = false, message = "Failed to accept request" });
 
@@ -108,7 +108,6 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
-
         [HttpPost("api/RejectConnectionRequest")]
         public IActionResult RejectConnectionRequest([FromBody] RespondConnectionRequestBody body)
         {

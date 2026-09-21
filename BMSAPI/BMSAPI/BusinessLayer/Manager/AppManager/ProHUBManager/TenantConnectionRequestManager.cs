@@ -41,7 +41,7 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 // decision left. Accept immediately.
                 if (newId > 0 && body.MatchType == "Auto")
                 {
-                    Accept(newId, body.EntryBy ?? "system");
+                    Accept(newId, body.LandlordUId ?? 0, body.EntryBy ?? "system");
                 }
 
                 return newId;
@@ -88,13 +88,14 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             }
         }
 
-        public bool Accept(int requestId, string entryBy)
+        public bool Accept(int requestId, int landlordUId, string entryBy)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 4);
                 p.Add("@RequestId", requestId);
+                p.Add("@LandlordUId", landlordUId);
                 p.Add("@EntryBy", entryBy);
 
                 var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);

@@ -7,7 +7,7 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         int SendRequest(SendConnectionRequestBody body);
         IEnumerable<ConnectionRequestItem> GetForLandlord(int landlordUId, string landlordMobile);
         IEnumerable<ConnectionRequestItem> GetForTenant(int tenantUId);
-        bool Accept(int requestId, string entryBy);
+        bool Accept(int requestId, int landlordUId, string entryBy);
         bool Reject(int requestId, string entryBy);
         AutoMatchResult? CheckAutoMatch(string tenantPhone);
     }
