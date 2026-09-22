@@ -11,5 +11,8 @@ namespace BMSAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         bool Reject(int requestId, string entryBy);
         AutoMatchResult? CheckAutoMatch(string tenantPhone);
         bool SendConnectInvite(int uId, int tenantId, string entryBy);
+        IEnumerable<TenantFullView> GetPendingInvitesForTenant(int tenantUserId);
+        bool RespondToInvite(int tenantId, int tenantUserId, bool accept, string entryBy);
+        IEnumerable<TenantFullView> GetConnectedTenanciesForTenant(int tenantUserId);
     }
 }

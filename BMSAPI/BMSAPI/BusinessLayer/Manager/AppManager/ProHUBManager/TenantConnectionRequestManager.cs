@@ -11,10 +11,12 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
         private readonly IDapperService _IDapperService;
         private const string SP_NAME = "SP_TenantConnectionRequest";
 
-        // SendConnectInvite belongs to the landlord-INITIATED flow, which
-        // lives in SP_Tenant (QC10), not SP_TenantConnectionRequest —
-        // this manager just hosts the method too, per the controller's
-        // existing structure, rather than adding a whole new service.
+        // The landlord-invite methods below (SendConnectInvite through
+        // GetConnectedTenanciesForTenant) belong to a completely
+        // different mechanism — SP_Tenant's QC10-13, not
+        // SP_TenantConnectionRequest — hosted here because this is the
+        // one class/controller pair already confirmed live and wired
+        // into DI.
         private const string SP_TENANT = "SP_Tenant";
 
         public TenantConnectionRequestManager(IDapperService dapperService, ILogger<TenantConnectionRequestManager> logger)
@@ -168,6 +170,61 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending connect invite for TenantId: {TenantId}", tenantId);
+                throw;
+            }
+        }
+
+        public IEnumerable<TenantFullView> GetPendingInvitesForTenant(int tenantUserId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 11);
+                p.Add("@UId", tenantUserId);
+
+                return _IDapperService.GetAllBySP<TenantFullView>(SP_TENANT, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting pending invites for TenantUserId: {UId}", tenantUserId);
+                throw;
+            }
+        }
+
+        public bool RespondToInvite(int tenantId, int tenantUserId, bool accept, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 12);
+                p.Add("@TenantId", tenantId);
+                p.Add("@UId", tenantUserId);
+                p.Add("@Accept", accept);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_TENANT, p);
+                return Convert.ToInt32(result.AffectedRows) > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error responding to invite for TenantId: {TenantId}", tenantId);
+                throw;
+            }
+        }
+
+        public IEnumerable<TenantFullView> GetConnectedTenanciesForTenant(int tenantUserId)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 13);
+                p.Add("@UId", tenantUserId);
+
+                return _IDapperService.GetAllBySP<TenantFullView>(SP_TENANT, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting connected tenancies for TenantUserId: {UId}", tenantUserId);
                 throw;
             }
         }

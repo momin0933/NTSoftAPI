@@ -108,6 +108,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost("api/RejectConnectionRequest")]
         public IActionResult RejectConnectionRequest([FromBody] RespondConnectionRequestBody body)
         {
@@ -128,6 +129,7 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+
         [HttpPost("api/SendConnectInvite")]
         public IActionResult SendConnectInvite([FromBody] SendConnectInviteRequest request)
         {
@@ -147,6 +149,63 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error sending connect invite");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetPendingInvitesForTenant")]
+        public IActionResult GetPendingInvitesForTenant(int tenantUserId)
+        {
+            try
+            {
+                if (tenantUserId <= 0)
+                    return BadRequest(new { success = false, message = "A valid tenantUserId is required" });
+
+                var list = _service.GetPendingInvitesForTenant(tenantUserId);
+                return Ok(new { success = true, data = list, message = "Retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving pending invites");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpPost("api/RespondToInvite")]
+        public IActionResult RespondToInvite([FromBody] RespondToInviteRequest request)
+        {
+            try
+            {
+                if (request == null || request.TenantId <= 0 || request.TenantUserId <= 0)
+                    return BadRequest(new { success = false, message = "A valid TenantId and TenantUserId are required" });
+
+                var result = _service.RespondToInvite(request.TenantId, request.TenantUserId, request.Accept, request.EntryBy);
+                if (!result)
+                    return StatusCode(500, new { success = false, message = "Failed to respond to invite" });
+
+                return Ok(new { success = true, data = result, message = "Response recorded" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error responding to invite");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
+
+        [HttpGet("api/GetConnectedTenanciesForTenant")]
+        public IActionResult GetConnectedTenanciesForTenant(int tenantUserId)
+        {
+            try
+            {
+                if (tenantUserId <= 0)
+                    return BadRequest(new { success = false, message = "A valid tenantUserId is required" });
+
+                var list = _service.GetConnectedTenanciesForTenant(tenantUserId);
+                return Ok(new { success = true, data = list, message = "Retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving connected tenancies");
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
