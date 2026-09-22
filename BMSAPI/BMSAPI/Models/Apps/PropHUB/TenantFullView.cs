@@ -32,5 +32,6 @@
         public string? UnitNoText { get; set; }
         public string? DisplayPropertyName { get; set; }
         public string? DisplayUnitNo { get; set; }
+        public bool AlreadyInProfile { get; set; }
     }
 }
