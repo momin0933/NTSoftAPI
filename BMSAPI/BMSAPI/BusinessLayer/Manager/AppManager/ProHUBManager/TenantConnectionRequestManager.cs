@@ -11,6 +11,12 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
         private readonly IDapperService _IDapperService;
         private const string SP_NAME = "SP_TenantConnectionRequest";
 
+        // SendConnectInvite belongs to the landlord-INITIATED flow, which
+        // lives in SP_Tenant (QC10), not SP_TenantConnectionRequest —
+        // this manager just hosts the method too, per the controller's
+        // existing structure, rather than adding a whole new service.
+        private const string SP_TENANT = "SP_Tenant";
+
         public TenantConnectionRequestManager(IDapperService dapperService, ILogger<TenantConnectionRequestManager> logger)
         {
             _IDapperService = dapperService;
@@ -36,9 +42,6 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 int affectedRows = (int)result.AffectedRows;
                 int newId = affectedRows <= 0 ? 0 : (int)result.Id;
 
-                // An 'Auto' match is deterministic — the landlord already
-                // typed this exact phone number, so there's no real
-                // decision left. Accept immediately.
                 if (newId > 0 && body.MatchType == "Auto")
                 {
                     Accept(newId, body.LandlordUId ?? 0, body.EntryBy ?? "system");
@@ -140,6 +143,31 @@ namespace BMSAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error checking auto-match for phone: {Phone}", tenantPhone);
+                throw;
+            }
+        }
+
+        public bool SendConnectInvite(int uId, int tenantId, string entryBy)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 10);
+                p.Add("@UId", uId);
+                p.Add("@TenantId", tenantId);
+                p.Add("@EntryBy", entryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_TENANT, p);
+                if (result == null) return false;
+
+                int? matchedUId = result.MatchedUId;
+                int affectedRows = Convert.ToInt32(result.AffectedRows);
+
+                return matchedUId.HasValue && affectedRows > 0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending connect invite for TenantId: {TenantId}", tenantId);
                 throw;
             }
         }

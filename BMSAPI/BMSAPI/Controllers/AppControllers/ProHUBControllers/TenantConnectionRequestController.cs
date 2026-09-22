@@ -128,5 +128,27 @@ namespace BMSAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/SendConnectInvite")]
+        public IActionResult SendConnectInvite([FromBody] SendConnectInviteRequest request)
+        {
+            try
+            {
+                if (request == null || request.UId <= 0 || request.TenantId <= 0)
+                    return BadRequest(new { success = false, message = "A valid UId and TenantId are required" });
+
+                var matched = _service.SendConnectInvite(request.UId, request.TenantId, request.EntryBy);
+                return Ok(new
+                {
+                    success = true,
+                    data = matched,
+                    message = matched ? "Invite sent successfully" : "No matching account found for this phone number yet"
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error sending connect invite");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
