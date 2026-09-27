@@ -82,3 +82,5 @@ dkms.conf
 /PropHubAPI/.vs
 /PropHubAPI/PropHubAPI/bin
 /PropHubAPI/PropHubAPI/obj
+PropHubAPI/.vs/PropHubAPI/DesignTimeBuild/.dtbcache.v2
+PropHubAPI/.vs/PropHubAPI/DesignTimeBuild/.dtbcache.v2
