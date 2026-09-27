@@ -64,7 +64,7 @@
               "RelativeDocumentMoniker": "PropHubAPI\\appsettings.json",
               "ToolTip": "C:\\Users\\Ftex-PC-156\\Desktop\\Project\\NTSoftAPI\\PropHubAPI\\PropHubAPI\\appsettings.json",
               "RelativeToolTip": "PropHubAPI\\appsettings.json",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAB4AAAAbAAAAAAAAAA==",
+              "ViewState": "AgIAAAYAAAAAAAAAAAAAABQAAAAdAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001642|",
               "WhenOpened": "2026-09-27T08:13:06.85Z",
               "EditorCaption": ""
@@ -79,8 +79,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\BillController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAEAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:09:21.826Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:09:21.826Z"
             },
             {
               "$type": "Document",
@@ -92,8 +91,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\ComplainController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:09:15.263Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:09:15.263Z"
             },
             {
               "$type": "Document",
@@ -105,8 +103,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\ExpenseController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:09:09.513Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:09:09.513Z"
             },
             {
               "$type": "Document",
@@ -118,8 +115,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\ExpenseNameController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:09:03.781Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:09:03.781Z"
             },
             {
               "$type": "Document",
@@ -131,8 +127,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\PasswordResetController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:57.036Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:57.036Z"
             },
             {
               "$type": "Document",
@@ -144,8 +139,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\PropertyController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:51.11Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:51.11Z"
             },
             {
               "$type": "Document",
@@ -157,8 +151,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\TenantConnectionRequestController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:44.715Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:44.715Z"
             },
             {
               "$type": "Document",
@@ -170,8 +163,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\TenantController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAUAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:36.504Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:36.504Z"
             },
             {
               "$type": "Document",
@@ -183,8 +175,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\TenantHomeController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:19.702Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:19.702Z"
             },
             {
               "$type": "Document",
@@ -196,8 +187,7 @@
               "RelativeToolTip": "PropHubAPI\\Controllers\\AppControllers\\ProHUBControllers\\UserRegistrationController.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAQAAAAUAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-09-27T08:08:07.404Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-09-27T08:08:07.404Z"
             }
           ]
         }
