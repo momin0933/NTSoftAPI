@@ -1,0 +1,6 @@
+@PropHubAPI_HostAddress = http://localhost:5037
+
+GET {{PropHubAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

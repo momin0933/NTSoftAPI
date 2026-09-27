@@ -1,0 +1,12 @@
+﻿using PropHubAPI.Models.Apps.PropHUB;
+
+namespace PropHubAPI.BusinessLayer.Interface.AppsInterface.ProHUB
+{
+    public interface IExpense
+    {
+        int AddExpense(AddExpenseRequest request);
+        IEnumerable<ExpenseView> GetExpenseList(string phone, int uId, int? expenseMonth, int? expenseYear);
+        IEnumerable<ExpenseSourceOption> GetExpenseSourceOptions(string phone, int uId);
+        bool DeleteExpense(string phone, int uId, int expenseId, string updateBy);
+    }
+}

@@ -1,0 +1,924 @@
+[
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "AcceptConnectionRequest",
+    "RelativePath": "api/AcceptConnectionRequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.RespondConnectionRequestBody",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "AddComplain",
+    "RelativePath": "api/AddComplain",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.AddComplainRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseController",
+    "Method": "AddExpense",
+    "RelativePath": "api/AddExpense",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.AddExpenseRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseNameController",
+    "Method": "AddExpenseName",
+    "RelativePath": "api/AddExpenseName",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.AddExpenseNameRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "AddProperty",
+    "RelativePath": "api/AddProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.Property",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "AddPropertyDetails",
+    "RelativePath": "api/AddPropertyDetails",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.PropertyDetails",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantController",
+    "Method": "AddTenant",
+    "RelativePath": "api/AddTenant",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.TenantData",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "AddTenantHome",
+    "RelativePath": "api/AddTenantHome",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.AddTenantHomeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "AddTenantHomeFromTenancy",
+    "RelativePath": "api/AddTenantHomeFromTenancy",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.AddTenantHomeFromTenancyRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "CheckAutoMatch",
+    "RelativePath": "api/CheckAutoMatch",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantPhone",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.BillController",
+    "Method": "CheckBillExists",
+    "RelativePath": "api/CheckBillExists",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "billMonth",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "billYear",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.UserRegistrationController",
+    "Method": "CheckEmailExists",
+    "RelativePath": "api/CheckEmailExists",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "email",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.UserRegistrationController",
+    "Method": "CheckPhoneExists",
+    "RelativePath": "api/CheckPhoneExists",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "DeactivateMyHome",
+    "RelativePath": "api/DeactivateMyHome",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.DeactivateHomeRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseController",
+    "Method": "DeleteExpense",
+    "RelativePath": "api/DeleteExpense",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "expenseId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "updateBy",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseNameController",
+    "Method": "DeleteExpenseName",
+    "RelativePath": "api/DeleteExpenseName",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.DeleteExpenseNameRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "DeletePropertyDetails",
+    "RelativePath": "api/DeletePropertyDetails",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.DeletePropertyDetailsRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PasswordResetController",
+    "Method": "ForgotPassword",
+    "RelativePath": "api/ForgotPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.ForgotPasswordRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.BillController",
+    "Method": "GenerateBill",
+    "RelativePath": "api/GenerateBill",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.GenerateBillRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.BillController",
+    "Method": "GetBillList",
+    "RelativePath": "api/GetBillList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "billMonth",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "billYear",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.BillController",
+    "Method": "GetBillPaymentHistory",
+    "RelativePath": "api/GetBillPaymentHistory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "billId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "GetComplainListForAdmin",
+    "RelativePath": "api/GetComplainListForAdmin",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "GetComplainListForTenant",
+    "RelativePath": "api/GetComplainListForTenant",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "GetConnectedTenanciesForTenant",
+    "RelativePath": "api/GetConnectedTenanciesForTenant",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantUserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "GetConnectionRequestsForLandlord",
+    "RelativePath": "api/GetConnectionRequestsForLandlord",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "landlordUId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "landlordMobile",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "GetConnectionRequestsForTenant",
+    "RelativePath": "api/GetConnectionRequestsForTenant",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantUId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseController",
+    "Method": "GetExpenseList",
+    "RelativePath": "api/GetExpenseList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "expenseMonth",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "expenseYear",
+        "Type": "System.Nullable\u00601[[System.Int32, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseNameController",
+    "Method": "GetExpenseNameList",
+    "RelativePath": "api/GetExpenseNameList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseController",
+    "Method": "GetExpenseSourceOptions",
+    "RelativePath": "api/GetExpenseSourceOptions",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "GetMyCurrentHome",
+    "RelativePath": "api/GetMyCurrentHome",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "GetMyHomeHistory",
+    "RelativePath": "api/GetMyHomeHistory",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "GetMyPropertyList",
+    "RelativePath": "api/GetMyPropertyList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantController",
+    "Method": "GetMyTenancy",
+    "RelativePath": "api/GetMyTenancy",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantPhone",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "GetPendingInvitesForTenant",
+    "RelativePath": "api/GetPendingInvitesForTenant",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "tenantUserId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "GetPropertyDetailsFullList",
+    "RelativePath": "api/GetPropertyDetailsFullList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "GetPropertyDetailsList",
+    "RelativePath": "api/GetPropertyDetailsList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "propertyId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "GetPropertyList",
+    "RelativePath": "api/GetPropertyList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantController",
+    "Method": "GetTenantList",
+    "RelativePath": "api/GetTenantList",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "phone",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "GetUnreadComplainCount",
+    "RelativePath": "api/GetUnreadComplainCount",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "uId",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "MarkComplainAsRead",
+    "RelativePath": "api/MarkComplainAsRead",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.MarkComplainReadRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.BillController",
+    "Method": "RecordBillPayment",
+    "RelativePath": "api/RecordBillPayment",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.RecordBillPaymentRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.UserRegistrationController",
+    "Method": "RegisterUser",
+    "RelativePath": "api/RegisterUser",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "model",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.UserRegistration",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "RejectConnectionRequest",
+    "RelativePath": "api/RejectConnectionRequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.RespondConnectionRequestBody",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PasswordResetController",
+    "Method": "ResetPassword",
+    "RelativePath": "api/ResetPassword",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.ResetPasswordRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "RespondToInvite",
+    "RelativePath": "api/RespondToInvite",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.RespondToInviteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "SendConnectInvite",
+    "RelativePath": "api/SendConnectInvite",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.SendConnectInviteRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantConnectionRequestController",
+    "Method": "SendConnectionRequest",
+    "RelativePath": "api/SendConnectionRequest",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.SendConnectionRequestBody",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.TestController",
+    "Method": "Get",
+    "RelativePath": "api/Test",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PropertyController",
+    "Method": "ToggleProperty",
+    "RelativePath": "api/ToggleProperty",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.TogglePropertyStatusRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ComplainController",
+    "Method": "UpdateComplainStatus",
+    "RelativePath": "api/UpdateComplainStatus",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.UpdateComplainStatusRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.ExpenseNameController",
+    "Method": "UpdateExpenseName",
+    "RelativePath": "api/UpdateExpenseName",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "body",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.UpdateExpenseNameRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.TenantHomeController",
+    "Method": "UpdateTenantHomeConnection",
+    "RelativePath": "api/UpdateTenantHomeConnection",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.UpdateTenantHomeConnectionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "PropHubAPI.Controllers.AppControllers.ProHUBControllers.PasswordResetController",
+    "Method": "VerifyResetOtp",
+    "RelativePath": "api/VerifyResetOtp",
+    "HttpMethod": "POST",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "request",
+        "Type": "PropHubAPI.Models.Apps.PropHUB.VerifyResetOtpRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  }
+]
