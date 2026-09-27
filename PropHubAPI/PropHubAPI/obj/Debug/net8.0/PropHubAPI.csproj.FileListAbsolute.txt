@@ -86,3 +86,4 @@ C:\Users\Ftex-PC-156\Desktop\Project\NTSoftAPI\PropHubAPI\PropHubAPI\obj\Debug\n
 C:\Users\Ftex-PC-156\Desktop\Project\NTSoftAPI\PropHubAPI\PropHubAPI\obj\Debug\net8.0\PropHubAPI.pdb
 C:\Users\Ftex-PC-156\Desktop\Project\NTSoftAPI\PropHubAPI\PropHubAPI\obj\Debug\net8.0\PropHubAPI.genruntimeconfig.cache
 C:\Users\Ftex-PC-156\Desktop\Project\NTSoftAPI\PropHubAPI\PropHubAPI\obj\Debug\net8.0\ref\PropHubAPI.dll
+C:\Users\Ftex-PC-156\Desktop\Project\NTSoftAPI\PropHubAPI\PropHubAPI\bin\Debug\net8.0\PropHubAPI.staticwebassets.runtime.json

@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PropHubAPI")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba414196232119f548c646652733c957c30d810e")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+c4d104e2a93f6d3085138546a4963894f4460bc0")]
 [assembly: System.Reflection.AssemblyProductAttribute("PropHubAPI")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PropHubAPI")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

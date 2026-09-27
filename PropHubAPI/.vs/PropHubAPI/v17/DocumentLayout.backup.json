@@ -1,37 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "C:\\Users\\Ftex-PC-156\\Desktop\\Project\\NTSoftAPI\\PropHubAPI\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{81D65A53-C48A-445E-8257-D1CA81D3B1A3}|PropHubAPI\\PropHubAPI.csproj|c:\\users\\ftex-pc-156\\desktop\\project\\ntsoftapi\\prophubapi\\prophubapi\\prophubapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|",
-      "RelativeMoniker": "D:0:0:{81D65A53-C48A-445E-8257-D1CA81D3B1A3}|PropHubAPI\\PropHubAPI.csproj|solutionrelative:prophubapi\\prophubapi.csproj||{FA3CD31E-987B-443A-9B81-186104E8DAC1}|"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 0,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "PropHubAPI",
-              "DocumentMoniker": "C:\\Users\\Ftex-PC-156\\Desktop\\Project\\NTSoftAPI\\PropHubAPI\\PropHubAPI\\PropHubAPI.csproj",
-              "RelativeDocumentMoniker": "PropHubAPI\\PropHubAPI.csproj",
-              "ToolTip": "C:\\Users\\Ftex-PC-156\\Desktop\\Project\\NTSoftAPI\\PropHubAPI\\PropHubAPI\\PropHubAPI.csproj",
-              "RelativeToolTip": "PropHubAPI\\PropHubAPI.csproj",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000758|",
-              "WhenOpened": "2026-09-27T08:38:52.153Z",
-              "EditorCaption": ""
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }
