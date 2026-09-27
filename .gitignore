@@ -79,8 +79,10 @@ dkms.conf
 /InventoryAccountsAPI/.vs
 /InventoryAccountsAPI/obj
 /InventoryAccountsAPI/bin
+
 /PropHubAPI/.vs
 /PropHubAPI/PropHubAPI/bin
 /PropHubAPI/PropHubAPI/obj
-PropHubAPI/.vs/PropHubAPI/DesignTimeBuild/.dtbcache.v2
-PropHubAPI/.vs/PropHubAPI/DesignTimeBuild/.dtbcache.v2
+/PropHubAPI/PropHubAPI/Properties/PublishProfiles
+
+
