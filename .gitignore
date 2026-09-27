@@ -79,3 +79,6 @@ dkms.conf
 /InventoryAccountsAPI/.vs
 /InventoryAccountsAPI/obj
 /InventoryAccountsAPI/bin
+/PropHubAPI/.vs
+/PropHubAPI/PropHubAPI/bin
+/PropHubAPI/PropHubAPI/obj
