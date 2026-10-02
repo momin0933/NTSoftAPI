@@ -13,5 +13,8 @@
         public int? Bathroom { get; set; }
         public int? Balcony { get; set; }
         public string? MeterNo { get; set; }
+        public string? AvailabilityStatus { get; set; }
+        public int? CurrentTenantId { get; set; }
+        public string? CurrentTenantName { get; set; }
     }
 }

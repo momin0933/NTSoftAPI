@@ -102,5 +102,35 @@ namespace PropHubAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
-    }
+
+        public bool MoveOutTenant(MoveOutTenantRequest request)
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 14);
+                p.Add("@TenantId", request.TenantId);
+                p.Add("@UId", request.UId);
+                p.Add("@MoveOutDate", request.MoveOutDate);
+                p.Add("@EntryBy", request.EntryBy);
+
+                var result = _IDapperService.GetByDynamicSPSingle<dynamic>(SP_NAME, p);
+                int affectedRows = (int)result.AffectedRows;
+
+                if (affectedRows <= 0)
+                {
+                    _logger.LogWarning("Move out failed for TenantId: {TenantId}", request.TenantId);
+                    return false;
+                }
+
+                _logger.LogInformation("Tenant {TenantId} moved out by UId {UId}", request.TenantId, request.UId);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error moving out TenantId: {TenantId}", request.TenantId);
+                throw;
+            }
+          }
+        }
 }

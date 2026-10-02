@@ -83,5 +83,25 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpPost("api/MoveOutTenant")]
+        public IActionResult MoveOutTenant([FromBody] MoveOutTenantRequest request)
+        {
+            try
+            {
+                if (request == null || request.TenantId <= 0 || request.UId <= 0)
+                    return BadRequest(new { success = false, message = "A valid TenantId and UId are required" });
+
+                var result = _tenantService.MoveOutTenant(request);
+                if (!result)
+                    return BadRequest(new { success = false, message = "Tenant not found or already moved out" });
+
+                return Ok(new { success = true, data = result, message = "Tenant moved out successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error moving out TenantId: {TenantId}", request?.TenantId);
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }
