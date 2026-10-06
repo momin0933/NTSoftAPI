@@ -12,5 +12,6 @@ namespace PropHubAPI.BusinessLayer.Interface.AppsInterface.ProHUB
         IEnumerable<PropertyDetailsFullView> GetPropertyDetailsFullList(int propertyId);
         bool ToggleActiveStatus(int propertyId, bool isActive, string phone, int uId, string entryBy);
         bool DeletePropertyDetails(int propDetailsId, string phone, int uId, string entryBy);
+        IEnumerable<ToLetUnit> GetToLetList();
     }
 }

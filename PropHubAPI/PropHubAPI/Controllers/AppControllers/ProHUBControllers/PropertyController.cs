@@ -188,5 +188,19 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
                 return StatusCode(500, new { success = false, message = ex.Message });
             }
         }
+        [HttpGet("api/GetToLetList")]
+        public IActionResult GetToLetList()
+        {
+            try
+            {
+                var list = _propertyService.GetToLetList();
+                return Ok(new { success = true, data = list, message = "To-let list retrieved successfully" });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error retrieving to-let list");
+                return StatusCode(500, new { success = false, message = ex.Message });
+            }
+        }
     }
 }

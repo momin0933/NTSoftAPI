@@ -216,5 +216,21 @@ namespace PropHubAPI.BusinessLayer.Manager.AppManager.ProHUBManager
                 throw;
             }
         }
+
+        public IEnumerable<ToLetUnit> GetToLetList()
+        {
+            try
+            {
+                DynamicParameters p = new DynamicParameters();
+                p.Add("@QueryChecker", 9);
+
+                return _IDapperService.GetAllBySP<ToLetUnit>(SP_NAME, p).ToList();
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error getting public to-let list");
+                throw;
+            }
+        }
     }
 }
