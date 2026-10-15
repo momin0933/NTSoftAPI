@@ -257,5 +257,12 @@ namespace BMSAPI.BusinessLayer.Service
             using var conn = new SqlConnection(connectionString);
             return conn.QueryFirstOrDefault<T>(query, param);
         }
+        public IEnumerable<T> GetAllByQuery<T>(string query, object? param) where T : class
+        {
+            var connectionString = _tenantProvider.GetConnectionString();
+            using var connection = new SqlConnection(connectionString);
+            connection.Open();
+            return connection.Query<T>(query, param).ToList();
+        }
     }
 }

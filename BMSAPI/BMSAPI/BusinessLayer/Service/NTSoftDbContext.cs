@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using BMSAPI.BusinessLayer.TenantService;
 using BMSAPI.Models;
+using BMSAPI.Models.Common;
 
 namespace BMSAPI.BusinessLayer.Service
 {
@@ -16,6 +17,7 @@ namespace BMSAPI.BusinessLayer.Service
         public virtual DbSet<VbntblBkashPayments> VbntblBkashPayments { get; set; } = null!;
         public virtual DbSet<AccVoucher> voucherEntryDetails { get; set; } = null!;
         public virtual DbSet<VoucherDetails> VoucherEntry { get; set; } = null!;
+        public virtual DbSet<AccGLedger> Accounts { get; set; } = null!;
         //BUILDING-MANAGER
         public virtual DbSet<Owner> Owners { get; set; } = null!;
         public virtual DbSet<FlatOwner> FlatOwners { get; set; } = null!;
@@ -35,12 +37,14 @@ namespace BMSAPI.BusinessLayer.Service
         public virtual DbSet<CustomerSmsMail> CustomerSmSMails { get; set; } = null!;
         public virtual DbSet<SmsMailWithCustomer> SmsMailWithCustomers { get; set; } = null!;
         public virtual DbSet<AccILedger> AccLevelTwo { get; set; } = null!;
+        public virtual DbSet<UserRoles> UserRoles { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
             modelBuilder.Entity<VbntblBkashPayments>().ToTable("VbntblBkashPayments");
             modelBuilder.Entity<Bill>().ToTable("VbnTblBill");
             modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
+            modelBuilder.Entity<AccGLedger>().ToTable("AcctblGLedger");
             modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
               tb => tb.UseSqlOutputClause(false));
 
@@ -61,6 +65,7 @@ namespace BMSAPI.BusinessLayer.Service
             modelBuilder.Entity<CommitteeSmSMail>().ToTable("vbntblCommitteeSmsMail");
             modelBuilder.Entity<SmsMailWithMember>().ToTable("vbntblSmsMailWithMembers");
             modelBuilder.Entity<SmsMailWithCustomer>().ToTable("tblSmsMailCustomers");
+            modelBuilder.Entity<UserRoles>().ToTable("tblUserRole");
             modelBuilder.Entity<CustomerSmsMail>().ToTable("tblSmsMail");
             modelBuilder.Entity<AccILedger>().ToTable("AcctblILedger");
             modelBuilder.Entity<CommitteeSmSMail>()

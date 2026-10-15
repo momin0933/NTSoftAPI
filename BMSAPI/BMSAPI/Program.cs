@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Identity.Client;
 using Microsoft.IdentityModel.Tokens;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -79,6 +80,9 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<IBkashManager, BkashManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<IProcedure, ProcedureManager>();
+builder.Services.AddScoped<IMenu, MenuManager>();
+builder.Services.AddScoped<IDropDown, DropDownManager>();
+//builder.Services.AddScoped<IAccounts, AccountsManager>();
 //BUILDING-MANAGER
 builder.Services.AddScoped<IBuilding, BuildingManager>();
 builder.Services.AddScoped<IOwner, OwnerManager>();
