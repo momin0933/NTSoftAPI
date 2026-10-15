@@ -78,6 +78,7 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 builder.Services.AddScoped<IBkashManager, BkashManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+builder.Services.AddScoped<IProcedure, ProcedureManager>();
 //BUILDING-MANAGER
 builder.Services.AddScoped<IBuilding, BuildingManager>();
 builder.Services.AddScoped<IOwner, OwnerManager>();
