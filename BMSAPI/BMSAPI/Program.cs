@@ -78,12 +78,20 @@ builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 
 builder.Services.AddScoped<IBkashManager, BkashManager>();
 builder.Services.AddScoped<IUserManager, UserManager>();
+//BUILDING-MANAGER
+builder.Services.AddScoped<IBuilding, BuildingManager>();
+builder.Services.AddScoped<IOwner, OwnerManager>();
+builder.Services.AddScoped<IGas, GasManager>();
+builder.Services.AddScoped<ICommitteeMember, CommitteeMemberManager>();
+builder.Services.AddScoped<ICommitteeSmsMail, CommitteeSmsMailManager>();
+//builder.Services.AddScoped<IBill, BillManager>();
+builder.Services.AddScoped<ICommitteeMember, CommitteeMemberManager>();
 //APP INTERFACES SCOPED
 //PropHUB Applications
 builder.Services.AddScoped<IUserRegistration,UserRegistrationManager>();
 builder.Services.AddScoped<IProperty, PropertyManager>();
 builder.Services.AddScoped<ITenant, TenantManager>();
-builder.Services.AddScoped<IBill, BillManager>();
+//builder.Services.AddScoped<IBill, BillManager>();
 builder.Services.AddScoped<ISchoolRegistration, SchoolRegistrationManager>();
 builder.Services.AddScoped<IExpense, ExpenseManager>();
 builder.Services.AddScoped<IPasswordReset, PasswordResetManager>();
@@ -187,7 +195,7 @@ app.UseCors("AllowFrontend");
 app.UseSession();
 
 app.UseMiddleware<TenantMiddleware>();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

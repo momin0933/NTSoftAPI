@@ -1,7 +1,8 @@
 ﻿namespace BMSAPI.Models
 {
-    public class AccVoucher:Base
+    public class AccVoucherLog : Base
     {
+        public int VoucherId { get; set; }
         public string? VoucherType { get; set; }
         public string? VoucherNumber { get; set; }
         public DateTime? VoucherDate { get; set; }
@@ -12,7 +13,8 @@
         public int? CompanyId { get; set; }
         public int? UnitId { get; set; }
         public int? TeamId { get; set; }
+        public string? Status { get; set; }
 
-        public virtual ICollection<VoucherDetails>? voucherEntryDetails { get; set; }
+
     }
 }
