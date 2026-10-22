@@ -12,6 +12,7 @@ namespace BMSAPI.BusinessLayer.Service
     {
         IEnumerable<T> GetAllByQuery<T>(string query) where T : class;
         string GetStringByQuery(string query);
+        IEnumerable<T> GetAllByQuery<T>(string query, object? param) where T : class;
         IEnumerable<T> GetAllBySP<T>(string procedure, DynamicParameters p) where T : class;
         T GetByDynamicSPSingle<T>(string procedure, DynamicParameters p) where T : class;
         int Post(string query);

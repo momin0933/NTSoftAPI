@@ -1,12 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-
-namespace BMSAPI.Models
+﻿namespace BMSAPI.Models
 {
-    public class VoucherDetails:Base
+    public class AccVoucherDetailsLog : Base
     {
-        [ForeignKey("AccVoucherId")]
+        public int VoucherDetailsId { get; set; }
         public int AccVoucherId { get; set; }
-    
+        public string? Status { get; set; }
         public int? LedgerId { get; set; }
         public string? ShortDesc { get; set; }
         public decimal? Amount { get; set; }
@@ -17,5 +15,6 @@ namespace BMSAPI.Models
         public string? ChequeNo { get; set; }
         public string? BankNbranch { get; set; }
         public DateTime? ChequeDate { get; set; }
+
     }
 }
