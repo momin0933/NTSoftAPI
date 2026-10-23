@@ -16,13 +16,14 @@ namespace PropHubAPI.BusinessLayer.Manager.AppManager.ProHUBManager
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        public bool AddUserRole(int uId, string userRole, string entryBy)
+        public bool AddUserRole(int uId, string userRole, string tenantId, string entryBy)
         {
             try
             {
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
                 p.Add("@UId", uId);
+                p.Add("@TenantId", tenantId);
                 p.Add("@UserRole", userRole);
                 p.Add("@EntryBy", entryBy);
 

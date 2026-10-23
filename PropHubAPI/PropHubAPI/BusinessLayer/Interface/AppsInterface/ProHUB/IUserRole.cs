@@ -2,6 +2,6 @@
 {
     public interface IUserRole
     {
-        bool AddUserRole(int uId, string userRole, string entryBy);
+        bool AddUserRole(int uId, string userRole, string tenantId, string entryBy);
     }
 }

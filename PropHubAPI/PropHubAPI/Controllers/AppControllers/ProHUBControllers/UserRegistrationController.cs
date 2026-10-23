@@ -7,6 +7,9 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
     [ApiController]
     public class UserRegistrationController : ControllerBase
     {
+        // Owner / Tenant (and any other non-society role) get this TenantId.
+        private const string DefaultTenantValue = "PropHub";
+
         private readonly IUserRegistration _userRegistrationService;
         private readonly IUserRole _userRoleService;
         private readonly ILogger<UserRegistrationController> _logger;
@@ -20,6 +23,9 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
             _userRoleService = userRoleService ?? throw new ArgumentNullException(nameof(userRoleService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
+
+        private static bool IsSocietyRole(string? role) =>
+            string.Equals(role?.Trim(), "Society Member", StringComparison.OrdinalIgnoreCase);
 
         [HttpPost("api/RegisterUser")]
         public IActionResult RegisterUser([FromBody] UserRegistration model)
@@ -35,9 +41,10 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
                 if (model.UserRoles == null || model.UserRoles.Count == 0)
                     return BadRequest(new { success = false, message = "At least one user role must be selected" });
 
-                // Email is optional — only check for a duplicate if one
-                // was actually provided. An empty/null Mail has nothing
-                // to collide with.
+                if (model.UserRoles.Any(IsSocietyRole) && string.IsNullOrWhiteSpace(model.SocietyTenantValue))
+                    return BadRequest(new { success = false, message = "Please select your society" });
+
+                // Email is optional — only check for a duplicate if one was provided.
                 if (!string.IsNullOrWhiteSpace(model.Mail) && _userRegistrationService.IsEmailExists(model.Mail))
                     return Conflict(new { success = false, message = "An account with this email already exists" });
 
@@ -51,7 +58,11 @@ namespace PropHubAPI.Controllers.AppControllers.ProHUBControllers
                 foreach (var role in model.UserRoles)
                 {
                     if (string.IsNullOrWhiteSpace(role)) continue;
-                    var roleAdded = _userRoleService.AddUserRole(newUId, role, model.EntryBy ?? model.Phone);
+
+                    // Society Member -> the selected society's TenantValue; Owner / Tenant -> 'PropHub'
+                    var tenantId = IsSocietyRole(role) ? model.SocietyTenantValue!.Trim() : DefaultTenantValue;
+
+                    var roleAdded = _userRoleService.AddUserRole(newUId, role, tenantId, model.EntryBy ?? model.Phone);
                     if (!roleAdded)
                         _logger.LogWarning("Failed to add role {Role} for new UId: {UId}", role, newUId);
                 }
