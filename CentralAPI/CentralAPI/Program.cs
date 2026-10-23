@@ -74,7 +74,7 @@ builder.Services.AddScoped<CustomService>();
 builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 //APP
 builder.Services.AddScoped<IUserAuth, UserAuthManager>();
-
+builder.Services.AddScoped<ISupBill, SupManager>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 .AddJwtBearer(options =>
