@@ -89,6 +89,7 @@ builder.Services.AddScoped<ITenantHome, TenantHomeManager>();
 builder.Services.AddScoped<ITenantConnectionRequest, TenantConnectionRequestManager>();
 builder.Services.AddScoped<IExpenseName, ExpenseNameManager>();
 builder.Services.AddScoped<IFeedback, FeedbackManager>();
+builder.Services.AddScoped<ISociety, SocietyManager>();
 builder.Services.AddDistributedMemoryCache();
 
 builder.Services.AddSession(options =>
