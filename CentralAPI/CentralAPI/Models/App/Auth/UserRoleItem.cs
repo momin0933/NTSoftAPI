@@ -5,5 +5,6 @@
         public int Id { get; set; }
         public int UId { get; set; }
         public string? UserRole { get; set; }
+        public string? TenantId { get; set; }
     }
 }
