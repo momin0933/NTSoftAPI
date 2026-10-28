@@ -85,7 +85,7 @@ builder.Services.AddScoped<IDropDown, DropDownManager>();
 builder.Services.AddScoped<IAccounts, AccountsManager>();
 builder.Services.AddScoped<IAccLevelTwo, AccLevelTwoManager>();
 builder.Services.AddScoped<IAcctblVoucher, AcctblVoucherManager>();
-
+builder.Services.AddScoped<IModule, ModuleManager>();
 //BUILDING-MANAGER
 builder.Services.AddScoped<IBuilding, BuildingManager>();
 builder.Services.AddScoped<IOwner, OwnerManager>();
