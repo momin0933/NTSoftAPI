@@ -1,11 +1,11 @@
-﻿using InventoryAccountsAPI.BusinessLayer.Interface;
+﻿
+using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.Models;
-using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace FTSoftAPI.Controllers
 {
-    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ItemController : ControllerBase
@@ -49,6 +49,21 @@ namespace FTSoftAPI.Controllers
             }
         }
 
+        //[Route("GetAllItemStock")]
+        //[HttpGet]
+        //public List<RptItem> GetAllItemStock([FromQuery] string WHId, string type)
+        //{
+        //    try
+        //    {
+        //        var ItemList = _Service.GetAllItemListStock(Convert.ToInt32(WHId), type);
+        //        return ItemList;
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //}
+
         [Route("GetAllItemWithStockByStyleNo")]
         [HttpGet]
         public List<RptItem> GetAllItemWithStockByStyleNo([FromQuery]  string styleNo, int WhId)
@@ -71,49 +86,55 @@ namespace FTSoftAPI.Controllers
         //    return entity.Id;
         //}
 
-        //[HttpPost("AddVariant")]
-        //public IActionResult AddVariant([FromBody] List<ItemVariant> variants)
-        //{
-        //    try
-        //    {
-        //        int count = _Service.AddVariantToExistingItem(variants);
-        //        return Ok($"{count} variant(s) added successfully.");
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return BadRequest(ex.Message);
-        //    }
-        //}
-        //[HttpPut]
+        [HttpPost("AddVariant")]
+        public IActionResult AddVariant([FromBody] List<ItemVariant> variants)
+        {
+            try
+            {
+                int count = _Service.AddVariantToExistingItem(variants);
+                return Ok($"{count} variant(s) added successfully.");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+        [HttpPut]
         //public int Put([FromBody] Item entity)
         //{
         //    _Service.Update(entity);
         //    return entity.Id;
         //}
+        [HttpDelete]
+        [Route("DeleteItemByID")]
+        public int DeleteItemByID(int id)
+        {
+            _Service.DeleteById(id);
+            return id;
+        }
+
+        //[Route("api/Item")]
         //[HttpDelete]
-        //[Route("DeleteItemByID")]
-        //public int DeleteItemByID(int id)
+        //public int Remove([FromBody] Item entity)
         //{
-        //    _Service.DeleteById(id);
-        //    return id;
+        //    _Service.Remove(entity);
+        //    return entity.Id;
         //}
+        [HttpGet]
+        [Route("GetItemCount")]
+        public string GetItemCount()
+        {
+            string itemCount = _Service.CountItem();
+            return itemCount;
+        }
 
-        
-        //[HttpGet]
-        //[Route("GetItemCount")]
-        //public string GetItemCount()
-        //{
-        //    string itemCount = _Service.CountItem();
-        //    return itemCount;
-        //}
-
-        //[HttpGet]
-        //[Route("GetItemNameById")]
-        //public string GetItemNameById(int id)
-        //{
-        //    string name = _Service.GetItemNameById(id); 
-        //    return name;
-        //}
+        [HttpGet]
+        [Route("GetItemNameById")]
+        public string GetItemNameById(int id)
+        {
+            string name = _Service.GetItemNameById(id); 
+            return name;
+        }
         //[HttpGet]
         //[Route("GetItemDetailsById")]
         //public VariantListForDropdown? GetItemDetailsById(int id)
@@ -144,11 +165,11 @@ namespace FTSoftAPI.Controllers
         //    return _Service.Update(entity);
         //}
 
-        //[HttpPut("UpdateItemImage")]
-        //public IActionResult UpdateItemImage([FromBody] Item entity)
-        //{
-        //    var result = _Service.UpdateItemImage(entity.Id, entity.ImgPath, entity.UpdateBy);
-        //    return Ok(result);
-        //}
+        [HttpPut("UpdateItemImage")]
+        public IActionResult UpdateItemImage([FromBody] Item entity)
+        {
+            var result = _Service.UpdateItemImage(entity.Id, entity.ImgPath, entity.UpdateBy);
+            return Ok(result);
+        }
     }
 }

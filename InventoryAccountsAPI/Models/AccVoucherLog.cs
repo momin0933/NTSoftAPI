@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace InventoryAccountsAPI.Models
+{
+    public class AccVoucherLog : Base
+    {
+        public int VoucherId { get; set; }
+        public string? VoucherType { get; set; }
+        public string? VoucherNumber { get; set; }
+        public DateTime? VoucherDate { get; set; }
+        public string? PaymentType { get; set; }
+        public string? Narration { get; set; }
+        public decimal? TotalAmount { get; set; }
+        public string? VoucherStatus { get; set; }
+        public int? CompanyId { get; set; }
+        public int? UnitId { get; set; }
+        public int? TeamId { get; set; }
+        public string? Status { get; set; }
+
+
+    }
+}
