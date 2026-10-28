@@ -92,6 +92,7 @@ builder.Services.AddScoped<IOwner, OwnerManager>();
 builder.Services.AddScoped<IGas, GasManager>();
 builder.Services.AddScoped<ICommitteeMember, CommitteeMemberManager>();
 builder.Services.AddScoped<ICommitteeSmsMail, CommitteeSmsMailManager>();
+builder.Services.AddScoped<IMessage, MessageManager>();
 builder.Services.AddScoped<BMSAPI.BusinessLayer.Interface.IBill,BMSAPI.BusinessLayer.Manager.BillManager>();
 //APP INTERFACES SCOPED
 //PropHUB Applications
