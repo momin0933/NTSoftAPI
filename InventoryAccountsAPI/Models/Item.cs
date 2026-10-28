@@ -1,4 +1,5 @@
-﻿using System;
+﻿
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,7 +25,10 @@ namespace InventoryAccountsAPI.Models
         public string? StyleNo { get; set; }
         public string? ProductType { get; set; }
         public string? ImgPath { get; set; }
-       // public bool? IsStockAlert { get; set; }
+        // public bool? IsStockAlert { get; set; }
+        public string? SourceType { get; set; }
+        public string? ProductionType { get; set; }
+
         public int? IsStockAlertQty { get; set; }
         public string? Status { get; set; }
         public string? EcomThumbnailUrls { get; set; }
@@ -34,6 +38,7 @@ namespace InventoryAccountsAPI.Models
         public string? PMTitle { get; set; }
         public string? PMDescription { get; set; }
         public bool? IsWebsite { get; set; }
+        public string? SizeChartUrl { get; set; }
         public virtual List<ItemStock>? ItemStockList { get; set; }
         public virtual List<ItemVariant>? ItemsList { get; set; }
 

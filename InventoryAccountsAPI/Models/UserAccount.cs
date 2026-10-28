@@ -24,7 +24,7 @@ namespace InventoryAccountsAPI.Models
         public string? UserGroup { get; set; }
         public string? Unit { get; set; }
         public string? fldActive { get; set; }
-        public int? EmployeeId { get; set; }
+        public string? EmployeeId { get; set; }
         public int? AccessControlID { get; set; }
         public string? Validator { get; set; }
         public string? NickName { get; set; }
@@ -43,20 +43,11 @@ namespace InventoryAccountsAPI.Models
         public string? ImageName { get; set; }
         public int? CompId { get; set; }
         public string? SMSAppName { get; set; }
-        //public virtual ICollection<ExmCandidateList>? ExmCandidateLists { get; set; } = new List<ExmCandidateList>();
+     
 
         #endregion
 
 
     }
 
-    public class EcomUser : Base
-    {
-        public string? Name { get; set; }
-        public string? Email { get; set; }
-        public string? Phone { get; set; }
-        public string? Password { get; set; }
-        public string? UserRole { get; set; }
-        public int? WhId { get; set; }
-    }
 }
