@@ -82,21 +82,23 @@ builder.Services.AddScoped<IUserManager, UserManager>();
 builder.Services.AddScoped<IProcedure, ProcedureManager>();
 builder.Services.AddScoped<IMenu, MenuManager>();
 builder.Services.AddScoped<IDropDown, DropDownManager>();
-//builder.Services.AddScoped<IAccounts, AccountsManager>();
+builder.Services.AddScoped<IAccounts, AccountsManager>();
+builder.Services.AddScoped<IAccLevelTwo, AccLevelTwoManager>();
+builder.Services.AddScoped<IAcctblVoucher, AcctblVoucherManager>();
+builder.Services.AddScoped<IModule, ModuleManager>();
 //BUILDING-MANAGER
 builder.Services.AddScoped<IBuilding, BuildingManager>();
 builder.Services.AddScoped<IOwner, OwnerManager>();
 builder.Services.AddScoped<IGas, GasManager>();
 builder.Services.AddScoped<ICommitteeMember, CommitteeMemberManager>();
 builder.Services.AddScoped<ICommitteeSmsMail, CommitteeSmsMailManager>();
-//builder.Services.AddScoped<IBill, BillManager>();
-builder.Services.AddScoped<ICommitteeMember, CommitteeMemberManager>();
+builder.Services.AddScoped<IMessage, MessageManager>();
+builder.Services.AddScoped<BMSAPI.BusinessLayer.Interface.IBill,BMSAPI.BusinessLayer.Manager.BillManager>();
 //APP INTERFACES SCOPED
 //PropHUB Applications
-builder.Services.AddScoped<IUserRegistration,UserRegistrationManager>();
+builder.Services.AddScoped<IUserRegistration, UserRegistrationManager>();
 builder.Services.AddScoped<IProperty, PropertyManager>();
 builder.Services.AddScoped<ITenant, TenantManager>();
-//builder.Services.AddScoped<IBill, BillManager>();
 builder.Services.AddScoped<ISchoolRegistration, SchoolRegistrationManager>();
 builder.Services.AddScoped<IExpense, ExpenseManager>();
 builder.Services.AddScoped<IPasswordReset, PasswordResetManager>();

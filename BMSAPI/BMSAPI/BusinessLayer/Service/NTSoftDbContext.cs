@@ -18,6 +18,7 @@ namespace BMSAPI.BusinessLayer.Service
         public virtual DbSet<AccVoucher> voucherEntryDetails { get; set; } = null!;
         public virtual DbSet<VoucherDetails> VoucherEntry { get; set; } = null!;
         public virtual DbSet<AccGLedger> Accounts { get; set; } = null!;
+        public virtual DbSet<CompanyModuleMap> CompanyModuleMaps { get; set; } = null!;
         //BUILDING-MANAGER
         public virtual DbSet<Owner> Owners { get; set; } = null!;
         public virtual DbSet<FlatOwner> FlatOwners { get; set; } = null!;
@@ -38,6 +39,8 @@ namespace BMSAPI.BusinessLayer.Service
         public virtual DbSet<SmsMailWithCustomer> SmsMailWithCustomers { get; set; } = null!;
         public virtual DbSet<AccILedger> AccLevelTwo { get; set; } = null!;
         public virtual DbSet<UserRoles> UserRoles { get; set; } = null!;
+        public virtual DbSet<AccVoucherLog> AccVoucherLogs { get; set; } = null!;
+        public virtual DbSet<AccVoucherDetailsLog> AccVoucherDetailsLogs { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
@@ -47,7 +50,7 @@ namespace BMSAPI.BusinessLayer.Service
             modelBuilder.Entity<AccGLedger>().ToTable("AcctblGLedger");
             modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
               tb => tb.UseSqlOutputClause(false));
-
+            modelBuilder.Entity<CompanyModuleMap>().ToTable("tblCompanyModuleMap");
             //BUILDING-MANAGER
             modelBuilder.Entity<Owner>().ToTable("vbntblOwners");
             modelBuilder.Entity<FlatOwner>().ToTable("vbntblFlatOwners");
@@ -68,6 +71,8 @@ namespace BMSAPI.BusinessLayer.Service
             modelBuilder.Entity<UserRoles>().ToTable("tblUserRole");
             modelBuilder.Entity<CustomerSmsMail>().ToTable("tblSmsMail");
             modelBuilder.Entity<AccILedger>().ToTable("AcctblILedger");
+            modelBuilder.Entity<AccVoucherLog>().ToTable("AcctblVoucher_Log");
+            modelBuilder.Entity<AccVoucherDetailsLog>().ToTable("AcctblVoucherDetails_Log");
             modelBuilder.Entity<CommitteeSmSMail>()
                 .HasMany(c => c.Members)
                 .WithOne(m => m.CommitteeSmSMail)
