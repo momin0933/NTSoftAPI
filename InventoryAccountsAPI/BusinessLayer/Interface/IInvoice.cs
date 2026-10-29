@@ -1,11 +1,10 @@
-﻿
-using FTSoftAPI.Service.BusinessLayer.Interface;
-using InventoryAccountsAPI.Models;
+﻿using InventoryAccountsAPI.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
 
 namespace InventoryAccountsAPI.BusinessLayer.Interface
 {

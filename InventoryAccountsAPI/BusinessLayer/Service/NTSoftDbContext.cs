@@ -52,6 +52,12 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         public virtual DbSet<GiftVoucher> GiftVouchers { get; set; } = null!;
         public virtual DbSet<GiftVoucherDetails> GiftVoucherDetails { get; set; } = null!;
         public virtual DbSet<CustomerMembership> CustomerMemberships { get; set; } = null!;
+
+        public virtual DbSet<StockAdjustment> StockAdjustments { get; set; } = null!;
+        public virtual DbSet<StockAdjustmentModel> StockAdjustmentModels { get; set; } = null!;
+        public virtual DbSet<FinalStockAdjustment> FinalStockAdjustments { get; set; } = null!;
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
@@ -94,6 +100,10 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<GiftVoucher>().ToTable("POStblGiftVoucher");
             modelBuilder.Entity<GiftVoucherDetails>().ToTable("POStblGiftVoucherDetails");
             modelBuilder.Entity<CustomerMembership>().ToTable("POStblCustomerMembership");
+
+            modelBuilder.Entity<StockAdjustment>().ToTable("PosTblPhyAdj");
+            modelBuilder.Entity<StockAdjustmentModel>().ToTable("PosTblPhyAdjDetails");
+            modelBuilder.Entity<FinalStockAdjustment>().ToTable("PosTblPhyAdjMap");
         }
 
         public override int SaveChanges()

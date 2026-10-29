@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FTSoftAPI.Service.Models
+namespace InventoryAccountsAPI.Models
 {
     public class RoleAccess
     {

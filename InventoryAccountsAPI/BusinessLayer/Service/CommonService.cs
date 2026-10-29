@@ -133,5 +133,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             using var ctx = _factory.CreateDbContext();
             return ctx.Set<T>().Where(predicate);
         }
+
+
     }  
 }
