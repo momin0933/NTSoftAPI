@@ -20,14 +20,21 @@ namespace FTSoftAPI.Core.DataLayer.Repository
         readonly NTSoftDbContextFactory _factory;
         private readonly IDapperService _IDapperService;
         ICommonService _ICommonService;
-        public MenuManager(NTSoftDbContext dbContext, NTSoftDbContextFactory factory, DapperService dapperService)
+        //public MenuManager(NTSoftDbContext dbContext, NTSoftDbContextFactory factory, DapperService dapperService)
+        //{
+        //    _factory = factory;
+        //    _dbContext = dbContext;
+        //    _IDapperService = dapperService;
+        //    //_ICommonService = new CommonService(_dbContext);
+        //    _ICommonService = new CommonService(_factory);
+        //}  
+        public MenuManager(NTSoftDbContextFactory factory,IDapperService dapperService)
         {
             _factory = factory;
-            _dbContext = dbContext;
+            _dbContext = _factory.CreateDbContext();
             _IDapperService = dapperService;
-            //_ICommonService = new CommonService(_dbContext);
             _ICommonService = new CommonService(_factory);
-        }        
+        }
         //public void Dispose()
         //{
         //    _dbContext.Dispose();

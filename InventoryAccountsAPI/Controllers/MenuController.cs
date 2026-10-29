@@ -5,7 +5,7 @@ using InventoryAccountsAPI.Models.ReportModel;
 using Microsoft.AspNetCore.Mvc;
 using System;
 
-namespace FTSoftAPI.Controllers
+namespace InventoryAccountsAPI.Controllers
 {
 
     [ApiController]

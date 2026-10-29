@@ -1,4 +1,6 @@
-﻿using InventoryAccountsAPI.BusinessLayer.Interface;
+﻿
+using FTSoftAPI.Core.DataLayer.Repository;
+using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.BusinessLayer.Manager;
 using InventoryAccountsAPI.BusinessLayer.Service;
 using InventoryAccountsAPI.BusinessLayer.TenantService;
@@ -8,90 +10,91 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-
-// Newtonsoft.Json enable
+// Newtonsoft.Json
 builder.Services.AddControllers()
     .AddNewtonsoftJson(options =>
     {
-        options.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+        options.SerializerSettings.ReferenceLoopHandling =
+            Newtonsoft.Json.ReferenceLoopHandling.Ignore;
 
-        // Keep property names as they are (PascalCase like 'Name')
-        options.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+        options.SerializerSettings.ContractResolver =
+            new Newtonsoft.Json.Serialization.DefaultContractResolver();
     });
 
-
-
-// Add services to the container.
-
-builder.Services.AddControllers();
-
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-//builder.Services.AddScoped<NTSoftDbContextFactory>();
-//builder.Services.AddScoped<NTSoftDbContext>(provider =>
-//{
-//    var factory = provider.GetRequiredService<NTSoftDbContextFactory>();
-//    return factory.CreateDbContext();
-//});
-
-
-////// Connection string add করুন
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-//    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-
-//builder.Services.AddDbContext<NTSoftDbContext>(options =>
-//    options.UseSqlServer(connectionString));
-
-// dependency injection
+// Dependency Injection
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddMemoryCache();
 
-// Factory
-builder.Services.AddScoped<NTSoftDbContextFactory>();
-
-//// Dapper (IMPORTANT FIX)
-builder.Services.AddScoped<IDapperService, DapperService>();
-
-//// Common service
-builder.Services.AddScoped<ICommonService, CommonService>();
-
-//// Business services
-builder.Services.AddScoped<IItem, ItemManager>();
+// Tenant services
+builder.Services.AddScoped<ITenantProvider, TenantProvider>();
 builder.Services.AddScoped<ITenantStore, TenantStore>();
 
-//// Custom service
-//builder.Services.AddScoped<CustomService>();
-//// Tenant Provider
-builder.Services.AddScoped<ITenantProvider, TenantProvider>();
-
-
-
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-.AddJwtBearer(options =>
+// Database factory
+builder.Services.AddScoped<NTSoftDbContextFactory>();
+// Create tenant-specific DbContext using the factory
+builder.Services.AddScoped<NTSoftDbContext>(provider =>
 {
-    options.RequireHttpsMetadata = false;
-    options.SaveToken = true;
-
-    options.TokenValidationParameters = new TokenValidationParameters()
-    {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true, // 🔥 ADD THIS
-        ValidateIssuerSigningKey = true,
-
-        ValidAudience = builder.Configuration["Jwt:Audience"],
-        ValidIssuer = builder.Configuration["Jwt:Issuer"],
-
-        IssuerSigningKey = new SymmetricSecurityKey(
-            Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"])),
-
-        ClockSkew = TimeSpan.Zero // 🔥 ADD THIS (important)
-    };
+    var factory = provider.GetRequiredService<NTSoftDbContextFactory>();
+    return factory.CreateDbContext();
 });
+// Dapper services
+builder.Services.AddScoped<DapperService>();
 
+builder.Services.AddScoped<IDapperService>(provider =>
+    provider.GetRequiredService<DapperService>());
+// Dapper and common services
+//builder.Services.AddScoped<IDapperService, DapperService>();
+builder.Services.AddScoped<ICommonService, CommonService>();
+
+// Business services - existing
+builder.Services.AddScoped<IItem, ItemManager>();
+builder.Services.AddScoped<IMenu, MenuManager>();
+
+// Additional services from Interface and Manager folders
+builder.Services.AddScoped<IBankAccount, AccountManager>();
+builder.Services.AddScoped<ICategory, CategoryManager>();
+builder.Services.AddScoped<IDashboard, DashboardManager>();
+builder.Services.AddScoped<IDiscount, DiscountManager>();
+builder.Services.AddScoped<IInvoice, InvoiceManager>();
+builder.Services.AddScoped<IItemReceive, ItemReceiveManager>();
+builder.Services.AddScoped<IItemReturn, ItemReturnManager>();
+builder.Services.AddScoped<IItemTransfer, ItemTransferManager>();
+builder.Services.AddScoped<IProcedure, ProcedureManager>();
+builder.Services.AddScoped<ISales, SalesManager>();
+builder.Services.AddScoped<ISalesMan, SalesManManager>();
+builder.Services.AddScoped<ISetting, SettingManager>();
+
+// Authentication
+builder.Services.AddAuthentication(
+    JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.RequireHttpsMetadata = false;
+        options.SaveToken = true;
+
+        options.TokenValidationParameters =
+            new TokenValidationParameters
+            {
+                ValidateIssuer = true,
+                ValidateAudience = true,
+                ValidateLifetime = true,
+                ValidateIssuerSigningKey = true,
+
+                ValidAudience = builder.Configuration["Jwt:Audience"],
+                ValidIssuer = builder.Configuration["Jwt:Issuer"],
+
+                IssuerSigningKey = new SymmetricSecurityKey(
+                    Encoding.UTF8.GetBytes(
+                        builder.Configuration["Jwt:Key"]!)),
+
+                ClockSkew = TimeSpan.Zero
+            };
+    });
+
+// CORS
 var allowedOrigins = builder.Configuration
     .GetSection("Cors:AllowedOrigins")
     .Get<string[]>();
@@ -100,39 +103,27 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.WithOrigins(allowedOrigins ?? Array.Empty<string>())
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials();
     });
 });
 
-
 var app = builder.Build();
 
-//app.Use(async (context, next) =>
-//{
-//    var sw = Stopwatch.StartNew();
-
-//    await next();
-
-//    sw.Stop();
-//    Console.WriteLine($"TOTAL PIPELINE: {sw.ElapsedMilliseconds} ms");
-//});
-
-
-// Configure the HTTP request pipeline.
+// Middleware
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-app.UseCors("AllowFrontend");  // **CORS Middleware**
-//app.UseMiddleware<TenantMiddleware>(); // **Tenant Middleware**
-app.UseStaticFiles();
 
+app.UseCors("AllowFrontend");
+app.UseStaticFiles();
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

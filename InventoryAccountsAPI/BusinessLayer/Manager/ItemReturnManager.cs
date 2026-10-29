@@ -57,36 +57,62 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
         //{
         //    _ICommonService.RemoveById<POSItemReturn>(id);
         //    return id;
-        
+
         //}
 
+        //public int CountReturnInvoice(string compCode)
+        //{
+        //    //string currentYearMonthDay = DateTime.Now.ToString("yyMMdd"); 
+        //    string currentYearMonth = DateTime.Now.ToString("yyMM");
+
+        //    // Get last invoice for this month
+        //    var lastInvoice = _ICommonService.Query<Invoice>()
+        //        .Where(i =>
+        //            !string.IsNullOrEmpty(i.InvoiceNo) &&
+        //            i.InvoiceNo.StartsWith("RET" + compCode)&&                 
+        //            i.InvoiceNo.Contains(currentYearMonth)
+        //        )
+        //        .OrderByDescending(i => i.Id)
+        //        .FirstOrDefault();
+
+        //    if (lastInvoice != null)
+        //    {
+        //        // Extract counter: everything after SI-YYMMDD
+        //        string counterStr = lastInvoice.InvoiceNo.Substring(14); // 3 + 6 = 9 → after RETYYMMDD
+        //        if (long.TryParse(counterStr, out long lastCounter))
+        //            return (int)(lastCounter + 1); // next counter
+        //    }
+
+        //    // First invoice today
+        //    return 1;
+        //}
         public int CountReturnInvoice(string compCode)
         {
-            //string currentYearMonthDay = DateTime.Now.ToString("yyMMdd"); 
             string currentYearMonth = DateTime.Now.ToString("yyMM");
 
-            // Get last invoice for this month
-            var lastInvoice = _ICommonService.Query<Invoice>()
+            using var ctx = _dbContext.CreateDbContext();
+
+            var lastInvoice = ctx.Set<Invoice>()
                 .Where(i =>
                     !string.IsNullOrEmpty(i.InvoiceNo) &&
-                    i.InvoiceNo.StartsWith("RET" + compCode)&&                 
-                    i.InvoiceNo.Contains(currentYearMonth)
-                )
+                    i.InvoiceNo.StartsWith("RET" + compCode) &&
+                    i.InvoiceNo.Contains(currentYearMonth))
                 .OrderByDescending(i => i.Id)
                 .FirstOrDefault();
 
-            if (lastInvoice != null)
+            if (lastInvoice != null &&
+                lastInvoice.InvoiceNo.Length > 14)
             {
-                // Extract counter: everything after SI-YYMMDD
-                string counterStr = lastInvoice.InvoiceNo.Substring(14); // 3 + 6 = 9 → after RETYYMMDD
+                string counterStr = lastInvoice.InvoiceNo.Substring(14);
+
                 if (long.TryParse(counterStr, out long lastCounter))
-                    return (int)(lastCounter + 1); // next counter
+                {
+                    return (int)(lastCounter + 1);
+                }
             }
 
-            // First invoice today
             return 1;
         }
-
         public List<RptItem> GetAllItemStockListWithPrice(int WHId, string type)
         {
             try

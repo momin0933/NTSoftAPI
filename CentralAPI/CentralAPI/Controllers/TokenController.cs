@@ -70,7 +70,9 @@ namespace CentralAPI.Controllers
                     {
                         userId = user.UserId,
                         role = user.UserRole,
-                        Name = user.Name
+                        UserRole = user.UserRole,
+                        Name = user.Name,
+                        CompId = user.CompId
                     }
                 });
             }

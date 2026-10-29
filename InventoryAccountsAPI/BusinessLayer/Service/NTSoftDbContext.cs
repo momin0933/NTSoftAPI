@@ -61,7 +61,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
-            modelBuilder.Entity<IItem>().ToTable("POStblItem");
+            modelBuilder.Entity<Item>().ToTable("POStblItem");
             modelBuilder.Entity<ItemReceive>().ToTable("POStblItemRcv");
             modelBuilder.Entity<POStblItemRcvDetails>().ToTable("POStblItemRcvDetails");
             modelBuilder.Entity<ItemStock>().ToTable("POStblItemStock");

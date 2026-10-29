@@ -253,34 +253,61 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
         //    return 1;
         //}
+        //public int CountInvoice(string compCode)
+        //{
+        //    //string currentYearMonthDay = DateTime.Now.ToString("yyMMdd"); 
+        //    string currentYearMonth = DateTime.Now.ToString("yyMM");
+
+        //    var lastInvoice = _ICommonService.Query<Invoice>()
+        //        .Where(i =>
+        //            !string.IsNullOrEmpty(i.InvoiceNo) &&
+        //             //i.InvoiceNo.StartsWith("SI" + currentYearMonth) 
+        //             //i.InvoiceNo.StartsWith(compCode + currentYearMonth)
+        //             i.InvoiceNo.StartsWith(compCode) &&                  // Match CompCode
+        //              i.InvoiceNo.Contains(currentYearMonth)
+        //        )
+        //        .OrderByDescending(i => i.Id)
+        //        .FirstOrDefault();
+
+        //    if (lastInvoice != null)
+        //    {
+        //        // Extract counter: everything after SI-YYMMDD
+        //        string counterStr = lastInvoice.InvoiceNo.Substring(11); // 3 + 6 = 9 → after SIYYMMDD
+        //        if (long.TryParse(counterStr, out long lastCounter))
+        //            return (int)(lastCounter + 1); // next counter
+        //    }
+
+        //    // First invoice today
+        //    return 1;
+        //}
         public int CountInvoice(string compCode)
         {
-            //string currentYearMonthDay = DateTime.Now.ToString("yyMMdd"); 
             string currentYearMonth = DateTime.Now.ToString("yyMM");
 
-            var lastInvoice = _ICommonService.Query<Invoice>()
+            using var ctx = _factory.CreateDbContext();
+
+            var lastInvoice = ctx.Set<Invoice>()
                 .Where(i =>
                     !string.IsNullOrEmpty(i.InvoiceNo) &&
-                     //i.InvoiceNo.StartsWith("SI" + currentYearMonth) 
-                     //i.InvoiceNo.StartsWith(compCode + currentYearMonth)
-                     i.InvoiceNo.StartsWith(compCode) &&                  // Match CompCode
-                      i.InvoiceNo.Contains(currentYearMonth)
-                )
+                    i.InvoiceNo.StartsWith(compCode) &&
+                    i.InvoiceNo.Contains(currentYearMonth))
                 .OrderByDescending(i => i.Id)
                 .FirstOrDefault();
 
             if (lastInvoice != null)
             {
-                // Extract counter: everything after SI-YYMMDD
-                string counterStr = lastInvoice.InvoiceNo.Substring(11); // 3 + 6 = 9 → after SIYYMMDD
-                if (long.TryParse(counterStr, out long lastCounter))
-                    return (int)(lastCounter + 1); // next counter
+                // Invoice number-এর format অনুযায়ী position যাচাই করুন।
+                if (lastInvoice.InvoiceNo.Length > 11)
+                {
+                    string counterStr = lastInvoice.InvoiceNo.Substring(11);
+
+                    if (long.TryParse(counterStr, out long lastCounter))
+                        return (int)(lastCounter + 1);
+                }
             }
 
-            // First invoice today
             return 1;
         }
-
         public List<RptInvoiceDetails> GetInvoiceDetailsByInvoiceNoReturn(string invoiceNo)
         {
             try
