@@ -53,19 +53,19 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-        //public int Remove(POStblCategory entity)
-        //{
-        //    try
-        //    {
-        //        _ICommonService.RemoveById<POStblCategory>(entity.Id);
+        public int Remove(POStblCategory entity)
+        {
+            try
+            {
+                _ICommonService.RemoveById<POStblCategory>(entity.Id);
 
-        //        return entity.Id;
-        //    }
-        //    catch
-        //    {
-        //        throw;
-        //    }
-        //}
+                return entity.Id;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         public int Update(POStblCategory entity)
         {
@@ -86,9 +86,6 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             return category;
         }
 
-        public int Remove(POStblCategory entity)
-        {
-            throw new NotImplementedException();
-        }
+       
     }
 }

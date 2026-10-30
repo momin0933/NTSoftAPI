@@ -76,6 +76,11 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<MasterChild>().ToTable("tblMaster_Child");
             modelBuilder.Entity<POStblSupplier>().ToTable("POStblSupplier");
             modelBuilder.Entity<POStblCustomer>().ToTable("POStblCustomer");
+            modelBuilder.Entity<POStblCustomer>()
+              .HasOne(c => c.Ledger)
+              .WithMany()
+              .HasForeignKey(c => c.CusCode)
+              .HasPrincipalKey(l => l.Code);
             modelBuilder.Entity<POStblItemTransaction>().ToTable("POStblItemTransaction");
             modelBuilder.Entity<ItemTransfer>().ToTable("POStblItemTransfer");
             modelBuilder.Entity<ItemTransferDetails>().ToTable("POStblItemTransferDetails");

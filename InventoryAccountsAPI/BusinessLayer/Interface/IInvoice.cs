@@ -14,7 +14,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Interface
         public int SubmitCustomerDuePayment(PaymentPerams entity);
         public int SubmitCustomerDuePaymentNew(PaymentPerams entity);
         public int  AddAndUpdate(InvoicePerams entity);
-        public int AddAndUpdateNew(InvoicePerams entity);
+        //public int AddAndUpdateNew(InvoicePerams entity);
+        Task<int> AddAndUpdateNew(InvoicePerams entity);
         public string AddCustomerPhoneNo(POStblCustomer customer);
         public string UpdateCustomerPhoneNo(POStblCustomer customer);
 

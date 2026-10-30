@@ -67,6 +67,7 @@ builder.Services.AddScoped<ISales, SalesManager>();
 builder.Services.AddScoped<ISalesMan, SalesManManager>();
 builder.Services.AddScoped<ISetting, SettingManager>();
 builder.Services.AddScoped<IDropDown, DropDownManager>();
+builder.Services.AddScoped<IAcctblVoucher, AcctblVoucherManager>();
 // Authentication
 builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme)

@@ -111,6 +111,18 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         //    Remove<entity>(T entity, bool save = true)
         //    return Remove<entity>(entity, save);
         //}
+
+        public virtual bool RemoveById<T>(int id, bool save = true) where T : Base
+        {
+            using var ctx = _factory.CreateDbContext();
+
+            var entity = ctx.Set<T>().Find(id);
+            if (entity is null)
+                return false;
+
+            ctx.Set<T>().Remove(entity);
+            return ctx.SaveChanges() > 0;
+        }
         public virtual long Save()
         {
             using var ctx = _factory.CreateDbContext();

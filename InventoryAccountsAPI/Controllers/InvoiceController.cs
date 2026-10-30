@@ -42,20 +42,18 @@ namespace InventoryAccountsAPI.Controllers
 
         [Route("CreateInvoiceNew")]
         [HttpPost]
-        public int CreateInvoiceNew([FromBody] InvoicePerams entity)
+        public async Task<int> CreateInvoiceNew([FromBody] InvoicePerams entity)
         {
             try
             {
-                int id = _IInvoice.AddAndUpdateNew(entity);
+                int id = await _IInvoice.AddAndUpdateNew(entity);
                 return id;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw ex;
+                throw;
             }
-
-
         }
         [Route("UpdateInvoice")]
         [HttpPut]
