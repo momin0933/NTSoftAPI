@@ -28,6 +28,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         public virtual DbSet<MasterChild> MasterChild { get; set; } = null!;
         //public virtual DbSet<tbl_Company> Tbl_Companies { get; set; } = null!;
         public virtual DbSet<POStblSupplier> POStblSuppliers { get; set; } = null!;
+             public virtual DbSet<InvoiceDetailsWithItemInfo> InvoiceDetailsWithItemInfos { get; set; } = null!;
         public virtual DbSet<POStblCustomer> POStblCustomers { get; set; } = null!;
         //public virtual DbSet<tblUserAccount> TblUserAccounts { get; set; } = null!;
         public virtual DbSet<POStblItemTransaction> POStblItemTransactions { get; set; } = null!;
@@ -75,6 +76,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
             modelBuilder.Entity<MasterChild>().ToTable("tblMaster_Child");
             modelBuilder.Entity<POStblSupplier>().ToTable("POStblSupplier");
+            modelBuilder.Entity<InvoiceDetailsWithItemInfo>().ToTable("vw_InvoiceDetailsWithItemInfo");
             modelBuilder.Entity<POStblCustomer>().ToTable("POStblCustomer");
             modelBuilder.Entity<POStblCustomer>()
               .HasOne(c => c.Ledger)
