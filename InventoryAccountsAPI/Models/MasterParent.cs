@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace InventoryAccountsAPI.Models.Common
+namespace InventoryAccountsAPI.Models
 {
     public class MasterParent:Base
     {

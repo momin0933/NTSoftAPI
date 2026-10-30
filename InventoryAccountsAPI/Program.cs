@@ -66,7 +66,7 @@ builder.Services.AddScoped<IProcedure, ProcedureManager>();
 builder.Services.AddScoped<ISales, SalesManager>();
 builder.Services.AddScoped<ISalesMan, SalesManManager>();
 builder.Services.AddScoped<ISetting, SettingManager>();
-
+builder.Services.AddScoped<IDropDown, DropDownManager>();
 // Authentication
 builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme)
