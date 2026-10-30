@@ -51,13 +51,13 @@ namespace FTSoftAPI.Controllers
         //    _IItemReceive.AddAndUpdate(entity, paymentType);
         //    return entity.Id;
         //}
-        //[Route("ItemReceiveNew")]
-        //[HttpPost]
-        //public int ItemReceiveNew([FromBody] ItemReceive entity, [FromQuery] string paymentType, [FromQuery] int? paymentLedgerId, [FromQuery] string voucherNumber)
-        //{
-        //    _IItemReceive.AddAndUpdateNew(entity, paymentType, paymentLedgerId, voucherNumber);
-        //    return entity.Id;
-        //}
+        [Route("ItemReceiveNew")]
+        [HttpPost]
+        public int ItemReceiveNew([FromBody] ItemReceive entity, [FromQuery] string paymentType, [FromQuery] int? paymentLedgerId, [FromQuery] string voucherNumber)
+        {
+            _IItemReceive.AddAndUpdateNew(entity, paymentType, paymentLedgerId, voucherNumber);
+            return entity.Id;
+        }
         [Route("api/ItemReceive")]
         [HttpPut]
         public int Put([FromBody] ItemReceive entity)
