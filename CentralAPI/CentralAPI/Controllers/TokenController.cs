@@ -72,7 +72,8 @@ namespace CentralAPI.Controllers
                         role = user.UserRole,
                         UserRole = user.UserRole,
                         Name = user.Name,
-                        CompId = user.CompId
+                        CompId = user.CompId,
+                        SMSAppName = user.SMSAppName
                     }
                 });
             }

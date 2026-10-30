@@ -1,5 +1,6 @@
 ﻿
 using FTSoftAPI.Core.DataLayer.Repository;
+using FTSoftAPI.Service.BusinessLayer.Manager;
 using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.BusinessLayer.Manager;
 using InventoryAccountsAPI.BusinessLayer.Service;
@@ -68,6 +69,8 @@ builder.Services.AddScoped<ISalesMan, SalesManManager>();
 builder.Services.AddScoped<ISetting, SettingManager>();
 builder.Services.AddScoped<IDropDown, DropDownManager>();
 builder.Services.AddScoped<IAcctblVoucher, AcctblVoucherManager>();
+builder.Services.AddScoped<IAccLevelTwo, AccLevelTwoManager>();
+builder.Services.AddScoped<IModule, ModuleManager>();
 // Authentication
 builder.Services.AddAuthentication(
     JwtBearerDefaults.AuthenticationScheme)
