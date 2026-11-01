@@ -53,10 +53,9 @@ namespace FTSoftAPI.Controllers
         //}
         [Route("ItemReceiveNew")]
         [HttpPost]
-        public int ItemReceiveNew([FromBody] ItemReceive entity, [FromQuery] string paymentType, [FromQuery] int? paymentLedgerId, [FromQuery] string voucherNumber)
+        public async Task<int> ItemReceiveNew([FromBody] ItemReceive entity, [FromQuery] string paymentType, [FromQuery] int? paymentLedgerId, [FromQuery] string voucherNumber)
         {
-            _IItemReceive.AddAndUpdateNew(entity, paymentType, paymentLedgerId, voucherNumber);
-            return entity.Id;
+            return await _IItemReceive.AddAndUpdateNew(entity, paymentType, paymentLedgerId, voucherNumber);
         }
         [Route("api/ItemReceive")]
         [HttpPut]

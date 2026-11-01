@@ -13,7 +13,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Interface
     public interface IItemReceive : ICommonMethod<ItemReceive>
     {
         public int AddAndUpdate(ItemReceive entity, string paymentType);
-        public int AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber);
+        //public int AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber);
+        Task<int> AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber);
         //public List<ItemRecievewWithItemDetails> GetItemRecieveWithItemDetails(int wareHouse);
         public int UpdateForEdit(ItemReceivePerams entity);
         public List<RtpReceiveItemList> GetAllReceivedItemsByRcvId(int rcvId);

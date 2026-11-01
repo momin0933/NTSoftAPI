@@ -58,7 +58,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         public virtual DbSet<StockAdjustmentModel> StockAdjustmentModels { get; set; } = null!;
         public virtual DbSet<FinalStockAdjustment> FinalStockAdjustments { get; set; } = null!;
         public virtual DbSet<AccILedger> AccLevelTwo { get; set; } = null!;
-
+        public virtual DbSet<CashBankLedger> CashBankLedgers { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
@@ -112,6 +112,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<StockAdjustmentModel>().ToTable("PosTblPhyAdjDetails");
             modelBuilder.Entity<FinalStockAdjustment>().ToTable("PosTblPhyAdjMap");
             modelBuilder.Entity<AccILedger>().ToTable("AcctblILedger");
+            modelBuilder.Entity<CashBankLedger>().ToTable("POStblCashBankLedger");
         }
 
         public override int SaveChanges()

@@ -32,7 +32,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
         //    _IDapperService = dapperService;
         //    _ICommonService = new CommonService(_dbContext);          
         //}
-        public ItemReceiveManager(NTSoftDbContextFactory factory,IDapperService dapperService,ILogger<ItemManager> logger)
+        public ItemReceiveManager(NTSoftDbContextFactory factory, IDapperService dapperService, ILogger<ItemManager> logger)
         {
             _factory = factory;
             _dbContext = _factory.CreateDbContext();
@@ -44,13 +44,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
         {
             try
             {
-                return _ICommonService.GetAll<ItemReceive>().Where(x=>x.IsActive == true).ToList();
+                return _ICommonService.GetAll<ItemReceive>().Where(x => x.IsActive == true).ToList();
             }
             catch
             {
                 throw;
             }
-        }        
+        }
         public int Add(ItemReceive entity)
         {
             try
@@ -82,7 +82,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 //    stock.ReceiveQty = rcvQty;
                 //    stock.StockQty = stock.IssueQty == null ? rcvQty : rcvQty + stock.IssueQty;
                 //}
-                
+
                 //_ICommonService.Update<ItemStock>(stock);
 
                 return entity.Id;
@@ -120,11 +120,11 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             {
                 foreach (var dt in entity.ItemRcvDetailsList)
                 {
-                    var stock = _ICommonService.GetAll<ItemStock>().FirstOrDefault(x => x.ItemId == dt.ItemId && x.WhId == entity.WhId && x.VariantId==dt.VariantId);
+                    var stock = _ICommonService.GetAll<ItemStock>().FirstOrDefault(x => x.ItemId == dt.ItemId && x.WhId == entity.WhId && x.VariantId == dt.VariantId);
                     if (stock != null)
                     {
                         stock.ReceiveQty = stock.ReceiveQty.GetValueOrDefault() + dt.Qty;
-                        stock.StockQty = stock.StockQty.GetValueOrDefault() + dt.Qty;                       
+                        stock.StockQty = stock.StockQty.GetValueOrDefault() + dt.Qty;
                         _ICommonService.Update<ItemStock>(stock);
                     }
 
@@ -132,14 +132,14 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     //if (item != null)
                     //{
                     //    item.CostingPrice = dt.CostingPrice;
-                        
+
                     //    item.SellingPrice = dt.SellingPrice;
                     //    _ICommonService.Update<ItemVariant>(item);
                     //}
 
                     var sqlQuery = @"INSERT INTO POStblItemTransaction 
                     (ItemId,VariantId ,WhId, TranDt, Qty, Status, Remarks, EntryDate, EntryBy, IsActive)
-                     VALUES (" + dt.ItemId + ","+ dt.VariantId +",  " + entity.WhId + ", GETDATE(), " + dt.Qty + ", 'Direct-Received', '" + entity.Remarks + "', GETDATE(), '" + entity.EntryBy + "', 1);";
+                     VALUES (" + dt.ItemId + "," + dt.VariantId + ",  " + entity.WhId + ", GETDATE(), " + dt.Qty + ", 'Direct-Received', '" + entity.Remarks + "', GETDATE(), '" + entity.EntryBy + "', 1);";
 
                     _dbContext.Database.ExecuteSqlRaw(sqlQuery);
                 }
@@ -239,7 +239,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
         //        p.Add("@WhId", wareHouse);
         //    }
-           
+
 
         //    List<ItemRecievewWithItemDetails> ItemList = _IDapperService.GetAllBySP<ItemRecievewWithItemDetails>(SP, p).ToList();
         //    return ItemList;
@@ -265,13 +265,14 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
 
                 var itemTable = _ICommonService.GetAll<Item>().Where(x => x.Id == itemId).FirstOrDefault();
-                if(itemTable!= null)
+                if (itemTable != null)
                 {
                     //itemTable.CostingPrice = entity.CostingPrice;
-                   /// itemTable.SellingPrice = entity.ItemSellingPrice;
+                    /// itemTable.SellingPrice = entity.ItemSellingPrice;
                     itemTable.Vat = entity.ItemVat;
                     itemTable.Discount = entity.ItemDiscount;
-                };
+                }
+                ;
                 var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == itemId).FirstOrDefault();
                 if (stock != null)// need to check again
                 {
@@ -284,13 +285,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
                 return entity.Id;
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw ex;
             }
-            
+
         }
-        
+
         public List<RtpReceiveItemList> GetAllReceivedItemsByRcvId(int rcvId)
         {
             try
@@ -299,13 +300,14 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 DynamicParameters p = new DynamicParameters();
                 p.Add("@QueryChecker", 1);
                 p.Add("@RcvId", rcvId);
-                var list = _IDapperService.GetAllBySP<RtpReceiveItemList>(SP,p).ToList();
+                var list = _IDapperService.GetAllBySP<RtpReceiveItemList>(SP, p).ToList();
                 return list;
             }
-            catch{
+            catch
+            {
                 throw;
             }
-          
+
         }
 
         //public int SellingPriceUpdate(PriceUpdateRequest entity)
@@ -321,7 +323,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
         //        _ICommonService.Add<PriceLog>(log);
         //        foreach (var dt in entity.Items)
         //        {
-                    
+
 
         //            var sqlQuery = @"Update POStblItemVariant set SellingPrice="+ dt.SellingPrice+" where ItemId="+ dt.ItemId+"and id="+dt.Id+"";
 
@@ -373,7 +375,105 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-        public int AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber)
+        //public int AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber)
+        //{
+        //    try
+        //    {
+        //        foreach (var dt in entity.ItemRcvDetailsList)
+        //        {
+        //            var stock = _ICommonService.GetAll<ItemStock>().FirstOrDefault(x => x.ItemId == dt.ItemId && x.WhId == entity.WhId && x.VariantId == dt.VariantId);
+        //            if (stock != null)
+        //            {
+        //                stock.ReceiveQty = stock.ReceiveQty.GetValueOrDefault() + dt.Qty;
+        //                stock.StockQty = stock.StockQty.GetValueOrDefault() + dt.Qty;
+        //                _ICommonService.Update<ItemStock>(stock);
+        //            }
+
+        //            //var item = _ICommonService.GetAll<ItemVariant>().FirstOrDefault(a => a.Id == dt.ItemId);
+        //            //if (item != null)
+        //            //{
+        //            //    item.CostingPrice = dt.CostingPrice;
+
+        //            //    item.SellingPrice = dt.SellingPrice;
+        //            //    _ICommonService.Update<ItemVariant>(item);
+        //            //}
+
+        //            var sqlQuery = @"INSERT INTO POStblItemTransaction 
+        //            (ItemId,VariantId ,WhId, TranDt, Qty, Status, Remarks, EntryDate, EntryBy, IsActive)
+        //             VALUES (" + dt.ItemId + "," + dt.VariantId + ",  " + entity.WhId + ", GETDATE(), " + dt.Qty + ", 'Direct-Received', '" + entity.Remarks + "', GETDATE(), '" + entity.EntryBy + "', 1);";
+
+        //            _dbContext.Database.ExecuteSqlRaw(sqlQuery);
+        //        }
+
+        //        //entity.Status = "Direct-Received";
+        //        _ICommonService.Add<ItemReceive>(entity);
+        //        //return entity.Id;
+        //        int itemReceiveId = entity.Id;
+        //        if (!string.IsNullOrEmpty(paymentType) && paymentType.ToLower() != "credit")
+        //        {
+        //            decimal totalAmount =
+        //                entity.ItemRcvDetailsList.Sum(x =>
+        //                    (x.Qty ?? 0) *
+        //                    (x.CostingPrice ?? 0)
+        //                );
+
+        //            var supplierPayment =
+        //                new POStblSupplierPayment
+        //                {
+        //                    SupplierId = entity.SupplierId,
+
+        //                    PaymentDate = DateTime.Now,
+
+        //                    TotalPaid = totalAmount,
+
+        //                    VoucherNumber = voucherNumber,
+
+        //                    Remarks = paymentType + " Purchase",
+
+        //                    EntryDate = DateTime.Now,
+
+        //                    EntryBy = entity.EntryBy,
+
+        //                    IsActive = true
+        //                };
+
+        //            _ICommonService.Add<POStblSupplierPayment>(
+        //                supplierPayment
+        //            );
+
+        //            var supplierPaymentDetails =
+        //                new POStblSupplierPaymentDetails
+        //                {
+        //                    PaymentId = supplierPayment.Id,
+
+        //                    InvoiceId = itemReceiveId,
+
+        //                    PaidAmount = totalAmount,
+
+        //                    Remarks = paymentType + " Purchase",
+
+        //                    EntryDate = DateTime.Now,
+
+        //                    EntryBy = entity.EntryBy,
+
+        //                    IsActive = true
+        //                };
+
+        //            _ICommonService.Add<POStblSupplierPaymentDetails>(
+        //                supplierPaymentDetails
+        //            );
+        //        }
+
+        //        return entity.Id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        // Log the exception here
+        //        throw new Exception("Error occurred while adding/updating items.", ex);
+        //    }
+        //}
+
+        public async Task<int> AddAndUpdateNew(ItemReceive entity, string paymentType, int? paymentLedgerId, string voucherNumber)
         {
             try
             {
@@ -387,86 +487,52 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         _ICommonService.Update<ItemStock>(stock);
                     }
 
-                    //var item = _ICommonService.GetAll<ItemVariant>().FirstOrDefault(a => a.Id == dt.ItemId);
-                    //if (item != null)
-                    //{
-                    //    item.CostingPrice = dt.CostingPrice;
-
-                    //    item.SellingPrice = dt.SellingPrice;
-                    //    _ICommonService.Update<ItemVariant>(item);
-                    //}
-
                     var sqlQuery = @"INSERT INTO POStblItemTransaction 
-                    (ItemId,VariantId ,WhId, TranDt, Qty, Status, Remarks, EntryDate, EntryBy, IsActive)
-                     VALUES (" + dt.ItemId + "," + dt.VariantId + ",  " + entity.WhId + ", GETDATE(), " + dt.Qty + ", 'Direct-Received', '" + entity.Remarks + "', GETDATE(), '" + entity.EntryBy + "', 1);";
+            (ItemId,VariantId ,WhId, TranDt, Qty, Status, Remarks, EntryDate, EntryBy, IsActive)
+             VALUES (" + dt.ItemId + "," + dt.VariantId + ",  " + entity.WhId + ", GETDATE(), " + dt.Qty + ", 'Direct-Received', '" + entity.Remarks + "', GETDATE(), '" + entity.EntryBy + "', 1);";
 
                     _dbContext.Database.ExecuteSqlRaw(sqlQuery);
                 }
 
-                //entity.Status = "Direct-Received";
-                _ICommonService.Add<ItemReceive>(entity);
-                //return entity.Id;
-                int itemReceiveId = entity.Id;
+                // await দেওয়ায় এখন সঠিক Id পাওয়া যাবে
+                int itemReceiveId = await _ICommonService.Add<ItemReceive>(entity);
+
                 if (!string.IsNullOrEmpty(paymentType) && paymentType.ToLower() != "credit")
                 {
-                    decimal totalAmount =
-                        entity.ItemRcvDetailsList.Sum(x =>
-                            (x.Qty ?? 0) *
-                            (x.CostingPrice ?? 0)
-                        );
+                    decimal totalAmount = entity.ItemRcvDetailsList.Sum(x => (x.Qty ?? 0) * (x.CostingPrice ?? 0));
 
-                    var supplierPayment =
-                        new POStblSupplierPayment
-                        {
-                            SupplierId = entity.SupplierId,
+                    var supplierPayment = new POStblSupplierPayment
+                    {
+                        SupplierId = entity.SupplierId,
+                        PaymentDate = DateTime.Now,
+                        TotalPaid = totalAmount,
+                        VoucherNumber = voucherNumber,
+                        Remarks = paymentType + " Purchase",
+                        EntryDate = DateTime.Now,
+                        EntryBy = entity.EntryBy,
+                        IsActive = true
+                    };
 
-                            PaymentDate = DateTime.Now,
+                    int paymentId = await _ICommonService.Add<POStblSupplierPayment>(supplierPayment);
 
-                            TotalPaid = totalAmount,
+                    var supplierPaymentDetails = new POStblSupplierPaymentDetails
+                    {
+                        PaymentId = paymentId,
+                        InvoiceId = itemReceiveId,
+                        PaidAmount = totalAmount,
+                        Remarks = paymentType + " Purchase",
+                        EntryDate = DateTime.Now,
+                        EntryBy = entity.EntryBy,
+                        IsActive = true
+                    };
 
-                            VoucherNumber = voucherNumber,
-
-                            Remarks = paymentType + " Purchase",
-
-                            EntryDate = DateTime.Now,
-
-                            EntryBy = entity.EntryBy,
-
-                            IsActive = true
-                        };
-
-                    _ICommonService.Add<POStblSupplierPayment>(
-                        supplierPayment
-                    );
-
-                    var supplierPaymentDetails =
-                        new POStblSupplierPaymentDetails
-                        {
-                            PaymentId = supplierPayment.Id,
-
-                            InvoiceId = itemReceiveId,
-
-                            PaidAmount = totalAmount,
-
-                            Remarks = paymentType + " Purchase",
-
-                            EntryDate = DateTime.Now,
-
-                            EntryBy = entity.EntryBy,
-
-                            IsActive = true
-                        };
-
-                    _ICommonService.Add<POStblSupplierPaymentDetails>(
-                        supplierPaymentDetails
-                    );
+                    await _ICommonService.Add<POStblSupplierPaymentDetails>(supplierPaymentDetails);
                 }
 
-                return entity.Id;
+                return itemReceiveId;
             }
             catch (Exception ex)
             {
-                // Log the exception here
                 throw new Exception("Error occurred while adding/updating items.", ex);
             }
         }
