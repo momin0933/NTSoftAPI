@@ -21,41 +21,55 @@ namespace InventoryAccountsAPI.Controllers
             List<Invoice> invoiceList = _IInvoice.GetAll().Where(x=>x.IsActive == true).ToList();
             return invoiceList;
         }
-        
+
+        //[Route("CreateInvoice")]
+        //[HttpPost]
+        //public int Post([FromBody] InvoicePerams entity)
+        //{
+        //    try
+        //    {
+        //        int id = _IInvoice.AddAndUpdate(entity);
+        //        return id;
+        //    }
+        //    catch (Exception ex )
+        //    {
+        //        Console.WriteLine(ex);
+        //        throw ex;
+        //    }
+
+
+        //}
+
         [Route("CreateInvoice")]
         [HttpPost]
-        public int Post([FromBody] InvoicePerams entity)
+        public async Task<int> Post([FromBody] InvoicePerams entity)
         {
             try
             {
-                int id = _IInvoice.AddAndUpdate(entity);
-                return id;
-            }
-            catch (Exception ex )
-            {
-                Console.WriteLine(ex);
-                throw ex;
-            }
-
-           
-        }
-
-        [Route("CreateInvoiceNew")]
-        [HttpPost]
-        public int CreateInvoiceNew([FromBody] InvoicePerams entity)
-        {
-            try
-            {
-                int id = _IInvoice.AddAndUpdateNew(entity);
+                int id = await _IInvoice.AddAndUpdate(entity);
                 return id;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw ex;
+                throw;
             }
+        }
 
-
+        [Route("CreateInvoiceNew")]
+        [HttpPost]
+        public async Task<int> CreateInvoiceNew([FromBody] InvoicePerams entity)
+        {
+            try
+            {
+                int id = await _IInvoice.AddAndUpdateNew(entity);
+                return id;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
         }
         [Route("UpdateInvoice")]
         [HttpPut]

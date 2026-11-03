@@ -2,6 +2,7 @@
 using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.BusinessLayer.Service;
 using InventoryAccountsAPI.Models;
+using InventoryAccountsAPI.Models.ReportModel;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -21,13 +22,12 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
         public ItemManager(NTSoftDbContextFactory dbContext, IDapperService dapperService, ILogger<ItemManager> logger)
         {
-            
+
             _dbContext = dbContext;
             _IDapperService = dapperService;
             _ICommonService = new CommonService(_dbContext);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        }    
-
+        }
         public List<Item> GetAll()
         {
             try
@@ -65,7 +65,31 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
+        public List<RptItem> GetAllItemListStock(int WHId, string type)
+        {
+            try
+            {
+                string SP = "SP_ItemStockReport";
+                DynamicParameters p = new DynamicParameters();
+                if (type == "Details")
+                {
+                    p.Add("@QueryChecker", 1);
+                }
+                else
+                {
+                    p.Add("@QueryChecker", 2);
 
+                }
+                p.Add("@WHId", WHId);
+
+                List<RptItem> ItemList = _IDapperService.GetAllBySP<RptItem>(SP, p).OrderByDescending(x => x.EntryDate).ToList();
+                return ItemList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
         public List<RptItem> GetAllItemListWithStockByStyleNo(string styleNo, int WhId)
         {
             try
@@ -86,7 +110,93 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-       
+        //public int Add(Item entity)
+        //{
+        //    try
+        //    {
+        //        var existingItem = _ICommonService.GetAll<Item>()
+        //    .FirstOrDefault(i => i.StyleNo == entity.StyleNo
+        //                      && i.Brand == entity.Brand
+        //                      && i.Category == entity.Category
+        //                      && i.ProductType == entity.ProductType
+        //                      && i.Description==entity.Description);
+
+        //        if (existingItem != null)
+        //        {
+        //            throw new Exception("A product with the same StyleNo, Brand, Category, and ProductType already exists.");
+        //        }
+
+        //        var itemPost = new Item
+        //        {
+        //            Brand=entity.Brand,
+        //            Category=entity.Category,
+        //            Description=entity.Description,
+        //            StyleNo=entity.StyleNo,
+        //            ProductType=entity.ProductType,
+        //            ImgPath=entity.ImgPath,
+        //            IsStockAlertQty=entity.IsStockAlertQty,
+        //            EntryBy=entity.EntryBy,
+        //            EntryDate=entity.EntryDate,
+        //            Status="New"
+
+        //        };
+        //        _ICommonService.Add<Item>(itemPost);
+
+        //        if (entity.ItemsList != null && entity.ItemsList.Any())
+        //        {
+        //            foreach (var variant in entity.ItemsList)
+        //            {
+        //                var variantPost = new ItemVariant
+        //                {
+        //                   ItemId = itemPost.Id, 
+        //                    Barcode = variant.Barcode,
+        //                    SKU = variant.SKU,
+        //                    Color = variant.Color,
+        //                    Size = variant.Size,
+        //                    SellingPrice = variant.SellingPrice,
+        //                    CostingPrice=variant.CostingPrice,
+        //                    Unit=variant.Unit,
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    //Remarks = entity.Remarks
+        //                };
+
+        //                _ICommonService.Add<ItemVariant>(variantPost);
+
+        //                if (entity.ItemStockList != null && entity.ItemStockList.Any())
+        //                {
+        //                    foreach (var stock in entity.ItemStockList)
+        //                    {
+        //                        var stockPost = new ItemStock
+        //                        {
+        //                           ItemId = itemPost.Id,
+        //                            VariantId = variantPost.Id, 
+        //                            WhId = stock.WhId,
+        //                            ReceiveQty = stock.ReceiveQty,
+        //                            IssueQty = stock.IssueQty,
+        //                            StockQty = stock.StockQty,
+        //                            ReturnQty = stock.ReturnQty,
+        //                            EntryBy = entity.EntryBy,
+        //                            EntryDate = entity.EntryDate,
+        //                            AdjQty=stock.AdjQty,
+        //                            PrevQty=stock.PrevQty
+        //                           // Remarks = entity.Remarks
+        //                        };
+
+        //                        _ICommonService.Add<ItemStock>(stockPost);
+        //                    }
+        //                }
+        //            }
+        //        }
+
+
+        //        return entity.Id;
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //}
 
         public int Add(Item entity)
         {
@@ -116,6 +226,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     IsStockAlertQty = entity.IsStockAlertQty,
                     EntryBy = entity.EntryBy,
                     EntryDate = entity.EntryDate,
+                    SourceType = entity.SourceType,
+                    ProductionType = entity.ProductionType,
                     Status = "New",
                     IsWebsite = false,
                     ItemsList = new List<ItemVariant>(),
@@ -196,107 +308,107 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 throw;
             }
         }
-        public int Remove(Item entity)
-        {
-            try
-            {
-                //_ICommonService.RemoveById<Item>(entity.Id);
-                //var rcvQty = _ICommonService.GetAll<Item>().Where(x => x.ItemId == entity.ItemId && x.WhId == entity.WhId).Sum(c => (int?)c.Qty) ?? 0;
-                //var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == entity.ItemId && x.WhId == entity.WhId).FirstOrDefault();
-                //if (stock != null)
-                //{
-                //    stock.ReceiveQty = rcvQty;
-                //    stock.StockQty = stock.IssueQty == null ? rcvQty : rcvQty + stock.IssueQty;
-                //}
+        //public int Remove(Item entity)
+        //{
+        //    try
+        //    {
+        //        _ICommonService.RemoveById<Item>(entity.Id);
+        //        //var rcvQty = _ICommonService.GetAll<Item>().Where(x => x.ItemId == entity.ItemId && x.WhId == entity.WhId).Sum(c => (int?)c.Qty) ?? 0;
+        //        //var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == entity.ItemId && x.WhId == entity.WhId).FirstOrDefault();
+        //        //if (stock != null)
+        //        //{
+        //        //    stock.ReceiveQty = rcvQty;
+        //        //    stock.StockQty = stock.IssueQty == null ? rcvQty : rcvQty + stock.IssueQty;
+        //        //}
 
-                //_ICommonService.Update<ItemStock>(stock);
-                return entity.Id;
-            }
-            catch
-            {
-                throw;
-            }
-        }
+        //        //_ICommonService.Update<ItemStock>(stock);
+        //        return entity.Id;
+        //    }
+        //    catch
+        //    {
+        //        throw;
+        //    }
+        //}
 
-        public int DeleteById(int id) /// Getting Error when want to delete data 
-        {
-            try
-            {
+        //public int DeleteById(int id) /// Getting Error when want to delete data 
+        //{
+        //    try
+        //    {
                 
-                Item itemForDataBind = _ICommonService.Get<Item>(id);
-                //int stockItemId = itemForDataBind.ItemStockList.Select(x => x.ItemId).FirstOrDefault();
-                //ItemStock stock = _ICommonService.Get<ItemStock>(stockItemId);
+        //        Item itemForDataBind = _ICommonService.Get<Item>(id);
+        //        //int stockItemId = itemForDataBind.ItemStockList.Select(x => x.ItemId).FirstOrDefault();
+        //        //ItemStock stock = _ICommonService.Get<ItemStock>(stockItemId);
 
-                if (itemForDataBind != null)
-                {
-                    //_ICommonService.RemoveById<Item>(id);
-                    //if (stockItemId != null)
-                    //{
-                    //    _ICommonService.RemoveById<ItemStock>(stockItemId);
-                    //}
-                    return id;
-                }
+        //        if (itemForDataBind != null)
+        //        {
+        //            _ICommonService.RemoveById<Item>(id);
+        //            //if (stockItemId != null)
+        //            //{
+        //            //    _ICommonService.RemoveById<ItemStock>(stockItemId);
+        //            //}
+        //            return id;
+        //        }
 
-                    //List<ItemStock> itemStockList = new List<ItemStock>();
-                    //if (itemForDataBind.ItemStockList != null)
-                    //{
-                    //    foreach (var stockData in itemForDataBind.ItemStockList)
-                    //    {
-                    //        ItemStock itemStock = new ItemStock();
-                    //        itemStock.Id = stockData.Id;
-                    //        itemStock.ItemId = stockData.ItemId;
-                    //        itemStock.WhId = stockData.WhId;
-                    //        itemStock.IssueQty = stockData.IssueQty;
-                    //        itemStock.ReceiveQty = stockData.ReceiveQty;
-                    //        itemStock.StockQty = stockData.StockQty;
-                    //        itemStock.UpdateBy = "Admin";
-                    //        itemStock.UpdateDate = DateTime.Now;
-                    //        itemStock.IsActive = false;
-                    //        itemStockList.Add(itemStock);
-                    //    }
-                    //}
+        //            //List<ItemStock> itemStockList = new List<ItemStock>();
+        //            //if (itemForDataBind.ItemStockList != null)
+        //            //{
+        //            //    foreach (var stockData in itemForDataBind.ItemStockList)
+        //            //    {
+        //            //        ItemStock itemStock = new ItemStock();
+        //            //        itemStock.Id = stockData.Id;
+        //            //        itemStock.ItemId = stockData.ItemId;
+        //            //        itemStock.WhId = stockData.WhId;
+        //            //        itemStock.IssueQty = stockData.IssueQty;
+        //            //        itemStock.ReceiveQty = stockData.ReceiveQty;
+        //            //        itemStock.StockQty = stockData.StockQty;
+        //            //        itemStock.UpdateBy = "Admin";
+        //            //        itemStock.UpdateDate = DateTime.Now;
+        //            //        itemStock.IsActive = false;
+        //            //        itemStockList.Add(itemStock);
+        //            //    }
+        //            //}
 
 
-                    //Item itemForStatusUpdate = new Item
-                    //{
-                    //    Name = itemForDataBind.Name,
-                    //    Code = itemForDataBind.Color,
-                    //    BarCode = itemForDataBind.BarCode,
-                    //    SKU = itemForDataBind.SKU,
-                    //    Color = itemForDataBind.Color,
-                    //    Size = itemForDataBind.Size,
-                    //    Brand = itemForDataBind.Brand,
-                    //    Category = itemForDataBind.Category,
-                    //    Description = itemForDataBind.Description,
-                    //    CostingPrice = itemForDataBind.CostingPrice,
-                    //    SellingPrice = itemForDataBind.SellingPrice,
-                    //    Vat = itemForDataBind.SellingPrice,
-                    //    Discount = itemForDataBind.Discount,
-                    //    IsActive = false,
-                    //    UpdateDate = DateTime.Now,
-                    //    UpdateBy = "Admin",
-                    //    //ItemStockList = itemStockList
+        //            //Item itemForStatusUpdate = new Item
+        //            //{
+        //            //    Name = itemForDataBind.Name,
+        //            //    Code = itemForDataBind.Color,
+        //            //    BarCode = itemForDataBind.BarCode,
+        //            //    SKU = itemForDataBind.SKU,
+        //            //    Color = itemForDataBind.Color,
+        //            //    Size = itemForDataBind.Size,
+        //            //    Brand = itemForDataBind.Brand,
+        //            //    Category = itemForDataBind.Category,
+        //            //    Description = itemForDataBind.Description,
+        //            //    CostingPrice = itemForDataBind.CostingPrice,
+        //            //    SellingPrice = itemForDataBind.SellingPrice,
+        //            //    Vat = itemForDataBind.SellingPrice,
+        //            //    Discount = itemForDataBind.Discount,
+        //            //    IsActive = false,
+        //            //    UpdateDate = DateTime.Now,
+        //            //    UpdateBy = "Admin",
+        //            //    //ItemStockList = itemStockList
 
-                    //    //foreach ( var stockItem in itemForStatusUpdate.ItemStockList)
-                    //    //{
-                    //    //    stockItem.ItemId = id;
-                    //    //}
-                    //};
-                    //_ICommonService.RemoveById<ItemStock>()        
-                    //    _ICommonService.Remove<Item>(itemForStatusUpdate);
+        //            //    //foreach ( var stockItem in itemForStatusUpdate.ItemStockList)
+        //            //    //{
+        //            //    //    stockItem.ItemId = id;
+        //            //    //}
+        //            //};
+        //            //_ICommonService.RemoveById<ItemStock>()        
+        //            //    _ICommonService.Remove<Item>(itemForStatusUpdate);
               
-                else
-                {
-                    return id = 0;
-                }
+        //        else
+        //        {
+        //            return id = 0;
+        //        }
 
-            }
-            catch (Exception ex)
-            {
-                throw ex;
-            }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        throw ex;
+        //    }
 
-        }
+        //}
 
         public string CountItem()
         {
@@ -330,40 +442,40 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-        //public VariantListForDropdown? GetItemDetailsById(int id)
-        //{
-        //    try 
-        //    {
+        public VariantListForDropdown? GetItemDetailsById(int id)
+        {
+            try 
+            {
 
-        //       var itemNameList = _IDapperService.GetAllByQuery<VariantListForDropdown>("select v.Id,StyleNo,Barcode,Color,Size from POStblItemVariant v Join POStblItem i on v.ItemId=i.Id where v.Id = '" + id + "' and v.isActive = 1").OrderByDescending(x => x.Id).FirstOrDefault();
-        //        return itemNameList;
+               var itemNameList = _IDapperService.GetAllByQuery<VariantListForDropdown>("select v.Id,StyleNo,Barcode,Color,Size from POStblItemVariant v Join POStblItem i on v.ItemId=i.Id where v.Id = '" + id + "' and v.isActive = 1").OrderByDescending(x => x.Id).FirstOrDefault();
+                return itemNameList;
 
-        //    }
-        //    catch 
-        //    {
-        //        throw;
-        //    }
+            }
+            catch 
+            {
+                throw;
+            }
            
-        //}
+        }
 
-        //public List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate)
-        //{
-        //    try
-        //    {
-        //        string SP = "Sp_SupplierWiseReport";
-        //        DynamicParameters p = new DynamicParameters();
-        //        p.Add("fromDate", fromDate);
-        //        p.Add("@toDate", toDate);
-        //        p.Add("@QueryChecker", 1);
+        public List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate)
+        {
+            try
+            {
+                string SP = "Sp_SupplierWiseReport";
+                DynamicParameters p = new DynamicParameters();
+                p.Add("fromDate", fromDate);
+                p.Add("@toDate", toDate);
+                p.Add("@QueryChecker", 1);
 
-        //        List<RptSupplierWiseReport> ItemList = _IDapperService.GetAllBySP<RptSupplierWiseReport>(SP, p).ToList();
-        //        return ItemList;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return null;
-        //    }
-        //}
+                List<RptSupplierWiseReport> ItemList = _IDapperService.GetAllBySP<RptSupplierWiseReport>(SP, p).ToList();
+                return ItemList;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
 
         public List<RptItem> GetAllVariantList(int WHId)
         {
@@ -384,59 +496,61 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-        //public int UpdateItemVariant(ItemVariantUpdate itemVariant)
-        //{
-        //    if(itemVariant.ItemId != 0)
-        //    {
-        //        //var query = "UPDATE PostblItem SET StyleNo='" + itemVariant.StyleNo + "', Description = '" + itemVariant.Description + "',Category='"+itemVariant.Category+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.ItemId + "'";
-        //        var query =
-        //            "UPDATE POStblItem SET " +
-        //            "StyleNo='" + (itemVariant.StyleNo ?? "") + "', " +
-        //            "Brand='" + (itemVariant.Brand ?? "") + "', " +
-        //            "Category='" + (itemVariant.Category ?? "") + "', " +
-        //            "ProductType='" + (itemVariant.ProductType ?? "") + "', " +
-        //            "Description='" + (itemVariant.Description ?? "") + "', " +
-        //            //"Vat=" + (itemVariant.Vat ?? 0) + ", " +
-        //            //"Discount=" + (itemVariant.Discount ?? 0) + ", " +
-        //            //"ImgPath='" + (itemVariant.ImgPath ?? "") + "', " +
-        //            //"PMTitle='" + (itemVariant.PMTitle ?? "") + "', " +
-        //            //"PMDescription='" + (itemVariant.PMDescription ?? "") + "', " +
-        //            //"IsStockAlertQty=" + (itemVariant.IsStockAlertQty ?? 0) + ", " +
-        //            //"EcomThumbnailUrls='" + (itemVariant.EcomThumbnailUrls ?? "") + "', " +
-        //            //"EcomPreviewUrls='" + (itemVariant.EcomPreviewUrls ?? "") + "', " +
-        //            //"EcomDescription='" + (itemVariant.EcomDescription ?? "") + "', " +
-        //            //"EcomSpecification='" + (itemVariant.EcomSpecification ?? "") + "', " +
-        //            //"Remarks='" + (itemVariant.Remarks ?? "") + "', " +
-        //            "UpdateDate='" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "', " +
-        //            "UpdateBy='" + (itemVariant.UpdateBy ?? "") + "' " +
-        //            //"IsWebsite=" + (itemVariant.IsWebsite == true ? 1 : 0) + ", " +
-        //            //"IsActive=" + (itemVariant.IsActive == true ? 1 : 0) + ", " +
-        //            //"Status='" + (itemVariant.Status ?? "") + "' " +
-        //            "WHERE Id=" + itemVariant.ItemId;
-        //        _IDapperService.UpdateByquery(query);
-        //    }
-        //    if(itemVariant.Id != 0)
-        //    {
-        //        //var query = "UPDATE PostblItemVariant SET Color='" + itemVariant.Color + "', Size = '" + itemVariant.Size + "',Remarks='"+itemVariant.Remarks+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.Id + "'";
-        //            var query = "UPDATE PostblItemVariant SET " +
-        //            "Color = '" + itemVariant.Color + "', " +
-        //            "Size = '" + itemVariant.Size + "', " +
-        //            "Remarks = '" + itemVariant.Remarks + "', " +
-        //            "CostingPrice = " + (itemVariant.CostingPrice ?? 0) + ", " +
-        //            "SellingPrice = " + (itemVariant.SellingPrice ?? 0) + ", " +
-        //            "Unit = '" + itemVariant.Unit + "', " +
-        //            "VatCalculationType = '" + itemVariant.VatCalculationType + "', " +
-        //            "Vat = " + (itemVariant.Vat ?? 0) + ", " +
-        //            "VatType = '" + itemVariant.VatType + "', " +
-        //            "UpdateBy = '" + itemVariant.UpdateBy + "', " +
-        //            "UpdateDate = '" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "' " +
-        //    "WHERE Id = " + itemVariant.Id;
+        public int UpdateItemVariant(ItemVariantUpdate itemVariant)
+        {
+            if(itemVariant.ItemId != 0)
+            {
+                //var query = "UPDATE PostblItem SET StyleNo='" + itemVariant.StyleNo + "', Description = '" + itemVariant.Description + "',Category='"+itemVariant.Category+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.ItemId + "'";
+                var query =
+                    "UPDATE POStblItem SET " +
+                    "StyleNo='" + (itemVariant.StyleNo ?? "") + "', " +
+                    "Brand='" + (itemVariant.Brand ?? "") + "', " +
+                    "Category='" + (itemVariant.Category ?? "") + "', " +
+                    "ProductType='" + (itemVariant.ProductType ?? "") + "', " +
+                     "SourceType='" + (itemVariant.SourceType ?? "") + "', " +
+                    "ProductionType='" + (itemVariant.ProductionType ?? "") + "', " +
+                    "Description='" + (itemVariant.Description ?? "") + "', " +
+                    //"Vat=" + (itemVariant.Vat ?? 0) + ", " +
+                    //"Discount=" + (itemVariant.Discount ?? 0) + ", " +
+                    //"ImgPath='" + (itemVariant.ImgPath ?? "") + "', " +
+                    //"PMTitle='" + (itemVariant.PMTitle ?? "") + "', " +
+                    //"PMDescription='" + (itemVariant.PMDescription ?? "") + "', " +
+                    //"IsStockAlertQty=" + (itemVariant.IsStockAlertQty ?? 0) + ", " +
+                    //"EcomThumbnailUrls='" + (itemVariant.EcomThumbnailUrls ?? "") + "', " +
+                    //"EcomPreviewUrls='" + (itemVariant.EcomPreviewUrls ?? "") + "', " +
+                    //"EcomDescription='" + (itemVariant.EcomDescription ?? "") + "', " +
+                    //"EcomSpecification='" + (itemVariant.EcomSpecification ?? "") + "', " +
+                    //"Remarks='" + (itemVariant.Remarks ?? "") + "', " +
+                    "UpdateDate='" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "', " +
+                    "UpdateBy='" + (itemVariant.UpdateBy ?? "") + "' " +
+                    //"IsWebsite=" + (itemVariant.IsWebsite == true ? 1 : 0) + ", " +
+                    //"IsActive=" + (itemVariant.IsActive == true ? 1 : 0) + ", " +
+                    //"Status='" + (itemVariant.Status ?? "") + "' " +
+                    "WHERE Id=" + itemVariant.ItemId;
+                _IDapperService.UpdateByquery(query);
+            }
+            if(itemVariant.Id != 0)
+            {
+                //var query = "UPDATE PostblItemVariant SET Color='" + itemVariant.Color + "', Size = '" + itemVariant.Size + "',Remarks='"+itemVariant.Remarks+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.Id + "'";
+                    var query = "UPDATE PostblItemVariant SET " +
+                    "Color = '" + itemVariant.Color + "', " +
+                    "Size = '" + itemVariant.Size + "', " +
+                    "Remarks = '" + itemVariant.Remarks + "', " +
+                    "CostingPrice = " + (itemVariant.CostingPrice ?? 0) + ", " +
+                    "SellingPrice = " + (itemVariant.SellingPrice ?? 0) + ", " +
+                    "Unit = '" + itemVariant.Unit + "', " +
+                    "VatCalculationType = '" + itemVariant.VatCalculationType + "', " +
+                    "Vat = " + (itemVariant.Vat ?? 0) + ", " +
+                    "VatType = '" + itemVariant.VatType + "', " +
+                    "UpdateBy = '" + itemVariant.UpdateBy + "', " +
+                    "UpdateDate = '" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "' " +
+            "WHERE Id = " + itemVariant.Id;
 
-        //        _IDapperService.UpdateByquery(query);
+                _IDapperService.UpdateByquery(query);
 
-        //    }
-        //    return itemVariant.Id;
-        //}
+            }
+            return itemVariant.Id;
+        }
 
         public int AddVariantToExistingItem(List<ItemVariant> variants)
         {
@@ -511,7 +625,108 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             return variants.Count;
         }
 
-       
+        //public int AddVariantToExistingItem(List<ItemVariant> variants)
+        //{
+        //    if (variants == null || !variants.Any())
+        //        throw new ArgumentException("No variants provided.");
+
+        //    int addedCount = 0;
+
+        //    // Group by ItemId to optimize queries per item
+        //    var grouped = variants.GroupBy(v => v.ItemId);
+
+        //    foreach (var group in grouped)
+        //    {
+        //        int itemId = group.Key ?? 0;
+        //        if (itemId <= 0) continue;
+
+        //        var item = _ICommonService.GetAll<Item>()
+        //            .FirstOrDefault(i => i.Id == itemId);
+
+        //        if (item == null)
+        //            throw new Exception($"Item {itemId} not found.");
+
+        //        item.ItemsList ??= new List<ItemVariant>();
+
+        //        // Get all existing variants for this item (only once per item)
+        //        var existingVariants = _ICommonService.GetAll<ItemVariant>()
+        //            .Where(v => v.ItemId == itemId)
+        //            .ToList();  // or .Select(v => new { v.Color, v.Size }).ToList() if you want to optimize
+
+        //        foreach (var entity in group)
+        //        {
+        //            string incomingColor = entity.Color?.Trim().ToLower() ?? "";
+        //            string incomingSize = entity.Size?.Trim().ToLower() ?? "";
+
+        //            // Check if same Color + Size already exists for this ItemId
+        //            bool duplicateExists = existingVariants.Any(ev =>
+        //                (ev.Color?.Trim().ToLower() ?? "") == incomingColor &&
+        //                (ev.Size?.Trim().ToLower() ?? "") == incomingSize
+        //            );
+
+        //            if (duplicateExists)
+        //            {
+        //                // Option A: Skip silently (recommended for bulk insert)
+        //                continue;
+
+        //                // Option B: Throw exception (if you want to stop on duplicate)
+        //                throw new InvalidOperationException(
+        //                    $"Duplicate variant detected for ItemId {itemId}: Color '{entity.Color}', Size '{entity.Size}' already exists."
+        //                );
+        //            }
+
+        //            // No duplicate → create and add
+        //            var variantPost = new ItemVariant
+        //            {
+        //                ItemId = item.Id,
+        //                Color = entity.Color,
+        //                Size = entity.Size,
+        //                SKU = entity.SKU,
+        //                Barcode = entity.Barcode,
+        //                CostingPrice = entity.CostingPrice,
+        //                SellingPrice = entity.SellingPrice,
+        //                Unit = entity.Unit,
+        //                Vat = entity.Vat,
+        //                VatType = entity.VatType,
+        //                VatCalculationType = entity.VatCalculationType,
+        //                EntryBy = entity.EntryBy,
+        //                EntryDate = entity.EntryDate,
+        //                ItemStockList = new List<ItemStock>()
+        //            };
+
+        //            if (entity.ItemStockList != null)
+        //            {
+        //                foreach (var stock in entity.ItemStockList)
+        //                {
+        //                    variantPost.ItemStockList.Add(new ItemStock
+        //                    {
+        //                        ItemId = item.Id,
+        //                        ItemVariant = variantPost,
+        //                        WhId = stock.WhId,
+        //                        StockQty = 0,
+        //                        ReceiveQty = 0,
+        //                        IssueQty = 0,
+        //                        ReturnQty = 0,
+        //                        AdjQty = 0,
+        //                        PrevQty = 0,
+        //                        EntryBy = entity.EntryBy,
+        //                        EntryDate = entity.EntryDate
+        //                    });
+        //                }
+        //            }
+
+        //            item.ItemsList.Add(variantPost);
+        //            addedCount++;
+        //        }
+
+        //        // Update once per item
+        //        _ICommonService.Update(item);
+        //    }
+
+        //    _ICommonService.Save();
+
+        //    return addedCount;  
+        //}
 
         public int UpdateItemImage(int itemId, string imgPath, string updateBy)
         {
@@ -529,6 +744,16 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             _ICommonService.Save();
 
             return item.Id;
+        }
+
+        public int DeleteById(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        public int Remove(Item entity)
+        {
+            throw new NotImplementedException();
         }
     }
 }

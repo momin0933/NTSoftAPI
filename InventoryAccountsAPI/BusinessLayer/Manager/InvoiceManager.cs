@@ -55,7 +55,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             _ICommonService.Update<Invoice>(entity);
             return entity.Id;
         }
-        public int AddAndUpdate(InvoicePerams entity)
+
+        public async Task<int> AddAndUpdate(InvoicePerams entity)   // CHANGED
         {
             int id = 0;
             try
@@ -75,8 +76,6 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         EntryBy = entity.EntryBy,
                         EntryDate = entity.EntryDate,
                         PaymentType = entity.PaymentType ?? paymentTypes,
-                        //PaymentType = entity.PaymentType,
-                        //PaymentType = paymentTypes,
                         DiscountPercentage = entity.DiscountPercentage,
                         Discount = entity.Discount,
                         IsActive = entity.IsActive,
@@ -93,13 +92,11 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         Note = entity.Note,
                     };
 
-                    _ICommonService.Add<Invoice>(invoice);
-                    id = invoice.Id;
+                    id = await _ICommonService.Add<Invoice>(invoice);   // CHANGED: এখন সঠিক InvoiceId পাওয়া যাবে
+
                     foreach (var item in peramsItemList)
                     {
                         decimal qtyAbs = Math.Abs((decimal)item.Qty);
-                        // decimal vat = (decimal)(((item.SellingPrice * qtyAbs) - item.Discount - item.PointValue - item.GiftVoucherDis) * 0.10m);
-
 
                         InvoiceDetail invoiceDetails = new InvoiceDetail
                         {
@@ -122,15 +119,15 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             Redeemed_PointValue = item.PointValue,
                             GiftVoucherDis = item.GiftVoucherDis
                         };
-                        _ICommonService.Add<InvoiceDetail>(invoiceDetails);
+                        await _ICommonService.Add<InvoiceDetail>(invoiceDetails);   // CHANGED
 
                         var receiveDetails = _dbContext.POStblItemRcvDetails
-                        .Where(d => d.ItemId == item.ItemId
-                                 && d.VariantId == item.VariantId
-                                 && d.RemainingQty > 0
-                                 && _dbContext.ItemReceives.Any(r => r.WhId == entity.WhId))
-                        .OrderBy(d => d.Id)
-                        .ToList();
+                            .Where(d => d.ItemId == item.ItemId
+                                     && d.VariantId == item.VariantId
+                                     && d.RemainingQty > 0
+                                     && _dbContext.ItemReceives.Any(r => r.WhId == entity.WhId))
+                            .OrderBy(d => d.Id)
+                            .ToList();
 
                         decimal qtyToIssue = (decimal)item.Qty;
 
@@ -141,11 +138,10 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             decimal availableQty = (decimal)receiveDetail.RemainingQty;
                             decimal issueQty = (qtyToIssue >= availableQty) ? availableQty : qtyToIssue;
 
-                            // Update IssueQty
                             var updateQuery = @"UPDATE POStblItemRcvDetails
-                    SET IssueQty = IssueQty + @IssueQty, 
-                        RemainingQty = RemainingQty - @IssueQty
-                    WHERE Id = @Id;";
+            SET IssueQty = IssueQty + @IssueQty, 
+                RemainingQty = RemainingQty - @IssueQty
+            WHERE Id = @Id;";
 
                             _dbContext.Database.ExecuteSqlRaw(updateQuery,
                                 new SqlParameter("@IssueQty", issueQty),
@@ -153,42 +149,33 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
                             qtyToIssue -= (decimal)issueQty;
                         }
-
                     }
-                    ;
 
                     foreach (var item in peramsItemList)
                     {
-
                         var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == item.ItemId && x.VariantId == item.VariantId && x.WhId == entity.WhId).FirstOrDefault();
                         if (stock != null)
                         {
-
                             if (item.Qty < 0)
                             {
                                 stock.ReturnQty = stock.ReturnQty == null ? item.Qty * (-1) : stock.ReturnQty + item.Qty * (-1);
-
                             }
                             else
                             {
                                 stock.ReturnQty = stock.ReturnQty;
                                 stock.IssueQty = stock.IssueQty == null ? item.Qty : stock.IssueQty + item.Qty;
                             }
-                            //stock.StockQty = (stock.ReceiveQty + stock.ReturnQty) - stock.IssueQty;
-                            //when item is Physical adjasment, stockQty is get negetive
                             stock.StockQty = stock.StockQty - item.Qty;
                         }
-                        _ICommonService.Update<ItemStock>(stock);
-
+                        _ICommonService.Update<ItemStock>(stock);   // Update sync, তাই await লাগবে না
                     }
-                    ;
+
                     foreach (var tran in peramsItemList)
                     {
                         string status = "";
                         if (tran.Qty < 0)
                         {
                             status = "Return";
-
                         }
                         else
                         {
@@ -207,41 +194,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             EntryDate = tran.EntryDate,
                             IsActive = tran.IsActive
                         };
-                        _ICommonService.Add<POStblItemTransaction>(transaction);
+                        await _ICommonService.Add<POStblItemTransaction>(transaction);   // CHANGED
                     }
-
-
-                    //CustomerPayment customerPayment = new CustomerPayment
-                    //{
-                    //    CustomerMobile = entity.CustomerNumber,
-                    //    InvoiceId = id,
-                    //    PaymentDate = DateTime.Parse(entity.InvoiceDt),
-                    //    PaidAmount = entity.PaidAmount,
-                    //    // PaymentType = entity.PaymentType,
-                    //    EntryBy = entity.EntryBy,
-                    //    EntryDate = entity.EntryDate,
-                    //    IsActive = entity.IsActive,
-                    //    AccountId = (int)entity.AccountId
-
-                    //};
-                    //_ICommonService.Add<CustomerPayment>(customerPayment);
-
-
-                    //CashBankLedger cashBank = new CashBankLedger
-                    //{
-                    //    TranDate = DateTime.Parse(entity.InvoiceDt),
-                    //    SourceId = customerPayment.Id,
-                    //    SourceType = "Invoice",
-                    //    LedgerType = "Income",
-                    //    Amount = entity.PaidAmount,
-                    //    TransactionType = "In",
-                    //    EntryBy = entity.EntryBy,
-                    //    EntryDate = entity.EntryDate,
-                    //    IsActive = entity.IsActive,
-                    //    AccountId = (int)entity.AccountId,
-                    //    LedgerId = (int)entity.LedgerId
-                    //};
-                    //_ICommonService.Add<CashBankLedger>(cashBank);
 
                     if (entity.Payments != null && entity.Payments.Any())
                     {
@@ -252,13 +206,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                                 CustomerMobile = entity.CustomerNumber,
                                 InvoiceId = id,
                                 PaymentDate = DateTime.Parse(entity.InvoiceDt),
-                                PaidAmount = p.Amount, // each row amount
+                                PaidAmount = p.Amount,
                                 EntryBy = entity.EntryBy,
                                 EntryDate = entity.EntryDate,
                                 IsActive = entity.IsActive,
                                 AccountId = p.AccountId
                             };
-                            _ICommonService.Add<CustomerPayment>(customerPayment);
+                            await _ICommonService.Add<CustomerPayment>(customerPayment);   // CHANGED: SourceId-এর জন্য দরকার
 
                             CashBankLedger cashBank = new CashBankLedger
                             {
@@ -266,20 +220,19 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                                 SourceId = customerPayment.Id,
                                 SourceType = "Invoice",
                                 LedgerType = "Income",
-                                Amount = p.Amount, // each row amount
+                                Amount = p.Amount,
                                 TransactionType = "In",
                                 EntryBy = entity.EntryBy,
                                 EntryDate = entity.EntryDate,
                                 IsActive = entity.IsActive,
                                 AccountId = p.AccountId,
-                                LedgerId = (int)entity.LedgerId // same ledger or map from p if needed
+                                LedgerId = (int)entity.LedgerId
                             };
-                            _ICommonService.Add<CashBankLedger>(cashBank);
+                            await _ICommonService.Add<CashBankLedger>(cashBank);   // CHANGED
                         }
                     }
                     else
                     {
-                        // Single-payment scenario (Payments is null)
                         decimal paidAmount = entity.PaidAmount ?? 0;
                         int accountId = entity.AccountId ?? 0;
 
@@ -295,7 +248,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             AccountId = accountId
                         };
 
-                        _ICommonService.Add<CustomerPayment>(customerPayment);
+                        await _ICommonService.Add<CustomerPayment>(customerPayment);   // CHANGED
 
                         CashBankLedger cashBank = new CashBankLedger
                         {
@@ -312,7 +265,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             LedgerId = entity.LedgerId ?? 0
                         };
 
-                        _ICommonService.Add<CashBankLedger>(cashBank);
+                        await _ICommonService.Add<CashBankLedger>(cashBank);   // CHANGED
                     }
 
                     var existingList = _dbContext.GiftVoucherDetails
@@ -338,14 +291,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         _ICommonService.Update<GiftVoucherDetails>(giftVoucherDetails);
                     }
 
-
                     if (string.IsNullOrWhiteSpace(entity.CustomerNumber))
                     {
                         return 0;
                     }
 
                     var existingCustomer = _dbContext.POStblCustomers.FirstOrDefault(c => c.PhoneNo == entity.CustomerNumber);
-                    //  Get membership based on PaidAmount (Single Invoice ভিত্তিক)
+
                     var membership = _dbContext.CustomerMemberships
                         .Where(m => m.IsActive == true
                             && m.AccessKey == "LM"
@@ -356,7 +308,6 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
                     if (existingCustomer != null)
                     {
-                        // Ensure default values for Reward_Points and Earn_Points if they are null
                         existingCustomer.Reward_Points ??= 0;
                         existingCustomer.Earn_Points ??= 0;
                         existingCustomer.UpdateBy = entity.EntryBy;
@@ -369,7 +320,6 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             existingCustomer.MemberTypeId = membership.Id;
                             existingCustomer.Discount = membership.Discount;
                         }
-                        // Determine membership type based on Reward_Points
                         _ICommonService.Update<POStblCustomer>(existingCustomer);
                     }
                     else
@@ -385,23 +335,662 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             MemberTypeId = membership?.Id,
                             Discount = membership?.Discount ?? 0
                         };
-                        _ICommonService.Add<POStblCustomer>(customer);
+                        await _ICommonService.Add<POStblCustomer>(customer);   // CHANGED
                     }
-
-
-
                 }
                 return id;
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw ex;
+                throw;   // CHANGED: "throw ex" আসল stack trace মুছে দেয়
             }
-
         }
+        //public int AddAndUpdate(InvoicePerams entity)
+        //{
+        //    int id = 0;
+        //    try
+        //    {
 
-        public int AddAndUpdateNew(InvoicePerams entity)
+        //        if (entity != null)
+        //        {
+        //            var peramsItemList = entity.ItemList.ToList();
+        //            string paymentTypes = entity.Payments != null && entity.Payments.Any()
+        //                ? string.Join(", ", entity.Payments.Select(p => p.PaymentType))
+        //                : "";
+        //            Invoice invoice = new Invoice
+        //            {
+        //                InvoiceNo = entity.InvoiceNo,
+        //                InvoiceDt = DateTime.Parse(entity.InvoiceDt),
+        //                WhId = (int)(entity.WhId != null ? entity.WhId : 0),
+        //                EntryBy = entity.EntryBy,
+        //                EntryDate = entity.EntryDate,
+        //                PaymentType = entity.PaymentType ?? paymentTypes,
+        //                //PaymentType = entity.PaymentType,
+        //                //PaymentType = paymentTypes,
+        //                DiscountPercentage = entity.DiscountPercentage,
+        //                Discount = entity.Discount,
+        //                IsActive = entity.IsActive,
+        //                Remarks = entity.Remarks,
+        //                CustomerNumber = string.IsNullOrWhiteSpace(entity.CustomerNumber) ? null : entity.CustomerNumber,
+        //                Total = entity.Total,
+        //                EarningPoint = entity.EarningPoint,
+        //                RedeemedPoint = entity.RedeemedPoint,
+        //                Vat = entity.Vat,
+        //                GiftVoucherDis = entity.GiftVoucherDis,
+        //                GiftVoucherId = entity.GiftVoucherId,
+        //                PaidAmount = entity.PaidAmount,
+        //                SalesMan = entity.SalesMan,
+        //                Note = entity.Note,
+        //            };
+
+        //            _ICommonService.Add<Invoice>(invoice);
+        //            id = invoice.Id;
+        //            foreach (var item in peramsItemList)
+        //            {
+        //                decimal qtyAbs = Math.Abs((decimal)item.Qty);
+        //                // decimal vat = (decimal)(((item.SellingPrice * qtyAbs) - item.Discount - item.PointValue - item.GiftVoucherDis) * 0.10m);
+
+
+        //                InvoiceDetail invoiceDetails = new InvoiceDetail
+        //                {
+        //                    InvoiceId = id,
+        //                    ItemId = item.ItemId,
+        //                    VariantId = item.VariantId,
+        //                    InvoiceNo = entity.InvoiceNo,
+        //                    InvoiceDt = DateTime.Parse(entity.InvoiceDt),
+        //                    Qty = item.Qty,
+        //                    SellingPrice = item.SellingPrice,
+        //                    CostingPrice = item.CostingPrice,
+        //                    Vat = item.Vat,
+        //                    Discount = item.Discount,
+        //                    DiscountPercentage = item.DiscountPercentage,
+        //                    UnitPrice = item.UnitPrice,
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    IsActive = entity.IsActive,
+        //                    Remarks = item.Remarks,
+        //                    Redeemed_PointValue = item.PointValue,
+        //                    GiftVoucherDis = item.GiftVoucherDis
+        //                };
+        //                _ICommonService.Add<InvoiceDetail>(invoiceDetails);
+
+        //                var receiveDetails = _dbContext.POStblItemRcvDetails
+        //                .Where(d => d.ItemId == item.ItemId
+        //                         && d.VariantId == item.VariantId
+        //                         && d.RemainingQty > 0
+        //                         && _dbContext.ItemReceives.Any(r => r.WhId == entity.WhId))
+        //                .OrderBy(d => d.Id)
+        //                .ToList();
+
+        //                decimal qtyToIssue = (decimal)item.Qty;
+
+        //                foreach (var receiveDetail in receiveDetails)
+        //                {
+        //                    if (qtyToIssue <= 0) break;
+
+        //                    decimal availableQty = (decimal)receiveDetail.RemainingQty;
+        //                    decimal issueQty = (qtyToIssue >= availableQty) ? availableQty : qtyToIssue;
+
+        //                    // Update IssueQty
+        //                    var updateQuery = @"UPDATE POStblItemRcvDetails
+        //            SET IssueQty = IssueQty + @IssueQty, 
+        //                RemainingQty = RemainingQty - @IssueQty
+        //            WHERE Id = @Id;";
+
+        //                    _dbContext.Database.ExecuteSqlRaw(updateQuery,
+        //                        new SqlParameter("@IssueQty", issueQty),
+        //                        new SqlParameter("@Id", receiveDetail.Id));
+
+        //                    qtyToIssue -= (decimal)issueQty;
+        //                }
+
+        //            }
+        //            ;
+
+        //            foreach (var item in peramsItemList)
+        //            {
+
+        //                var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == item.ItemId && x.VariantId == item.VariantId && x.WhId == entity.WhId).FirstOrDefault();
+        //                if (stock != null)
+        //                {
+
+        //                    if (item.Qty < 0)
+        //                    {
+        //                        stock.ReturnQty = stock.ReturnQty == null ? item.Qty * (-1) : stock.ReturnQty + item.Qty * (-1);
+
+        //                    }
+        //                    else
+        //                    {
+        //                        stock.ReturnQty = stock.ReturnQty;
+        //                        stock.IssueQty = stock.IssueQty == null ? item.Qty : stock.IssueQty + item.Qty;
+        //                    }
+        //                    //stock.StockQty = (stock.ReceiveQty + stock.ReturnQty) - stock.IssueQty;
+        //                    //when item is Physical adjasment, stockQty is get negetive
+        //                    stock.StockQty = stock.StockQty - item.Qty;
+        //                }
+        //                _ICommonService.Update<ItemStock>(stock);
+
+        //            }
+        //            ;
+        //            foreach (var tran in peramsItemList)
+        //            {
+        //                string status = "";
+        //                if (tran.Qty < 0)
+        //                {
+        //                    status = "Return";
+
+        //                }
+        //                else
+        //                {
+        //                    status = "Sell";
+        //                }
+        //                POStblItemTransaction transaction = new POStblItemTransaction
+        //                {
+        //                    ItemId = tran.ItemId,
+        //                    VariantId = tran.VariantId,
+        //                    WhId = (int)(entity.WhId != null ? entity.WhId : 0),
+        //                    TranDt = DateTime.Parse(entity.InvoiceDt),
+        //                    Qty = tran.Qty,
+        //                    Status = status,
+        //                    Remarks = tran.Remarks,
+        //                    EntryBy = tran.EntryBy,
+        //                    EntryDate = tran.EntryDate,
+        //                    IsActive = tran.IsActive
+        //                };
+        //                _ICommonService.Add<POStblItemTransaction>(transaction);
+        //            }
+
+
+        //            //CustomerPayment customerPayment = new CustomerPayment
+        //            //{
+        //            //    CustomerMobile = entity.CustomerNumber,
+        //            //    InvoiceId = id,
+        //            //    PaymentDate = DateTime.Parse(entity.InvoiceDt),
+        //            //    PaidAmount = entity.PaidAmount,
+        //            //    // PaymentType = entity.PaymentType,
+        //            //    EntryBy = entity.EntryBy,
+        //            //    EntryDate = entity.EntryDate,
+        //            //    IsActive = entity.IsActive,
+        //            //    AccountId = (int)entity.AccountId
+
+        //            //};
+        //            //_ICommonService.Add<CustomerPayment>(customerPayment);
+
+
+        //            //CashBankLedger cashBank = new CashBankLedger
+        //            //{
+        //            //    TranDate = DateTime.Parse(entity.InvoiceDt),
+        //            //    SourceId = customerPayment.Id,
+        //            //    SourceType = "Invoice",
+        //            //    LedgerType = "Income",
+        //            //    Amount = entity.PaidAmount,
+        //            //    TransactionType = "In",
+        //            //    EntryBy = entity.EntryBy,
+        //            //    EntryDate = entity.EntryDate,
+        //            //    IsActive = entity.IsActive,
+        //            //    AccountId = (int)entity.AccountId,
+        //            //    LedgerId = (int)entity.LedgerId
+        //            //};
+        //            //_ICommonService.Add<CashBankLedger>(cashBank);
+
+        //            if (entity.Payments != null && entity.Payments.Any())
+        //            {
+        //                foreach (var p in entity.Payments)
+        //                {
+        //                    CustomerPayment customerPayment = new CustomerPayment
+        //                    {
+        //                        CustomerMobile = entity.CustomerNumber,
+        //                        InvoiceId = id,
+        //                        PaymentDate = DateTime.Parse(entity.InvoiceDt),
+        //                        PaidAmount = p.Amount, // each row amount
+        //                        EntryBy = entity.EntryBy,
+        //                        EntryDate = entity.EntryDate,
+        //                        IsActive = entity.IsActive,
+        //                        AccountId = p.AccountId
+        //                    };
+        //                    _ICommonService.Add<CustomerPayment>(customerPayment);
+
+        //                    CashBankLedger cashBank = new CashBankLedger
+        //                    {
+        //                        TranDate = DateTime.Parse(entity.InvoiceDt),
+        //                        SourceId = customerPayment.Id,
+        //                        SourceType = "Invoice",
+        //                        LedgerType = "Income",
+        //                        Amount = p.Amount, // each row amount
+        //                        TransactionType = "In",
+        //                        EntryBy = entity.EntryBy,
+        //                        EntryDate = entity.EntryDate,
+        //                        IsActive = entity.IsActive,
+        //                        AccountId = p.AccountId,
+        //                        LedgerId = (int)entity.LedgerId // same ledger or map from p if needed
+        //                    };
+        //                    _ICommonService.Add<CashBankLedger>(cashBank);
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // Single-payment scenario (Payments is null)
+        //                decimal paidAmount = entity.PaidAmount ?? 0;
+        //                int accountId = entity.AccountId ?? 0;
+
+        //                CustomerPayment customerPayment = new CustomerPayment
+        //                {
+        //                    CustomerMobile = entity.CustomerNumber,
+        //                    InvoiceId = id,
+        //                    PaymentDate = DateTime.Parse(entity.InvoiceDt),
+        //                    PaidAmount = paidAmount,
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    IsActive = entity.IsActive,
+        //                    AccountId = accountId
+        //                };
+
+        //                _ICommonService.Add<CustomerPayment>(customerPayment);
+
+        //                CashBankLedger cashBank = new CashBankLedger
+        //                {
+        //                    TranDate = DateTime.Parse(entity.InvoiceDt),
+        //                    SourceId = customerPayment.Id,
+        //                    SourceType = "Invoice",
+        //                    LedgerType = "Income",
+        //                    Amount = paidAmount,
+        //                    TransactionType = "In",
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    IsActive = entity.IsActive,
+        //                    AccountId = accountId,
+        //                    LedgerId = entity.LedgerId ?? 0
+        //                };
+
+        //                _ICommonService.Add<CashBankLedger>(cashBank);
+        //            }
+
+        //            var existingList = _dbContext.GiftVoucherDetails
+        //                 .AsNoTracking()
+        //                 .FirstOrDefault(g => g.Id == entity.GiftVoucherId);
+
+        //            if (existingList != null)
+        //            {
+        //                GiftVoucherDetails giftVoucherDetails = new GiftVoucherDetails
+        //                {
+        //                    Id = existingList.Id,
+        //                    GiftVoucherId = existingList.GiftVoucherId,
+        //                    CVName = existingList.CVName,
+        //                    Status = "Close",
+        //                    EntryBy = existingList.EntryBy,
+        //                    EntryDate = existingList.EntryDate,
+        //                    UpdateBy = entity.EntryBy,
+        //                    UpdateDate = entity.UpdateDate,
+        //                    IsActive = existingList.IsActive,
+        //                    InvoiceNo = entity.InvoiceNo
+        //                };
+
+        //                _ICommonService.Update<GiftVoucherDetails>(giftVoucherDetails);
+        //            }
+
+
+        //            if (string.IsNullOrWhiteSpace(entity.CustomerNumber))
+        //            {
+        //                return 0;
+        //            }
+
+        //            var existingCustomer = _dbContext.POStblCustomers.FirstOrDefault(c => c.PhoneNo == entity.CustomerNumber);
+        //            //  Get membership based on PaidAmount (Single Invoice ভিত্তিক)
+        //            var membership = _dbContext.CustomerMemberships
+        //                .Where(m => m.IsActive == true
+        //                    && m.AccessKey == "LM"
+        //                    && entity.PaidAmount >= m.Rule1
+        //                    && entity.PaidAmount <= m.Rule2)
+        //                .OrderByDescending(m => m.Rule1)
+        //                .FirstOrDefault();
+
+        //            if (existingCustomer != null)
+        //            {
+        //                // Ensure default values for Reward_Points and Earn_Points if they are null
+        //                existingCustomer.Reward_Points ??= 0;
+        //                existingCustomer.Earn_Points ??= 0;
+        //                existingCustomer.UpdateBy = entity.EntryBy;
+        //                existingCustomer.UpdateDate = entity.UpdateDate;
+        //                existingCustomer.Redeemed_Points += entity.RedeemedPoint;
+        //                existingCustomer.Earn_Points += entity.EarningPoint;
+        //                existingCustomer.Reward_Points += entity.EarningPoint - entity.RedeemedPoint;
+        //                if (membership != null)
+        //                {
+        //                    existingCustomer.MemberTypeId = membership.Id;
+        //                    existingCustomer.Discount = membership.Discount;
+        //                }
+        //                // Determine membership type based on Reward_Points
+        //                _ICommonService.Update<POStblCustomer>(existingCustomer);
+        //            }
+        //            else
+        //            {
+        //                POStblCustomer customer = new POStblCustomer
+        //                {
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    PhoneNo = entity.CustomerNumber,
+        //                    Reward_Points = entity.EarningPoint,
+        //                    Earn_Points = entity.EarningPoint,
+        //                    Redeemed_Points = 0,
+        //                    MemberTypeId = membership?.Id,
+        //                    Discount = membership?.Discount ?? 0
+        //                };
+        //                _ICommonService.Add<POStblCustomer>(customer);
+        //            }
+
+
+
+        //        }
+        //        return id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex);
+        //        throw ex;
+        //    }
+
+        //}
+
+        //public int AddAndUpdateNew(InvoicePerams entity)
+        //{
+        //    int id = 0;
+        //    try
+        //    {
+
+        //        if (entity != null)
+        //        {
+        //            var peramsItemList = entity.ItemList.ToList();
+        //            string paymentTypes = entity.Payments != null && entity.Payments.Any()
+        //                ? string.Join(", ", entity.Payments.Select(p => p.PaymentType))
+        //                : "";
+        //            Invoice invoice = new Invoice
+        //            {
+        //                InvoiceNo = entity.InvoiceNo,
+        //                InvoiceDt = DateTime.Parse(entity.InvoiceDt),
+        //                WhId = (int)(entity.WhId != null ? entity.WhId : 0),
+        //                EntryBy = entity.EntryBy,
+        //                EntryDate = entity.EntryDate,
+        //                PaymentType = entity.PaymentType ?? paymentTypes,
+        //                //PaymentType = entity.PaymentType,
+        //                //PaymentType = paymentTypes,
+        //                DiscountPercentage = entity.DiscountPercentage,
+        //                Discount = entity.Discount,
+        //                IsActive = entity.IsActive,
+        //                Remarks = entity.Remarks,
+        //                CustomerNumber = string.IsNullOrWhiteSpace(entity.CustomerNumber) ? null : entity.CustomerNumber,
+        //                Total = entity.Total,
+        //                EarningPoint = entity.EarningPoint,
+        //                RedeemedPoint = entity.RedeemedPoint,
+        //                Vat = entity.Vat,
+        //                GiftVoucherDis = entity.GiftVoucherDis,
+        //                GiftVoucherId = entity.GiftVoucherId,
+        //                PaidAmount = entity.PaidAmount,
+        //                SalesMan = entity.SalesMan,
+        //                Note = entity.Note,
+        //            };
+
+        //            _ICommonService.Add<Invoice>(invoice);
+        //            id = invoice.Id;
+        //            foreach (var item in peramsItemList)
+        //            {
+        //                decimal qtyAbs = Math.Abs((decimal)item.Qty);
+        //                // decimal vat = (decimal)(((item.SellingPrice * qtyAbs) - item.Discount - item.PointValue - item.GiftVoucherDis) * 0.10m);
+
+
+        //                InvoiceDetail invoiceDetails = new InvoiceDetail
+        //                {
+        //                    InvoiceId = id,
+        //                    ItemId = item.ItemId,
+        //                    VariantId = item.VariantId,
+        //                    InvoiceNo = entity.InvoiceNo,
+        //                    InvoiceDt = DateTime.Parse(entity.InvoiceDt),
+        //                    Qty = item.Qty,
+        //                    SellingPrice = item.SellingPrice,
+        //                    CostingPrice = item.CostingPrice,
+        //                    Vat = item.Vat,
+        //                    Discount = item.Discount,
+        //                    DiscountPercentage = item.DiscountPercentage,
+        //                    UnitPrice = item.UnitPrice,
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    IsActive = entity.IsActive,
+        //                    Remarks = item.Remarks,
+        //                    Redeemed_PointValue = item.PointValue,
+        //                    GiftVoucherDis = item.GiftVoucherDis
+        //                };
+        //                _ICommonService.Add<InvoiceDetail>(invoiceDetails);
+
+        //                var receiveDetails = _dbContext.POStblItemRcvDetails
+        //                .Where(d => d.ItemId == item.ItemId
+        //                         && d.VariantId == item.VariantId
+        //                         && d.RemainingQty > 0
+        //                         && _dbContext.ItemReceives.Any(r => r.WhId == entity.WhId))
+        //                .OrderBy(d => d.Id)
+        //                .ToList();
+
+        //                decimal qtyToIssue = (decimal)item.Qty;
+
+        //                foreach (var receiveDetail in receiveDetails)
+        //                {
+        //                    if (qtyToIssue <= 0) break;
+
+        //                    decimal availableQty = (decimal)receiveDetail.RemainingQty;
+        //                    decimal issueQty = (qtyToIssue >= availableQty) ? availableQty : qtyToIssue;
+
+        //                    // Update IssueQty
+        //                    var updateQuery = @"UPDATE POStblItemRcvDetails
+        //            SET IssueQty = IssueQty + @IssueQty, 
+        //                RemainingQty = RemainingQty - @IssueQty
+        //            WHERE Id = @Id;";
+
+        //                    _dbContext.Database.ExecuteSqlRaw(updateQuery,
+        //                        new SqlParameter("@IssueQty", issueQty),
+        //                        new SqlParameter("@Id", receiveDetail.Id));
+
+        //                    qtyToIssue -= (decimal)issueQty;
+        //                }
+
+        //            }
+        //            ;
+
+        //            foreach (var item in peramsItemList)
+        //            {
+
+        //                var stock = _ICommonService.GetAll<ItemStock>().Where(x => x.ItemId == item.ItemId && x.VariantId == item.VariantId && x.WhId == entity.WhId).FirstOrDefault();
+        //                if (stock != null)
+        //                {
+
+        //                    if (item.Qty < 0)
+        //                    {
+        //                        stock.ReturnQty = stock.ReturnQty == null ? item.Qty * (-1) : stock.ReturnQty + item.Qty * (-1);
+
+        //                    }
+        //                    else
+        //                    {
+        //                        stock.ReturnQty = stock.ReturnQty;
+        //                        stock.IssueQty = stock.IssueQty == null ? item.Qty : stock.IssueQty + item.Qty;
+        //                    }
+        //                    //stock.StockQty = (stock.ReceiveQty + stock.ReturnQty) - stock.IssueQty;
+        //                    //when item is Physical adjasment, stockQty is get negetive
+        //                    stock.StockQty = stock.StockQty - item.Qty;
+        //                }
+        //                _ICommonService.Update<ItemStock>(stock);
+
+        //            }
+        //            ;
+        //            foreach (var tran in peramsItemList)
+        //            {
+        //                string status = "";
+        //                if (tran.Qty < 0)
+        //                {
+        //                    status = "Return";
+
+        //                }
+        //                else
+        //                {
+        //                    status = "Sell";
+        //                }
+        //                POStblItemTransaction transaction = new POStblItemTransaction
+        //                {
+        //                    ItemId = tran.ItemId,
+        //                    VariantId = tran.VariantId,
+        //                    WhId = (int)(entity.WhId != null ? entity.WhId : 0),
+        //                    TranDt = DateTime.Parse(entity.InvoiceDt),
+        //                    Qty = tran.Qty,
+        //                    Status = status,
+        //                    Remarks = tran.Remarks,
+        //                    EntryBy = tran.EntryBy,
+        //                    EntryDate = tran.EntryDate,
+        //                    IsActive = tran.IsActive
+        //                };
+        //                _ICommonService.Add<POStblItemTransaction>(transaction);
+        //            }
+
+        //            if (entity.Payments != null && entity.Payments.Any())
+        //            {
+        //                foreach (var p in entity.Payments)
+        //                {
+        //                    CustomerPayment customerPayment = new CustomerPayment
+        //                    {
+        //                        CustomerMobile = entity.CustomerNumber,
+        //                        InvoiceId = id,
+        //                        PaymentDate = DateTime.Parse(entity.InvoiceDt),
+        //                        PaidAmount = p.Amount, // each row amount
+        //                        EntryBy = entity.EntryBy,
+        //                        EntryDate = entity.EntryDate,
+        //                        IsActive = entity.IsActive,
+        //                        AccountId = p.AccountId
+        //                    };
+        //                    _ICommonService.Add<CustomerPayment>(customerPayment);
+
+        //                }
+        //            }
+        //            else
+        //            {
+        //                // Single-payment scenario (Payments is null)
+        //                decimal paidAmount = entity.PaidAmount ?? 0;
+        //                int accountId = entity.AccountId ?? 0;
+
+        //                CustomerPayment customerPayment = new CustomerPayment
+        //                {
+        //                    CustomerMobile = entity.CustomerNumber,
+        //                    InvoiceId = id,
+        //                    PaymentDate = DateTime.Parse(entity.InvoiceDt),
+        //                    PaidAmount = paidAmount,
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    IsActive = entity.IsActive,
+        //                    AccountId = accountId
+        //                };
+
+        //                _ICommonService.Add<CustomerPayment>(customerPayment);
+
+        //                //CashBankLedger cashBank = new CashBankLedger
+        //                //{
+        //                //    TranDate = DateTime.Parse(entity.InvoiceDt),
+        //                //    SourceId = customerPayment.Id,
+        //                //    SourceType = "Invoice",
+        //                //    LedgerType = "Income",
+        //                //    Amount = paidAmount,
+        //                //    TransactionType = "In",
+        //                //    EntryBy = entity.EntryBy,
+        //                //    EntryDate = entity.EntryDate,
+        //                //    IsActive = entity.IsActive,
+        //                //    AccountId = accountId,
+        //                //    LedgerId = entity.LedgerId ?? 0
+        //                //};
+
+        //                //_ICommonService.Add<CashBankLedger>(cashBank);
+        //            }
+
+        //            var existingList = _dbContext.GiftVoucherDetails
+        //                 .AsNoTracking()
+        //                 .FirstOrDefault(g => g.Id == entity.GiftVoucherId);
+
+        //            if (existingList != null)
+        //            {
+        //                GiftVoucherDetails giftVoucherDetails = new GiftVoucherDetails
+        //                {
+        //                    Id = existingList.Id,
+        //                    GiftVoucherId = existingList.GiftVoucherId,
+        //                    CVName = existingList.CVName,
+        //                    Status = "Close",
+        //                    EntryBy = existingList.EntryBy,
+        //                    EntryDate = existingList.EntryDate,
+        //                    UpdateBy = entity.EntryBy,
+        //                    UpdateDate = entity.UpdateDate,
+        //                    IsActive = existingList.IsActive,
+        //                    InvoiceNo = entity.InvoiceNo
+        //                };
+
+        //                _ICommonService.Update<GiftVoucherDetails>(giftVoucherDetails);
+        //            }
+
+
+        //            if (string.IsNullOrWhiteSpace(entity.CustomerNumber))
+        //            {
+        //                return 0;
+        //            }
+
+        //            var existingCustomer = _dbContext.POStblCustomers.FirstOrDefault(c => c.PhoneNo == entity.CustomerNumber);
+        //            //  Get membership based on PaidAmount (Single Invoice ভিত্তিক)
+        //            var membership = _dbContext.CustomerMemberships
+        //                .Where(m => m.IsActive == true
+        //                    && m.AccessKey == "LM"
+        //                    && entity.PaidAmount >= m.Rule1
+        //                    && entity.PaidAmount <= m.Rule2)
+        //                .OrderByDescending(m => m.Rule1)
+        //                .FirstOrDefault();
+
+        //            if (existingCustomer != null)
+        //            {
+        //                // Ensure default values for Reward_Points and Earn_Points if they are null
+        //                existingCustomer.Reward_Points ??= 0;
+        //                existingCustomer.Earn_Points ??= 0;
+        //                existingCustomer.UpdateBy = entity.EntryBy;
+        //                existingCustomer.UpdateDate = entity.UpdateDate;
+        //                existingCustomer.Redeemed_Points += entity.RedeemedPoint;
+        //                existingCustomer.Earn_Points += entity.EarningPoint;
+        //                existingCustomer.Reward_Points += entity.EarningPoint - entity.RedeemedPoint;
+        //                if (membership != null)
+        //                {
+        //                    existingCustomer.MemberTypeId = membership.Id;
+        //                    existingCustomer.Discount = membership.Discount;
+        //                }
+        //                // Determine membership type based on Reward_Points
+        //                _ICommonService.Update<POStblCustomer>(existingCustomer);
+        //            }
+        //            else
+        //            {
+        //                POStblCustomer customer = new POStblCustomer
+        //                {
+        //                    EntryBy = entity.EntryBy,
+        //                    EntryDate = entity.EntryDate,
+        //                    PhoneNo = entity.CustomerNumber,
+        //                    Reward_Points = entity.EarningPoint,
+        //                    Earn_Points = entity.EarningPoint,
+        //                    Redeemed_Points = 0,
+        //                    MemberTypeId = membership?.Id,
+        //                    Discount = membership?.Discount ?? 0
+        //                };
+        //                _ICommonService.Add<POStblCustomer>(customer);
+        //            }
+
+
+
+        //        }
+        //        return id;
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        Console.WriteLine(ex);
+        //        throw ex;
+        //    }
+
+        //}
+
+        public async Task<int> AddAndUpdateNew(InvoicePerams entity)
         {
             int id = 0;
             try
@@ -439,7 +1028,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         Note = entity.Note,
                     };
 
-                    _ICommonService.Add<Invoice>(invoice);
+                    await _ICommonService.Add<Invoice>(invoice);
                     id = invoice.Id;
                     foreach (var item in peramsItemList)
                     {
@@ -468,7 +1057,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             Redeemed_PointValue = item.PointValue,
                             GiftVoucherDis = item.GiftVoucherDis
                         };
-                        _ICommonService.Add<InvoiceDetail>(invoiceDetails);
+                        await _ICommonService.Add<InvoiceDetail>(invoiceDetails);
 
                         var receiveDetails = _dbContext.POStblItemRcvDetails
                         .Where(d => d.ItemId == item.ItemId
@@ -489,9 +1078,9 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
 
                             // Update IssueQty
                             var updateQuery = @"UPDATE POStblItemRcvDetails
-                    SET IssueQty = IssueQty + @IssueQty, 
-                        RemainingQty = RemainingQty - @IssueQty
-                    WHERE Id = @Id;";
+            SET IssueQty = IssueQty + @IssueQty, 
+                RemainingQty = RemainingQty - @IssueQty
+            WHERE Id = @Id;";
 
                             _dbContext.Database.ExecuteSqlRaw(updateQuery,
                                 new SqlParameter("@IssueQty", issueQty),
@@ -553,7 +1142,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             EntryDate = tran.EntryDate,
                             IsActive = tran.IsActive
                         };
-                        _ICommonService.Add<POStblItemTransaction>(transaction);
+                        await _ICommonService.Add<POStblItemTransaction>(transaction);
                     }
 
                     if (entity.Payments != null && entity.Payments.Any())
@@ -571,8 +1160,8 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                                 IsActive = entity.IsActive,
                                 AccountId = p.AccountId
                             };
-                            _ICommonService.Add<CustomerPayment>(customerPayment);
-                            
+                            await _ICommonService.Add<CustomerPayment>(customerPayment);
+
                         }
                     }
                     else
@@ -593,7 +1182,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             AccountId = accountId
                         };
 
-                        _ICommonService.Add<CustomerPayment>(customerPayment);
+                        await _ICommonService.Add<CustomerPayment>(customerPayment);
 
                         //CashBankLedger cashBank = new CashBankLedger
                         //{
@@ -610,7 +1199,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                         //    LedgerId = entity.LedgerId ?? 0
                         //};
 
-                        //_ICommonService.Add<CashBankLedger>(cashBank);
+                        //await _ICommonService.Add<CashBankLedger>(cashBank);
                     }
 
                     var existingList = _dbContext.GiftVoucherDetails
@@ -683,7 +1272,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             MemberTypeId = membership?.Id,
                             Discount = membership?.Discount ?? 0
                         };
-                        _ICommonService.Add<POStblCustomer>(customer);
+                        await _ICommonService.Add<POStblCustomer>(customer);
                     }
 
 
@@ -694,7 +1283,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             catch (Exception ex)
             {
                 Console.WriteLine(ex);
-                throw ex;
+                throw;
             }
 
         }
@@ -755,17 +1344,15 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
 
         }
-
         public List<POStblCustomer> CustomerDetails(string? phoneNo)
         {
             if (phoneNo == "0")
             {
-                //List<POStblCustomer> customerList = _ICommonService.GetAll<POStblCustomer>().ToList();
-                var customerList = _ICommonService.Query<POStblCustomer>()
-                    .Include(c => c.Ledger)   
+                var customerList = _dbContext.Set<POStblCustomer>()
+                    .AsNoTracking()
+                    .Include(c => c.Ledger)
                     .ToList();
 
-              
                 return customerList;
             }
             else
@@ -777,8 +1364,30 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 List<POStblCustomer> customerList = _IDapperService.GetAllBySP<POStblCustomer>(SP, p).ToList();
                 return customerList;
             }
-
         }
+        //public List<POStblCustomer> CustomerDetails(string? phoneNo)
+        //{
+        //    if (phoneNo == "0")
+        //    {
+        //        //List<POStblCustomer> customerList = _ICommonService.GetAll<POStblCustomer>().ToList();
+        //        var customerList = _ICommonService.Query<POStblCustomer>()
+        //            .Include(c => c.Ledger)   
+        //            .ToList();
+
+
+        //        return customerList;
+        //    }
+        //    else
+        //    {
+        //        string SP = "SP_SalesInvoice";
+        //        DynamicParameters p = new DynamicParameters();
+        //        p.Add("@QueryChecker", 3);
+        //        p.Add("@phoneNo", phoneNo);
+        //        List<POStblCustomer> customerList = _IDapperService.GetAllBySP<POStblCustomer>(SP, p).ToList();
+        //        return customerList;
+        //    }
+
+        //}
 
         //public List<POStblCustomer> CustomerDetails(string? query)
         //{

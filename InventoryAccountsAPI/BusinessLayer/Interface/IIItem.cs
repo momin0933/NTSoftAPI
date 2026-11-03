@@ -1,5 +1,6 @@
 ﻿
 using InventoryAccountsAPI.Models;
+using InventoryAccountsAPI.Models.ReportModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,21 +9,22 @@ using System.Threading.Tasks;
 
 namespace InventoryAccountsAPI.BusinessLayer.Interface
 {
-    public interface IItem 
+    public interface IItem : ICommonMethod<Item>
     {
         List<RptItem> GetAllItemListWithStock(int WHId, string type);
+        List<RptItem> GetAllItemListStock(int WHId, string type);
         List<RptItem> GetAllVariantList(int WHId);
 
         List<RptItem> GetAllItemListWithStockByStyleNo(string styleNo, int WhId);
 
-        //List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate);
+        List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate);
 
         public int DeleteById(int id);
         public string CountItem();
         public string GetItemNameById(int id);
-        //public VariantListForDropdown? GetItemDetailsById(int id);
+        public VariantListForDropdown? GetItemDetailsById(int id);
 
-        //public int UpdateItemVariant(ItemVariantUpdate itemVariant);
+        public int UpdateItemVariant(ItemVariantUpdate itemVariant);
 
         int AddVariantToExistingItem(List<ItemVariant> variants);
 

@@ -6,11 +6,12 @@ using System.Threading.Tasks;
 
 namespace InventoryAccountsAPI.Models
 {
-    public class dropdown
+    public class Dropdown
     {
-        public int Id { get; set; } 
-        public string Name { get; set; }
+        public int Id { get; set; }
+        public string? Name { get; set; }
     }
+
     public class Project
     {
         public int Id { get; set; }

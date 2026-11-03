@@ -79,12 +79,12 @@ namespace FTSoftAPI.Controllers
             }
         }
 
-        //[HttpPost]
-        //public int Post([FromBody] Item entity)
-        //{
-        //    _Service.Add(entity);
-        //    return entity.Id;
-        //}
+        [HttpPost]
+        public int Post([FromBody] Item entity)
+        {
+            _Service.Add(entity);
+            return entity.Id;
+        }
 
         [HttpPost("AddVariant")]
         public IActionResult AddVariant([FromBody] List<ItemVariant> variants)
@@ -151,13 +151,13 @@ namespace FTSoftAPI.Controllers
         //    var item = _Service.GetSupplierWiseData(fromDate,toDate);
         //    return item;
         //}
-        //[HttpPost]
-        //[Route("UpdateItemNvariant")]
-        //public int Put([FromBody] ItemVariantUpdate entity)
-        //{
-        //    _Service.UpdateItemVariant(entity);
-        //    return entity.Id;
-        //}
+        [HttpPost]
+        [Route("UpdateItemNvariant")]
+        public int Put([FromBody] ItemVariantUpdate entity)
+        {
+            _Service.UpdateItemVariant(entity);
+            return entity.Id;
+        }
         //[Route("UpdateItem")]
         //[HttpPut]
         //public int UpdateProductItem(Item entity)

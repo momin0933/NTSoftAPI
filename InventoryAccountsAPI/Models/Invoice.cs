@@ -1,4 +1,5 @@
 ﻿
+using InventoryAccountsAPI.Models.ReportModel;
 using System;
 using System.Collections.Generic;
 using System.Linq;

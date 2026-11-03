@@ -28,6 +28,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         public virtual DbSet<MasterChild> MasterChild { get; set; } = null!;
         //public virtual DbSet<tbl_Company> Tbl_Companies { get; set; } = null!;
         public virtual DbSet<POStblSupplier> POStblSuppliers { get; set; } = null!;
+             public virtual DbSet<InvoiceDetailsWithItemInfo> InvoiceDetailsWithItemInfos { get; set; } = null!;
         public virtual DbSet<POStblCustomer> POStblCustomers { get; set; } = null!;
         //public virtual DbSet<tblUserAccount> TblUserAccounts { get; set; } = null!;
         public virtual DbSet<POStblItemTransaction> POStblItemTransactions { get; set; } = null!;
@@ -52,10 +53,16 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
         public virtual DbSet<GiftVoucher> GiftVouchers { get; set; } = null!;
         public virtual DbSet<GiftVoucherDetails> GiftVoucherDetails { get; set; } = null!;
         public virtual DbSet<CustomerMembership> CustomerMemberships { get; set; } = null!;
+
+        public virtual DbSet<StockAdjustment> StockAdjustments { get; set; } = null!;
+        public virtual DbSet<StockAdjustmentModel> StockAdjustmentModels { get; set; } = null!;
+        public virtual DbSet<FinalStockAdjustment> FinalStockAdjustments { get; set; } = null!;
+        public virtual DbSet<AccILedger> AccLevelTwo { get; set; } = null!;
+        public virtual DbSet<CashBankLedger> CashBankLedgers { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
-            modelBuilder.Entity<IItem>().ToTable("POStblItem");
+            modelBuilder.Entity<Item>().ToTable("POStblItem");
             modelBuilder.Entity<ItemReceive>().ToTable("POStblItemRcv");
             modelBuilder.Entity<POStblItemRcvDetails>().ToTable("POStblItemRcvDetails");
             modelBuilder.Entity<ItemStock>().ToTable("POStblItemStock");
@@ -69,7 +76,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
             modelBuilder.Entity<MasterChild>().ToTable("tblMaster_Child");
             modelBuilder.Entity<POStblSupplier>().ToTable("POStblSupplier");
+            modelBuilder.Entity<InvoiceDetailsWithItemInfo>().ToTable("vw_InvoiceDetailsWithItemInfo");
             modelBuilder.Entity<POStblCustomer>().ToTable("POStblCustomer");
+            modelBuilder.Entity<POStblCustomer>()
+              .HasOne(c => c.Ledger)
+              .WithMany()
+              .HasForeignKey(c => c.CusCode)
+              .HasPrincipalKey(l => l.Code);
             modelBuilder.Entity<POStblItemTransaction>().ToTable("POStblItemTransaction");
             modelBuilder.Entity<ItemTransfer>().ToTable("POStblItemTransfer");
             modelBuilder.Entity<ItemTransferDetails>().ToTable("POStblItemTransferDetails");
@@ -94,6 +107,12 @@ namespace InventoryAccountsAPI.BusinessLayer.Service
             modelBuilder.Entity<GiftVoucher>().ToTable("POStblGiftVoucher");
             modelBuilder.Entity<GiftVoucherDetails>().ToTable("POStblGiftVoucherDetails");
             modelBuilder.Entity<CustomerMembership>().ToTable("POStblCustomerMembership");
+
+            modelBuilder.Entity<StockAdjustment>().ToTable("PosTblPhyAdj");
+            modelBuilder.Entity<StockAdjustmentModel>().ToTable("PosTblPhyAdjDetails");
+            modelBuilder.Entity<FinalStockAdjustment>().ToTable("PosTblPhyAdjMap");
+            modelBuilder.Entity<AccILedger>().ToTable("AcctblILedger");
+            modelBuilder.Entity<CashBankLedger>().ToTable("POStblCashBankLedger");
         }
 
         public override int SaveChanges()

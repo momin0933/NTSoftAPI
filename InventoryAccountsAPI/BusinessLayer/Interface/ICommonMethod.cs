@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace FTSoftAPI.Service.BusinessLayer.Interface
+namespace InventoryAccountsAPI.BusinessLayer.Interface
 {
     public interface ICommonMethod<T> where T : class
     {
