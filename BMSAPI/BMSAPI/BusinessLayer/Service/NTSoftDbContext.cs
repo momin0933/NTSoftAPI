@@ -43,13 +43,23 @@ namespace BMSAPI.BusinessLayer.Service
         public virtual DbSet<AccVoucherDetailsLog> AccVoucherDetailsLogs { get; set; } = null!;
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            //modelBuilder.Entity<Tenant>().ToTable("tblTenant");
+            //modelBuilder.Entity<VbntblBkashPayments>().ToTable("VbntblBkashPayments");
+            //modelBuilder.Entity<Bill>().ToTable("VbnTblBill");
+            //modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
+            //modelBuilder.Entity<AccGLedger>().ToTable("AcctblGLedger");
+            //modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
+            //  tb => tb.UseSqlOutputClause(false));
+            //modelBuilder.Entity<CompanyModuleMap>().ToTable("tblCompanyModuleMap");
             modelBuilder.Entity<Tenant>().ToTable("tblTenant");
             modelBuilder.Entity<VbntblBkashPayments>().ToTable("VbntblBkashPayments");
-            modelBuilder.Entity<Bill>().ToTable("VbnTblBill");
-            modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher");
+
+            // trigger থাকা table — নতুন EF Core-এর OUTPUT clause বন্ধ
+            modelBuilder.Entity<Bill>().ToTable("VbnTblBill", tb => tb.UseSqlOutputClause(false));
+            modelBuilder.Entity<AccVoucher>().ToTable("AcctblVoucher", tb => tb.UseSqlOutputClause(false));
+            modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails", tb => tb.UseSqlOutputClause(false));
+
             modelBuilder.Entity<AccGLedger>().ToTable("AcctblGLedger");
-            modelBuilder.Entity<VoucherDetails>().ToTable("AcctblVoucherDetails",
-              tb => tb.UseSqlOutputClause(false));
             modelBuilder.Entity<CompanyModuleMap>().ToTable("tblCompanyModuleMap");
             //BUILDING-MANAGER
             modelBuilder.Entity<Owner>().ToTable("vbntblOwners");
