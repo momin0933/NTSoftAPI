@@ -1,6 +1,7 @@
 ﻿
 using InventoryAccountsAPI.BusinessLayer.Interface;
 using InventoryAccountsAPI.Models;
+using InventoryAccountsAPI.Models.ReportModel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -22,9 +23,9 @@ namespace FTSoftAPI.Controllers
             try
             {
                 List<RptItem> Itemlist = new List<RptItem>();
-              
-                    Itemlist = _Service.GetAllVariantList(WhId);
-               
+
+                Itemlist = _Service.GetAllVariantList(WhId);
+
 
                 return Itemlist;
             }
@@ -36,11 +37,11 @@ namespace FTSoftAPI.Controllers
 
         [Route("GetAllItemWithStock")]
         [HttpGet]
-        public List<RptItem> GetAllItemWithStock([FromQuery] string WHId , string type)
+        public List<RptItem> GetAllItemWithStock([FromQuery] string WHId, string type)
         {
             try
             {
-                var ItemList = _Service.GetAllItemListWithStock(Convert.ToInt32(WHId),type);
+                var ItemList = _Service.GetAllItemListWithStock(Convert.ToInt32(WHId), type);
                 return ItemList;
             }
             catch
@@ -49,24 +50,24 @@ namespace FTSoftAPI.Controllers
             }
         }
 
-        //[Route("GetAllItemStock")]
-        //[HttpGet]
-        //public List<RptItem> GetAllItemStock([FromQuery] string WHId, string type)
-        //{
-        //    try
-        //    {
-        //        var ItemList = _Service.GetAllItemListStock(Convert.ToInt32(WHId), type);
-        //        return ItemList;
-        //    }
-        //    catch
-        //    {
-        //        throw;
-        //    }
-        //}
+        [Route("GetAllItemStock")]
+        [HttpGet]
+        public List<RptItem> GetAllItemStock([FromQuery] string WHId, string type)
+        {
+            try
+            {
+                var ItemList = _Service.GetAllItemListStock(Convert.ToInt32(WHId), type);
+                return ItemList;
+            }
+            catch
+            {
+                throw;
+            }
+        }
 
         [Route("GetAllItemWithStockByStyleNo")]
         [HttpGet]
-        public List<RptItem> GetAllItemWithStockByStyleNo([FromQuery]  string styleNo, int WhId)
+        public List<RptItem> GetAllItemWithStockByStyleNo([FromQuery] string styleNo, int WhId)
         {
             try
             {
@@ -82,8 +83,8 @@ namespace FTSoftAPI.Controllers
         [HttpPost]
         public int Post([FromBody] Item entity)
         {
-            _Service.Add(entity);
-            return entity.Id;
+            // Manager নতুন itemPost অবজেক্ট সেভ করে, তাই তার Id রিটার্ন করতে হবে (entity.Id সবসময় 0 থাকত)
+            return _Service.Add(entity);
         }
 
         [HttpPost("AddVariant")]
@@ -100,11 +101,11 @@ namespace FTSoftAPI.Controllers
             }
         }
         [HttpPut]
-        //public int Put([FromBody] Item entity)
-        //{
-        //    _Service.Update(entity);
-        //    return entity.Id;
-        //}
+        public int Put([FromBody] Item entity)
+        {
+            _Service.Update(entity);
+            return entity.Id;
+        }
         [HttpDelete]
         [Route("DeleteItemByID")]
         public int DeleteItemByID(int id)
@@ -132,25 +133,25 @@ namespace FTSoftAPI.Controllers
         [Route("GetItemNameById")]
         public string GetItemNameById(int id)
         {
-            string name = _Service.GetItemNameById(id); 
+            string name = _Service.GetItemNameById(id);
             return name;
         }
-        //[HttpGet]
-        //[Route("GetItemDetailsById")]
-        //public VariantListForDropdown? GetItemDetailsById(int id)
-        //{
-        //    var item = _Service.GetItemDetailsById(id);
-        //    return item;
-        //}
+        [HttpGet]
+        [Route("GetItemDetailsById")]
+        public VariantListForDropdown? GetItemDetailsById(int id)
+        {
+            var item = _Service.GetItemDetailsById(id);
+            return item;
+        }
 
 
-        //[HttpGet]
-        //[Route("GetSupplierWiseReport")]
-        //public List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate)
-        //{
-        //    var item = _Service.GetSupplierWiseData(fromDate,toDate);
-        //    return item;
-        //}
+        [HttpGet]
+        [Route("GetSupplierWiseReport")]
+        public List<RptSupplierWiseReport> GetSupplierWiseData(DateTime fromDate, DateTime toDate)
+        {
+            var item = _Service.GetSupplierWiseData(fromDate, toDate);
+            return item;
+        }
         [HttpPost]
         [Route("UpdateItemNvariant")]
         public int Put([FromBody] ItemVariantUpdate entity)
@@ -158,12 +159,12 @@ namespace FTSoftAPI.Controllers
             _Service.UpdateItemVariant(entity);
             return entity.Id;
         }
-        //[Route("UpdateItem")]
-        //[HttpPut]
-        //public int UpdateProductItem(Item entity)
-        //{
-        //    return _Service.Update(entity);
-        //}
+        [Route("UpdateItem")]
+        [HttpPut]
+        public int UpdateProductItem(Item entity)
+        {
+            return _Service.Update(entity);
+        }
 
         [HttpPut("UpdateItemImage")]
         public IActionResult UpdateItemImage([FromBody] Item entity)
@@ -173,3 +174,4 @@ namespace FTSoftAPI.Controllers
         }
     }
 }
+

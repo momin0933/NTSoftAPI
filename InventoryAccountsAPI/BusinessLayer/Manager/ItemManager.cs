@@ -219,6 +219,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 {
                     Brand = entity.Brand,
                     Category = entity.Category,
+                    ProductName = entity.ProductName,
                     Description = entity.Description,
                     StyleNo = entity.StyleNo,
                     ProductType = entity.ProductType,
@@ -230,6 +231,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     ProductionType = entity.ProductionType,
                     Status = "New",
                     IsWebsite = false,
+
+                    // Electronics / Furniture fields (StorePro AddElectronicsItem পেজ থেকে আসে)
+                    WarrantyType = entity.WarrantyType,
+                    WarrantyMonths = entity.WarrantyMonths,
+                    IsSerialRequired = entity.IsSerialRequired,
+                    Specification = entity.Specification,
+
                     ItemsList = new List<ItemVariant>(),
                     ItemStockList = new List<ItemStock>()
                 };
@@ -248,9 +256,9 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                             SellingPrice = variant.SellingPrice,
                             CostingPrice = variant.CostingPrice,
                             Unit = variant.Unit,
-                            Vat=variant.Vat,
+                            Vat = variant.Vat,
                             VatCalculationType = variant.VatCalculationType,
-                            VatType =variant.VatType,
+                            VatType = variant.VatType,
                             EntryBy = entity.EntryBy,
                             EntryDate = entity.EntryDate,
                             ItemStockList = new List<ItemStock>()
