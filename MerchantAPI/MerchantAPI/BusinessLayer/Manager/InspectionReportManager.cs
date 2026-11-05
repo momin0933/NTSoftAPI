@@ -1,9 +1,12 @@
-﻿using System.Data;
+﻿using System.Collections;
+using System.Data;
 using Dapper;
 using Microsoft.Data.SqlClient;
 using MerchantAPI.BusinessLayer.Interface;
 using MerchantAPI.Models;
 using MerchantAPI.Models.Inspections;
+using MerchantAPI.BusinessLayer.TenantService;
+using Microsoft.AspNetCore.Http;
 
 namespace MerchantAPI.BusinessLayer.Manager
 {
@@ -12,60 +15,136 @@ namespace MerchantAPI.BusinessLayer.Manager
         private const string SP = "SP_InspectionReport";
         private const string SP_DETAIL = "SP_InspectionReportDetail";
 
-        private readonly string _connectionString;
+        private readonly ITenantStore _tenantStore;
+        private readonly IHttpContextAccessor _http;
+        private string? _connectionString;
 
-        public InspectionReportManager(IConfiguration configuration)
+        public InspectionReportManager(ITenantStore tenantStore, IHttpContextAccessor http)
         {
-            _connectionString = configuration.GetConnectionString("DefaultConnection")
-                ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+            _tenantStore = tenantStore ?? throw new ArgumentNullException(nameof(tenantStore));
+            _http = http ?? throw new ArgumentNullException(nameof(http));
         }
 
-        // SP parameters from a model: @Action + every simple property (lists are skipped).
-        // Property names = SP parameter names, so nothing has to be listed by hand.
+        // The database of the tenant sent in the "TenantId" header (e.g. NR0933),
+        // looked up in CentralDB through SP_TenantList (cached by TenantStore).
+        private string ConnectionString => _connectionString ??= ResolveConnectionString();
+
+        // 1) "TenantId" header  2) tenant claim of the Bearer token (same token the other modules use)
+        private string? ReadTenantId()
+        {
+            var ctx = _http.HttpContext;
+            if (ctx == null) return null;
+
+            var h = ctx.Request.Headers["TenantId"].FirstOrDefault()?.Trim();
+            if (!string.IsNullOrEmpty(h)) return h;
+
+            var auth = ctx.Request.Headers["Authorization"].FirstOrDefault();
+            if (string.IsNullOrEmpty(auth) || !auth.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase)) return null;
+            try
+            {
+                var jwt = new System.IdentityModel.Tokens.Jwt.JwtSecurityTokenHandler().ReadJwtToken(auth.Substring(7).Trim());
+                var names = new[] { "TenantId", "tenantId", "tenant_id", "tenant", "TenantKey" };
+                return jwt.Claims.FirstOrDefault(c => names.Contains(c.Type, StringComparer.OrdinalIgnoreCase))?.Value?.Trim();
+            }
+            catch { return null; }
+        }
+
+        private string ResolveConnectionString()
+        {
+            var tenantId = ReadTenantId();
+            if (string.IsNullOrEmpty(tenantId))
+                throw new ArgumentException("TenantId was not found in the request header or the login token.");
+
+            var tenant = _tenantStore.GetTenant(tenantId);
+            if (tenant == null || string.IsNullOrWhiteSpace(tenant.ConnectionString))
+                throw new ArgumentException($"Unknown tenant '{tenantId}'.");
+
+            return tenant.ConnectionString;
+        }
+
+        // ------------------------------------------------------------------
+        // SP parameters
+        // ------------------------------------------------------------------
+
+        /// <summary>Only these types become SP parameters — lists and objects never do.</summary>
+        private static bool IsSimple(Type t)
+        {
+            t = Nullable.GetUnderlyingType(t) ?? t;
+            return t.IsPrimitive || t.IsEnum || t == typeof(string) || t == typeof(decimal)
+                   || t == typeof(DateTime) || t == typeof(DateTimeOffset) || t == typeof(Guid);
+        }
+
+        /// <summary>
+        /// @Action + every simple property of the model (property name = SP parameter name).
+        /// Never pass a DynamicParameters here: it has a "ParameterNames" list, and Dapper would
+        /// send it as @ParameterNames1, @ParameterNames2… ("is not a parameter for procedure").
+        /// </summary>
         private static DynamicParameters Params(int action, object? model = null)
         {
             var p = new DynamicParameters();
             p.Add("Action", action);
             if (model == null) return p;
 
+            if (model is DynamicParameters)
+                throw new ArgumentException("Pass a model or use Sp(...), not DynamicParameters, to Params().");
+
             foreach (var prop in model.GetType().GetProperties())
             {
-                var type = Nullable.GetUnderlyingType(prop.PropertyType) ?? prop.PropertyType;
-                if (type.IsPrimitive || type == typeof(string) || type == typeof(decimal) || type == typeof(DateTime))
-                    p.Add(prop.Name, prop.GetValue(model));
+                if (!prop.CanRead || prop.GetIndexParameters().Length > 0) continue;
+                if (!IsSimple(prop.PropertyType)) continue;               // skips List<>, IEnumerable, nested objects
+                p.Add(prop.Name, prop.GetValue(model));
             }
             return p;
         }
 
+        /// <summary>Explicit parameters for the short calls: Sp(2, ("Id", id)).</summary>
+        private static DynamicParameters Sp(int action, params (string Name, object? Value)[] values)
+        {
+            var p = new DynamicParameters();
+            p.Add("Action", action);
+            foreach (var (name, value) in values)
+            {
+                if (value is IEnumerable && value is not string)
+                    throw new ArgumentException($"Parameter '{name}' must be a single value, not a list.");
+                p.Add(name, value);
+            }
+            return p;
+        }
+
+        // ------------------------------------------------------------------
         // 1. Get All (paginated)
+        // ------------------------------------------------------------------
         public async Task<(List<InspectionReport> Data, int TotalCount)> GetAllAsync(int pageNumber, int pageSize, DateTime? fromDate, DateTime? toDate, string? search)
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(ConnectionString);
 
-            var p = Params(1);
-            p.Add("PageNumber", pageNumber < 1 ? 1 : pageNumber);
-            p.Add("PageSize", pageSize < 1 ? 50 : pageSize);
-            p.Add("FromDate", fromDate);
-            p.Add("ToDate", toDate);
-            p.Add("Search", search);
+            var p = Sp(1,
+                ("PageNumber", pageNumber < 1 ? 1 : pageNumber),
+                ("PageSize", pageSize < 1 ? 50 : pageSize),
+                ("FromDate", fromDate),
+                ("ToDate", toDate),
+                ("Search", string.IsNullOrWhiteSpace(search) ? null : search.Trim()));
 
             using var multi = await conn.QueryMultipleAsync(SP, p, commandType: CommandType.StoredProcedure);
             var data = (await multi.ReadAsync<InspectionReport>()).ToList();
-            var total = await multi.ReadFirstAsync<int>();
+            var total = await multi.ReadFirstOrDefaultAsync<int?>() ?? data.Count;
             return (data, total);
         }
 
-        // 2. Get By Id (report + all its rows and photos)
+        // ------------------------------------------------------------------
+        // 2. Get By Id (report + all its rows and photos)   <- used by Edit and PDF
+        // ------------------------------------------------------------------
         public async Task<InspectionReport?> GetByIdAsync(int id)
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(ConnectionString);
+            await conn.OpenAsync();
 
             var report = await conn.QueryFirstOrDefaultAsync<InspectionReport>(
-                SP, Params(2, new { Id = id }), commandType: CommandType.StoredProcedure);
+                SP, Sp(2, ("Id", id)), commandType: CommandType.StoredProcedure);
             if (report == null) return null;
 
             using var multi = await conn.QueryMultipleAsync(
-                SP_DETAIL, Params(1, new { ReportId = id }), commandType: CommandType.StoredProcedure);
+                SP_DETAIL, Sp(1, ("ReportId", id)), commandType: CommandType.StoredProcedure);
 
             report.RemarkList = (await multi.ReadAsync<InspectionRemark>()).ToList();
             report.Defects = (await multi.ReadAsync<InspectionDefect>()).ToList();
@@ -83,13 +162,15 @@ namespace MerchantAPI.BusinessLayer.Manager
             return report;
         }
 
+        // ------------------------------------------------------------------
         // 3. Insert (report + rows in one transaction)
+        // ------------------------------------------------------------------
         public async Task<int> AddAsync(InspectionReport report, string? userName)
         {
             Validate(report);
             report.EntryBy = userName;
 
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(ConnectionString);
             await conn.OpenAsync();
             using var tx = conn.BeginTransaction();
             try
@@ -106,13 +187,15 @@ namespace MerchantAPI.BusinessLayer.Manager
             }
         }
 
+        // ------------------------------------------------------------------
         // 4. Update (report + rows replaced, one transaction)
+        // ------------------------------------------------------------------
         public async Task<bool> UpdateAsync(InspectionReport report, string? userName)
         {
             Validate(report);
             report.UpdateBy = userName;
 
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(ConnectionString);
             await conn.OpenAsync();
             using var tx = conn.BeginTransaction();
             try
@@ -125,7 +208,7 @@ namespace MerchantAPI.BusinessLayer.Manager
                 }
 
                 // old rows -> IsActive = 0, then insert the current ones
-                await conn.ExecuteScalarAsync<int>(SP_DETAIL, Params(2, new { ReportId = report.Id, UpdateBy = userName }), tx, commandType: CommandType.StoredProcedure);
+                await conn.ExecuteScalarAsync<int>(SP_DETAIL, Sp(2, ("ReportId", report.Id), ("UpdateBy", userName)), tx, commandType: CommandType.StoredProcedure);
                 await SaveDetailsAsync(conn, tx, report.Id, report, userName);
 
                 tx.Commit();
@@ -138,23 +221,26 @@ namespace MerchantAPI.BusinessLayer.Manager
             }
         }
 
+        // ------------------------------------------------------------------
         // 5. Delete (soft)
+        // ------------------------------------------------------------------
         public async Task<bool> DeleteAsync(int id, string? userName)
         {
-            using var conn = new SqlConnection(_connectionString);
+            using var conn = new SqlConnection(ConnectionString);
             var affected = await conn.ExecuteScalarAsync<int>(
-                SP, Params(5, new { Id = id, UpdateBy = userName }), commandType: CommandType.StoredProcedure);
+                SP, Sp(5, ("Id", id), ("UpdateBy", userName)), commandType: CommandType.StoredProcedure);
             return affected > 0;
         }
 
         // ------------------------------------------------------------------
         // Insert every child row (SP_InspectionReportDetail Action 3..9)
+        // ------------------------------------------------------------------
         private static async Task SaveDetailsAsync(SqlConnection conn, IDbTransaction tx, int reportId, InspectionReport report, string? userName)
         {
             async Task<int> Insert(int action, Base row, int sortOrder)
             {
                 row.EntryBy = userName;
-                var p = Params(action, row);
+                var p = Params(action, row);       // a model, never a DynamicParameters
                 p.Add("ReportId", reportId);
                 p.Add("SortOrder", sortOrder);
                 return await conn.ExecuteScalarAsync<int>(SP_DETAIL, p, tx, commandType: CommandType.StoredProcedure);
@@ -163,7 +249,7 @@ namespace MerchantAPI.BusinessLayer.Manager
             async Task InsertPhotos(List<InspectionPhoto> photos, string section, int? defectId, int? checkId)
             {
                 var i = 0;
-                foreach (var ph in photos.Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
+                foreach (var ph in (photos ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
                 {
                     ph.Section = section;
                     ph.DefectId = defectId;
@@ -173,36 +259,36 @@ namespace MerchantAPI.BusinessLayer.Manager
             }
 
             var order = 0;
-            foreach (var r in report.RemarkList.Where(x => !string.IsNullOrWhiteSpace(x.Text)))
+            foreach (var r in (report.RemarkList ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.Text)))
                 await Insert(3, r, order++);
 
             order = 0;
-            foreach (var d in report.Defects.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+            foreach (var d in (report.Defects ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.Name)))
             {
                 var defectId = await Insert(4, d, order++);
                 await InsertPhotos(d.Photos, "Defect", defectId, null);
             }
 
             order = 0;
-            foreach (var c in report.Checks.Where(x => !string.IsNullOrWhiteSpace(x.CheckKey)))
+            foreach (var c in (report.Checks ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.CheckKey)))
             {
                 var checkId = await Insert(5, c, order++);
                 await InsertPhotos(c.Photos, "Check", null, checkId);
             }
 
             order = 0;
-            foreach (var c in report.Cartons)
+            foreach (var c in report.Cartons ?? new())
                 await Insert(6, c, order++);
 
             order = 0;
-            foreach (var m in report.Measures.Where(x => !string.IsNullOrWhiteSpace(x.Name)))
+            foreach (var m in (report.Measures ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.Name)))
                 await Insert(7, m, order++);
 
-            foreach (var g in report.Photos.GroupBy(x => x.Section is "Start" or "Measurement" ? x.Section! : "General"))
+            foreach (var g in (report.Photos ?? new()).GroupBy(x => x.Section is "Start" or "Measurement" ? x.Section! : "General"))
                 await InsertPhotos(g.ToList(), g.Key, null, null);
 
             order = 0;
-            foreach (var a in report.Attachments.Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
+            foreach (var a in (report.Attachments ?? new()).Where(x => !string.IsNullOrWhiteSpace(x.FilePath)))
                 await Insert(9, a, order++);
         }
 
