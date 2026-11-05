@@ -52,5 +52,6 @@ namespace InventoryAccountsAPI.Models
         public int? WarrantyMonths { get; set; }
         public bool? IsSerialRequired { get; set; }
         public string? Specification { get; set; }
+        public string? ProductName { get; set; }
     }
 }
