@@ -13,7 +13,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Interface
     {
         List<RptItem> GetAllItemListWithStock(int WHId, string type);
         List<RptItem> GetAllItemListStock(int WHId, string type);
-        List<RptItem> GetAllVariantList(int WHId);
+        List<RptItem> GetAllVariantList(int WHId, string itemSegment);
 
         List<RptItem> GetAllItemListWithStockByStyleNo(string styleNo, int WhId);
 
