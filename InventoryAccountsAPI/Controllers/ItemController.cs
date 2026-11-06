@@ -18,13 +18,13 @@ namespace FTSoftAPI.Controllers
             _Service = item;
         }
         [HttpGet]
-        public List<RptItem> GetAll([FromQuery] int WhId)
+        public List<RptItem> GetAll([FromQuery] int WhId, [FromQuery] string itemSegment)
         {
             try
             {
                 List<RptItem> Itemlist = new List<RptItem>();
 
-                Itemlist = _Service.GetAllVariantList(WhId);
+                Itemlist = _Service.GetAllVariantList(WhId, itemSegment);
 
 
                 return Itemlist;

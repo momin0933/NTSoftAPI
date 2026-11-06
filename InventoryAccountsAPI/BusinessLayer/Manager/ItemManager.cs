@@ -223,6 +223,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     Description = entity.Description,
                     StyleNo = entity.StyleNo,
                     ProductType = entity.ProductType,
+                    ItemSegment = entity.ItemSegment,
                     ImgPath = entity.ImgPath,
                     IsStockAlertQty = entity.IsStockAlertQty,
                     EntryBy = entity.EntryBy,
@@ -485,7 +486,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
-        public List<RptItem> GetAllVariantList(int WHId)
+        public List<RptItem> GetAllVariantList(int WHId, string itemSegment)
         {
             try
             {
@@ -494,6 +495,7 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                 p.Add("@QueryChecker", 4);
 
                 p.Add("@WHId", WHId);
+                p.Add("@ItemSegment", itemSegment);
 
                 List<RptItem> ItemList = _IDapperService.GetAllBySP<RptItem>(SP, p).OrderByDescending(x => x.EntryDate).ToList();
                 return ItemList;

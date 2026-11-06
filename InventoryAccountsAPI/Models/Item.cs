@@ -29,7 +29,7 @@ namespace InventoryAccountsAPI.Models
         // public bool? IsStockAlert { get; set; }
         public string? SourceType { get; set; }
         public string? ProductionType { get; set; }
-
+        public string? ItemSegment { get; set; }
         public int? IsStockAlertQty { get; set; }
         public string? Status { get; set; }
         public string? EcomThumbnailUrls { get; set; }
