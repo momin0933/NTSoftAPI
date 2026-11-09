@@ -22,6 +22,7 @@ namespace InventoryAccountsAPI.Models.ReportModel
         public string? Size { get; set; }
         public string? Category { get; set; }
         public string? ProductType { get; set; }
+        public string? ProductName { get; set; }
         public string? Barcode { get; set; }
         public decimal? TotalCostingPrice { get; set; }
         public decimal? TotalSellingPrice { get; set; }
