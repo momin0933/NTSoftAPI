@@ -506,18 +506,77 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
             }
         }
 
+        //public int UpdateItemVariant(ItemVariantUpdate itemVariant)
+        //{
+        //    if(itemVariant.ItemId != 0)
+        //    {
+        //        //var query = "UPDATE PostblItem SET StyleNo='" + itemVariant.StyleNo + "', Description = '" + itemVariant.Description + "',Category='"+itemVariant.Category+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.ItemId + "'";
+        //        var query =
+        //            "UPDATE POStblItem SET " +
+        //            "StyleNo='" + (itemVariant.StyleNo ?? "") + "', " +
+        //            "Brand='" + (itemVariant.Brand ?? "") + "', " +
+        //            "Category='" + (itemVariant.Category ?? "") + "', " +
+        //            "ProductType='" + (itemVariant.ProductType ?? "") + "', " +
+        //             "SourceType='" + (itemVariant.SourceType ?? "") + "', " +
+        //            "ProductionType='" + (itemVariant.ProductionType ?? "") + "', " +
+        //            "Description='" + (itemVariant.Description ?? "") + "', " +
+        //            //"Vat=" + (itemVariant.Vat ?? 0) + ", " +
+        //            //"Discount=" + (itemVariant.Discount ?? 0) + ", " +
+        //            //"ImgPath='" + (itemVariant.ImgPath ?? "") + "', " +
+        //            //"PMTitle='" + (itemVariant.PMTitle ?? "") + "', " +
+        //            //"PMDescription='" + (itemVariant.PMDescription ?? "") + "', " +
+        //            //"IsStockAlertQty=" + (itemVariant.IsStockAlertQty ?? 0) + ", " +
+        //            //"EcomThumbnailUrls='" + (itemVariant.EcomThumbnailUrls ?? "") + "', " +
+        //            //"EcomPreviewUrls='" + (itemVariant.EcomPreviewUrls ?? "") + "', " +
+        //            //"EcomDescription='" + (itemVariant.EcomDescription ?? "") + "', " +
+        //            //"EcomSpecification='" + (itemVariant.EcomSpecification ?? "") + "', " +
+        //            //"Remarks='" + (itemVariant.Remarks ?? "") + "', " +
+        //            "UpdateDate='" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "', " +
+        //            "UpdateBy='" + (itemVariant.UpdateBy ?? "") + "' " +
+        //            //"IsWebsite=" + (itemVariant.IsWebsite == true ? 1 : 0) + ", " +
+        //            //"IsActive=" + (itemVariant.IsActive == true ? 1 : 0) + ", " +
+        //            //"Status='" + (itemVariant.Status ?? "") + "' " +
+        //            "WHERE Id=" + itemVariant.ItemId;
+        //        _IDapperService.UpdateByquery(query);
+        //    }
+        //    if(itemVariant.Id != 0)
+        //    {
+        //        //var query = "UPDATE PostblItemVariant SET Color='" + itemVariant.Color + "', Size = '" + itemVariant.Size + "',Remarks='"+itemVariant.Remarks+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.Id + "'";
+        //            var query = "UPDATE PostblItemVariant SET " +
+        //            "Color = '" + itemVariant.Color + "', " +
+        //            "Size = '" + itemVariant.Size + "', " +
+        //            "Remarks = '" + itemVariant.Remarks + "', " +
+        //            "CostingPrice = " + (itemVariant.CostingPrice ?? 0) + ", " +
+        //            "SellingPrice = " + (itemVariant.SellingPrice ?? 0) + ", " +
+        //            "Unit = '" + itemVariant.Unit + "', " +
+        //            "VatCalculationType = '" + itemVariant.VatCalculationType + "', " +
+        //            "Vat = " + (itemVariant.Vat ?? 0) + ", " +
+        //            "VatType = '" + itemVariant.VatType + "', " +
+        //            "UpdateBy = '" + itemVariant.UpdateBy + "', " +
+        //            "UpdateDate = '" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "' " +
+        //    "WHERE Id = " + itemVariant.Id;
+
+        //        _IDapperService.UpdateByquery(query);
+
+        //    }
+        //    return itemVariant.Id;
+        //}
+
+
+
         public int UpdateItemVariant(ItemVariantUpdate itemVariant)
         {
-            if(itemVariant.ItemId != 0)
+            if (itemVariant.ItemId != 0)
             {
                 //var query = "UPDATE PostblItem SET StyleNo='" + itemVariant.StyleNo + "', Description = '" + itemVariant.Description + "',Category='"+itemVariant.Category+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.ItemId + "'";
                 var query =
                     "UPDATE POStblItem SET " +
                     "StyleNo='" + (itemVariant.StyleNo ?? "") + "', " +
+                    "ProductName='" + (itemVariant.ProductName ?? "") + "', " + // ADDED: ProductName
                     "Brand='" + (itemVariant.Brand ?? "") + "', " +
                     "Category='" + (itemVariant.Category ?? "") + "', " +
                     "ProductType='" + (itemVariant.ProductType ?? "") + "', " +
-                     "SourceType='" + (itemVariant.SourceType ?? "") + "', " +
+                    "SourceType='" + (itemVariant.SourceType ?? "") + "', " +
                     "ProductionType='" + (itemVariant.ProductionType ?? "") + "', " +
                     "Description='" + (itemVariant.Description ?? "") + "', " +
                     //"Vat=" + (itemVariant.Vat ?? 0) + ", " +
@@ -537,12 +596,14 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     //"IsActive=" + (itemVariant.IsActive == true ? 1 : 0) + ", " +
                     //"Status='" + (itemVariant.Status ?? "") + "' " +
                     "WHERE Id=" + itemVariant.ItemId;
+
                 _IDapperService.UpdateByquery(query);
             }
-            if(itemVariant.Id != 0)
+
+            if (itemVariant.Id != 0)
             {
                 //var query = "UPDATE PostblItemVariant SET Color='" + itemVariant.Color + "', Size = '" + itemVariant.Size + "',Remarks='"+itemVariant.Remarks+"' ,UpdateBy='" + itemVariant.UpdateBy + "' , UpdateDate='" + itemVariant.UpdateDate + "' WHERE Id='" + itemVariant.Id + "'";
-                    var query = "UPDATE PostblItemVariant SET " +
+                var query = "UPDATE PostblItemVariant SET " +
                     "Color = '" + itemVariant.Color + "', " +
                     "Size = '" + itemVariant.Size + "', " +
                     "Remarks = '" + itemVariant.Remarks + "', " +
@@ -554,14 +615,13 @@ namespace InventoryAccountsAPI.BusinessLayer.Manager
                     "VatType = '" + itemVariant.VatType + "', " +
                     "UpdateBy = '" + itemVariant.UpdateBy + "', " +
                     "UpdateDate = '" + itemVariant.UpdateDate.ToString("yyyy-MM-dd HH:mm:ss") + "' " +
-            "WHERE Id = " + itemVariant.Id;
+                    "WHERE Id = " + itemVariant.Id;
 
                 _IDapperService.UpdateByquery(query);
-
             }
+
             return itemVariant.Id;
         }
-
         public int AddVariantToExistingItem(List<ItemVariant> variants)
         {
             if (variants == null || !variants.Any())
