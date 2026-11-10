@@ -65,6 +65,7 @@ builder.Services.AddScoped<ICommonService, CommonService>();
 builder.Services.AddScoped<IOrderManager, OrderManager>();
 builder.Services.AddScoped<IDevelopmentManager, DevelopmentManager>();
 builder.Services.AddScoped<IInspectionReportManager, InspectionReportManager>();
+builder.Services.AddScoped<IInspectionSite, InspectionSiteManager>();
 builder.Services.AddScoped<ITenantStore, TenantStore>();
 
 // Custom service
